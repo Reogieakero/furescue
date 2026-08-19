@@ -1,6 +1,9 @@
 import { createIcons, icons } from "lucide";
 import { Button } from "./button.js";
 
+// Tracks the currently open drawer so callers (e.g. hover-preview) can close it.
+let activeDrawer = null;
+
 // shadcn-style Drawer (bottom sheet, no framework — DOM based).
 // Usage:
 //   openDrawer({
@@ -27,10 +30,11 @@ export function openDrawer({
   body = "",
   footer = "",
   onMount = null,
+  elevated = false,
 } = {}) {
   return new Promise((resolve) => {
     const overlay = document.createElement("div");
-    overlay.className = "drawer-overlay";
+    overlay.className = "drawer-overlay" + (elevated ? " drawer-overlay--elevated" : "");
     overlay.innerHTML = `
       <div class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
         <div class="drawer-header">
@@ -48,9 +52,12 @@ export function openDrawer({
     const close = () => {
       overlay.classList.remove("is-open");
       setTimeout(() => overlay.remove(), 300);
+      if (activeDrawer === overlay) activeDrawer = null;
+      document.removeEventListener("keydown", escHandler);
       resolve();
     };
 
+    activeDrawer = overlay;
     overlay.querySelectorAll('[data-act="close"]').forEach((el) => el.addEventListener("click", close));
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) close();
@@ -65,4 +72,18 @@ export function openDrawer({
 
     if (onMount) onMount(overlay.querySelector(".drawer-body"));
   });
+}
+
+// Closes the currently open drawer (used by the hover map preview).
+export function closeDrawer() {
+  if (!activeDrawer) return;
+  const overlay = activeDrawer;
+  activeDrawer = null;
+  overlay.classList.remove("is-open");
+  setTimeout(() => overlay.remove(), 300);
+}
+
+// Returns the open drawer's overlay element, or null.
+export function getOpenDrawer() {
+  return activeDrawer;
 }

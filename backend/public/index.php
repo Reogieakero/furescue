@@ -153,5 +153,16 @@ $router->add('GET', '/api/v1/analytics/overview', fn(Request $r) => (new Analyti
 $router->add('GET', '/api/v1/analytics/adoption-trends', fn(Request $r) => (new AnalyticsController($pdo))->adoptionTrends($r), [$authMw, $adminMw]);
 $router->add('GET', '/api/v1/health/updates', fn(Request $r) => (new AnalyticsController($pdo))->healthUpdates($r), [$authMw, $adminMw]);
 
+$router->add('GET', '/api/v1/geo/reverse', function (Request $r) use ($geo) {
+    $lat = $r->query['lat'] ?? null;
+    $lng = $r->query['lng'] ?? null;
+    if (!is_numeric($lat) || !is_numeric($lng)) {
+        Response::error('INVALID_COORDS', 'lat and lng query parameters are required', 400);
+        return;
+    }
+    $result = $geo->reverseGeocode((float) $lat, (float) $lng);
+    Response::success($result ?? ['name' => null, 'road' => null, 'full' => null]);
+}, [$authMw]);
+
 $request = new Request();
 $router->dispatch($request);

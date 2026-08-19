@@ -11,7 +11,11 @@ export function PaginationContent({ children = "", className = "" } = {}) {
   return `<ul class="${cn("flex items-center gap-1", className)}">${children}</ul>`;
 }
 
-export function PaginationItem({ children = "", className = "" } = {}) {
+export function PaginationItem(childrenOrObj = "", className = "") {
+  const children =
+    typeof childrenOrObj === "string"
+      ? childrenOrObj
+      : (childrenOrObj && childrenOrObj.children) || "";
   return `<li class="${cn("", className)}">${children}</li>`;
 }
 

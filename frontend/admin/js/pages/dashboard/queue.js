@@ -4,8 +4,9 @@
 import { createIcons, icons } from "lucide";
 import { queueState, state, refreshQueue } from "./state.js";
 import { toast } from "../../../../js/components/ui/toast.js";
-import { confirmDialog, detailsDialog } from "../../../../js/components/ui/dialog.js";
+import { confirmDialog } from "../../../../js/components/ui/dialog.js";
 import { openDrawer } from "../../../../js/components/ui/drawer.js";
+import { Button } from "../../../../js/components/ui/button.js";
 import * as api from "../../lib/admin-data.js";
 import { shortId, titleCase } from "./helpers.js";
 import {
@@ -105,6 +106,45 @@ function typewriter(el, text, speed = 26) {
     setTimeout(step, speed);
   };
   step();
+}
+
+function openDetailsDrawer(key, id) {
+  const rows = buildDetailsInfo(key, id)
+    .map(
+      (row) => `
+    <div class="dialog-info-row">
+      <span class="dialog-info-label">${esc(row.label)}</span>
+      <span class="dialog-info-value">${esc(row.value)}</span>
+    </div>`
+    )
+    .join("");
+  const opts = {
+    title: DETAILS_TITLES[key] || "Details",
+    body: `<div class="dialog-info">${rows}</div>`,
+  };
+  if (key === "rescuers") {
+    opts.footer = `${Button({ text: "Reject", variant: "outline", attrs: 'data-drawer-act="reject"' })}
+      ${Button({ text: "Approve", variant: "default", attrs: 'data-drawer-act="approve"' })}`;
+    opts.onMount = (bodyEl) => {
+      const drawer = bodyEl.closest(".drawer");
+      const reject = drawer.querySelector('[data-drawer-act="reject"]');
+      const approve = drawer.querySelector('[data-drawer-act="approve"]');
+      if (reject) reject.addEventListener("click", () => runAction("reject-rescuer", id));
+      if (approve) approve.addEventListener("click", () => runAction("approve-rescuer", id));
+    };
+  }
+  if (key === "adopt") {
+    opts.footer = `${Button({ text: "Decline", variant: "outline", attrs: 'data-drawer-act="decline"' })}
+      ${Button({ text: "Approve", variant: "default", attrs: 'data-drawer-act="approve"' })}`;
+    opts.onMount = (bodyEl) => {
+      const drawer = bodyEl.closest(".drawer");
+      const decline = drawer.querySelector('[data-drawer-act="decline"]');
+      const approve = drawer.querySelector('[data-drawer-act="approve"]');
+      if (decline) decline.addEventListener("click", () => runAction("decline-adoption", id));
+      if (approve) approve.addEventListener("click", () => runAction("approve-adoption", id));
+    };
+  }
+  openDrawer(opts);
 }
 
 function buildDetailsInfo(key, id) {
@@ -339,6 +379,31 @@ function toastMessage(action, id, res) {
   return "Action completed.";
 }
 
+async function runAction(action, id) {
+  const cfg = ACTIONS[action];
+  if (!cfg || !id) return;
+  const ok = await confirmDialog({
+    title: cfg.title,
+    message: `Are you sure you want to ${cfg.confirmText.toLowerCase()} ${shortId(id)}?`,
+    info: buildInfo(action, id),
+    confirmText: cfg.confirmText,
+    cancelText: "Cancel",
+    danger: cfg.danger,
+    withReason: cfg.withReason,
+    reasonLabel: cfg.reasonLabel,
+    reasonRequired: cfg.reasonRequired,
+    run: ({ reason }) => cfg.run(id, reason),
+  });
+  if (!ok) return;
+
+  toast(toastMessage(action, id, ok), { type: "success" });
+  await refreshQueue(cfg.queue);
+  renderQueuePanel(cfg.queue);
+  updateTabCount(cfg.queue);
+  updateKpiGrid();
+  updateDecisionCount();
+}
+
 export function initQueueActions() {
   document.querySelectorAll(".queue-panel").forEach((panel) => {
     panel.addEventListener("click", async (e) => {
@@ -352,33 +417,11 @@ export function initQueueActions() {
         if (key === "reports") {
           openReportDetails(id);
         } else {
-          await detailsDialog({ title: DETAILS_TITLES[key] || "Details", info: buildDetailsInfo(key, id) });
+          openDetailsDrawer(key, id);
         }
         return;
       }
-      const cfg = ACTIONS[action];
-      if (!cfg || !id) return;
-
-      const ok = await confirmDialog({
-        title: cfg.title,
-        message: `Are you sure you want to ${cfg.confirmText.toLowerCase()} ${shortId(id)}?`,
-        info: buildInfo(action, id),
-        confirmText: cfg.confirmText,
-        cancelText: "Cancel",
-        danger: cfg.danger,
-        withReason: cfg.withReason,
-        reasonLabel: cfg.reasonLabel,
-        reasonRequired: cfg.reasonRequired,
-        run: ({ reason }) => cfg.run(id, reason),
-      });
-      if (!ok) return;
-
-      toast(toastMessage(action, id, ok), { type: "success" });
-      await refreshQueue(cfg.queue);
-      renderQueuePanel(cfg.queue);
-      updateTabCount(cfg.queue);
-      updateKpiGrid();
-      updateDecisionCount();
+      await runAction(action, id);
     });
   });
 }

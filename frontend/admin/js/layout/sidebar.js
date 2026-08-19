@@ -9,7 +9,7 @@ const NAV_GROUPS = [
     label: "Rescue Management",
     items: [
       { icon: "map-pin", label: "Reports", badgeKey: "reports", badge: "14", badgeCls: "stamp--accent" },
-      { icon: "clipboard-list", label: "Cases" },
+      { icon: "clipboard-list", label: "Cases", badgeKey: "cases" },
       { icon: "siren", label: "Rescuers" },
     ],
   },
@@ -40,27 +40,28 @@ const NAV_GROUPS = [
   },
 ];
 
-function NavItem(item, map) {
+function NavItem(item, map, activeNav) {
   const override = map && item.badgeKey ? map[item.badgeKey] : undefined;
   const value = override !== undefined ? override : item.badge;
   const badge = value
     ? `<span class="stamp stamp--sm sidebar-badge ${item.badgeCls}">${value}</span>`
     : "";
-  const tone = item.active ? " sidebar-link--active" : "";
+  const isActive = (activeNav || "dashboard") === item.label.toLowerCase();
+  const tone = isActive ? " sidebar-link--active" : "";
   return `
-    <a href="#" class="sidebar-link${tone}">
+    <a href="#" data-nav="${item.label.toLowerCase()}" class="sidebar-link${tone}">
       <i data-lucide="${item.icon}"></i> <span>${item.label}</span>
       ${badge}
     </a>`;
 }
 
-export function Sidebar({ user, badges = {}, notifications = 3 } = {}) {
+export function Sidebar({ user, badges = {}, notifications = 3, activeNav } = {}) {
   const map = { ...badges, notifications };
   const groups = NAV_GROUPS.map(
     (g) => `
     <div class="sidebar-group">
       <div class="sidebar-label">${g.label}</div>
-      <div class="sidebar-links">${g.items.map((i) => NavItem(i, map)).join("")}</div>
+      <div class="sidebar-links">${g.items.map((i) => NavItem(i, map, activeNav)).join("")}</div>
     </div>`
   ).join("");
 

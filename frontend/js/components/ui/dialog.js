@@ -1,6 +1,7 @@
 import { createIcons, icons } from "lucide";
 import { toast } from "./toast.js";
 import { Button } from "./button.js";
+import { Spinner } from "./spinner.js";
 
 // shadcn-style confirm Dialog (no framework — DOM based).
 // Usage:
@@ -159,7 +160,7 @@ export function confirmDialog({
         return;
       }
       okBtn.disabled = true;
-      okBtn.innerHTML = `<i data-lucide="loader-circle" class="dialog-spin"></i><span>${esc(confirmText)}</span>`;
+      okBtn.innerHTML = `${Spinner({ size: 16 })}<span>${esc(confirmText)}</span>`;
       createIcons({ icons });
       try {
         const result = run ? await run({ reason: reasonEl ? reasonEl.value.trim() : "" }) : null;

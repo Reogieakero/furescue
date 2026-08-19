@@ -20,11 +20,7 @@ export const fetchOverview = () =>
 export const fetchReports = (status = "pending_verification") =>
   list(`/reports?status=${status}`);
 
-export const fetchRescuerApplicants = () =>
-  list("/users?role=rescuer&account_status=pending");
-
-export const fetchRescuers = () =>
-  list("/users?role=rescuer&account_status=active");
+export const fetchAllReports = () => list("/reports");
 
 export const fetchAdoptions = (status = "pending") =>
   list(`/adoptions?status=${status}`);
@@ -49,9 +45,30 @@ export const fetchHealthUpdates = () =>
 export const fetchHeatmap = () =>
   raw("/reports/map/heatmap").then((d) => (d && d.points) || []);
 
+// Reverse-geocodes a report's coordinates into a specific place name.
+// Returns { name, road, full } or null on the data payload.
+export const reverseGeocode = (lat, lng) =>
+  raw(`/geo/reverse?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`);
+
 async function post(path, body = {}) {
   return apiFetchFull(path, { method: "POST", body });
 }
+
+async function patch(path, body = {}) {
+  return apiFetchFull(path, { method: "PATCH", body });
+}
+
+export const fetchRescuers = () =>
+  list("/users?role=rescuer&account_status=active");
+
+export const assignRescuer = (caseId, rescuerId) =>
+  post(`/cases/${caseId}/assign`, { rescuer_id: rescuerId });
+
+export const updateCaseStatus = (caseId, status) =>
+  patch(`/cases/${caseId}/status`, { status });
+
+export const fetchCaseActivity = (caseId) =>
+  raw(`/cases/${caseId}/activity`).then((d) => (d && d.activity) || []);
 
 export const verifyReport = (id) => post(`/reports/${id}/verify`);
 export const dismissReport = (id, reason) =>

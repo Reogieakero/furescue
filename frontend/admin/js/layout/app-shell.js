@@ -3,10 +3,10 @@
 import { Sidebar } from "./sidebar.js";
 import { Topbar } from "./topbar.js";
 
-export function AppShell({ user, badges = {}, notifications = 3, children = "" } = {}) {
+export function AppShell({ user, badges = {}, notifications = 3, activeNav, children = "" } = {}) {
   return `
   <div class="admin-shell">
-    ${Sidebar({ user, badges, notifications })}
+    ${Sidebar({ user, badges, notifications, activeNav })}
     <div id="overlay" class="admin-overlay"></div>
     <div class="admin-body">
       ${Topbar({ user })}
@@ -16,6 +16,14 @@ export function AppShell({ user, badges = {}, notifications = 3, children = "" }
     </div>
   </div>`;
 }
+
+// Maps a sidebar nav key to its admin HTML page. Only pages that exist are
+// listed; other links stay inert until their screens are built.
+const NAV_TARGETS = {
+  dashboard: "index.html",
+  reports: "reports.html",
+  cases: "cases.html",
+};
 
 export function initShell() {
   const sidebar = document.getElementById("sidebar");
@@ -36,5 +44,13 @@ export function initShell() {
   if (overlay) overlay.addEventListener("click", close);
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") close();
+  });
+
+  sidebar.querySelectorAll(".sidebar-link[data-nav]").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const target = NAV_TARGETS[link.dataset.nav];
+      if (target) window.location.href = target;
+    });
   });
 }

@@ -171,7 +171,7 @@ class ReportController extends AbstractController
                 $caseId = $caseRepo->create([
                     'id' => Database::uuidV4(),
                     'report_id' => $report['id'],
-                    'status' => 'assigned',
+                    'status' => 'open',
                 ]);
             } else {
                 $caseId = $existing['id'];
