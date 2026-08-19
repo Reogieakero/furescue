@@ -1,0 +1,19 @@
+# Local tooling / environment
+.env
+.pma/
+pma/
+tmp/
+.agents/
+.kilo/
+.idea/
+.vscode/
+*.log
+skills-lock.json
+
+# PHP
+backend/vendor/
+backend/.phpunit.result.cache
+
+# Node
+frontend/node_modules/
+node_modules/

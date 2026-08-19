@@ -1,0 +1,352 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================================
+   FurEscue — Shared base (compiled by Tailwind CLI: css/input.css -> css/style.css)
+   Contains: shadcn/ui theme tokens, reset, globals, brand/logo, lucide,
+   and shared component styles (Input, button icons).
+   Page-specific styles live in their own folders:
+     landing/css/landing.css, auth/css/auth.css, admin/css/admin.css
+   ========================================================================= */
+
+/* ---------- shadcn theme tokens (Spot palette: paper / ink / jungle) ---------- */
+:root {
+  --background: 210 4% 97%; /* paper */
+  --foreground: 213 72% 16%; /* ink */
+  --card: 0 0% 100%;
+  --card-foreground: 213 72% 16%;
+  --primary: 211 71% 38%; /* coral */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 208 59% 91%; /* paperdark */
+  --secondary-foreground: 213 72% 16%;
+  --muted: 208 59% 91%; /* paperdark */
+  --muted-foreground: 215 16% 47%; /* stamp */
+  --accent: 208 59% 91%;
+  --accent-foreground: 213 68% 25%; /* jungle */
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 213 40% 90%;
+  --input: 213 40% 90%;
+  --ring: 199 74% 53%; /* jungle2 */
+  --radius: 0.5rem;
+
+  /* Spot palette (named tokens, admin + shared UI) */
+  --paper: 210 4% 97%;
+  --paperdark: 208 59% 91%;
+  --ink: 213 72% 16%;
+  --jungle: 213 68% 25%;
+  --jungle2: 199 74% 53%;
+  --coral: 211 71% 38%;
+  --teal: 206 50% 53%;
+  --stamp: 215 16% 47%;
+
+  /* typography */
+  --font-sans: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* page extras */
+  --brand-1: 211 71% 38%; /* coral */
+  --brand-2: 199 74% 53%; /* jungle2 */
+  --surface-soft: 208 59% 91%;
+  --max-width: 1180px;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 10px 30px -12px rgba(15, 23, 42, 0.18);
+}
+
+.dark {
+  --background: 213 45% 8%;
+  --foreground: 210 40% 96%;
+  --card: 213 42% 12%;
+  --card-foreground: 210 40% 96%;
+  --primary: 199 74% 60%;
+  --primary-foreground: 213 72% 16%;
+  --secondary: 213 36% 18%;
+  --secondary-foreground: 210 40% 96%;
+  --muted: 213 36% 18%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 213 40% 20%;
+  --accent-foreground: 199 74% 80%;
+  --destructive: 0 62.8% 45%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 213 33% 20%;
+  --input: 213 33% 20%;
+  --ring: 199 74% 60%;
+
+  --brand-1: 199 74% 60%;
+  --brand-2: 199 80% 68%;
+  --surface-soft: 213 42% 11%;
+  --shadow-md: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- reset & base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+.text-primary {
+  color: hsl(var(--primary));
+}
+
+/* ---------- lucide icons ---------- */
+.lucide {
+  width: 1em;
+  height: 1em;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+
+.badge-icon {
+  margin-right: 0.3rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.icon {
+  margin-right: 0.35rem;
+  flex-shrink: 0;
+}
+
+/* ---------- shared Input component (js/components/ui/input.js) ---------- */
+.input {
+  display: flex;
+  width: 100%;
+  height: 2.5rem;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  padding: 0 0.75rem;
+  font: inherit;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+.input:focus {
+  outline: none;
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.25);
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- separator (shadcn-style) ---------- */
+.separator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.separator::before,
+.separator::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: hsl(var(--border));
+}
+
+/* ---------- toast (shadcn-style) ---------- */
+.toast-viewport {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(360px, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  box-shadow: var(--shadow-md);
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-icon {
+  margin-top: 0.1rem;
+  width: 1.15em;
+  height: 1.15em;
+  flex-shrink: 0;
+}
+
+.toast--success .toast-icon {
+  color: hsl(150 70% 32%);
+}
+
+.toast--error .toast-icon {
+  color: hsl(var(--destructive));
+}
+
+.toast--info .toast-icon {
+  color: hsl(var(--primary));
+}
+
+.toast-message {
+  flex: 1;
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.toast-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.toast-close:hover {
+  background: hsl(var(--accent));
+  color: hsl(var(--foreground));
+}
+
+.toast-close .lucide {
+  width: 14px;
+  height: 14px;
+}
+
+/* ---------- overlay loader (js/components/ui/loader.js) ---------- */
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: hsl(var(--background) / 0.55);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.loader-overlay.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.loader-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 2rem;
+  border-radius: 0.9rem;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  box-shadow: var(--shadow-md);
+}
+
+.loader-icon {
+  width: 28px;
+  height: 28px;
+  color: hsl(var(--primary));
+}
+
+.loader-text {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ---------- brand / logo (shared across pages) ---------- */
+.logo-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, hsl(var(--brand-1)), hsl(var(--brand-2)));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.logo-mark .lucide {
+  width: 18px;
+  height: 18px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: 1.05rem;
+}
+
+/* ---------- motion (respect reduced motion) ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -1,0 +1,252 @@
+/* =========================================================================
+   FurEscue — Auth page styles (this file is for the auth pages ONLY)
+   Shared tokens/base live in ../css/style.css (built from ../css/input.css).
+   ========================================================================= */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+}
+
+.auth-split {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ---------- left brand panel ---------- */
+.auth-panel {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(
+    160deg,
+    hsl(var(--brand-1)),
+    hsl(var(--brand-2)) 55%,
+    hsl(222 47% 26%)
+  );
+  display: flex;
+  align-items: center;
+}
+
+.auth-panel::before {
+  content: "";
+  position: absolute;
+  top: -140px;
+  right: -140px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  pointer-events: none;
+}
+
+.auth-panel::after {
+  content: "";
+  position: absolute;
+  bottom: -90px;
+  left: -90px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
+.auth-panel-inner {
+  position: relative;
+  max-width: 420px;
+  margin-inline: auto;
+  padding: 2.5rem;
+}
+
+.auth-brand {
+  margin-bottom: 3rem;
+}
+
+.auth-brand .logo-mark {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+}
+
+.auth-panel-title {
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0 0 1rem;
+}
+
+.auth-panel-sub {
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.92;
+  margin: 0 0 2.25rem;
+}
+
+.auth-points {
+  display: grid;
+  gap: 0.9rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.auth-points li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.auth-points .lucide {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- right form side ---------- */
+.auth-form-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background: hsl(var(--background));
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  box-shadow: var(--shadow-md);
+}
+
+.auth-card-head {
+  text-align: left;
+  padding-bottom: 1.25rem;
+}
+
+.auth-card-title {
+  font-size: 1.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.auth-card-body {
+  padding-top: 0;
+}
+
+.auth-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.input-wrap .input {
+  padding-right: 2.75rem;
+}
+
+.input-affix {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.input-affix:hover {
+  color: hsl(var(--foreground));
+  background: hsl(var(--accent));
+}
+
+.auth-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.auth-remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  color: hsl(var(--muted-foreground));
+}
+
+.auth-link {
+  font-weight: 700;
+  color: hsl(var(--primary));
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-submit {
+  width: 100%;
+}
+
+.auth-card-foot {
+  flex-direction: column;
+  gap: 0.7rem;
+  padding-top: 0.15rem;
+}
+
+.auth-alt {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+}
+
+.google-icon {
+  flex-shrink: 0;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 860px) {
+  .auth-split {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-panel {
+    min-height: 42vh;
+  }
+
+  .auth-panel-inner {
+    max-width: 480px;
+  }
+
+  .auth-brand {
+    margin-bottom: 1.5rem;
+  }
+
+  .auth-panel-sub {
+    margin-bottom: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-form-side {
+    padding: 2rem 1rem;
+  }
+}
