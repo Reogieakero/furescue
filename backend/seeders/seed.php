@@ -226,12 +226,15 @@ for ($i = 0; $i < count($spots); $i++) {
     $contentHash = substr(hash('sha256', $brgy . $desc), 0, 64);
 
     if (rowExists($pdo, 'reports', 'content_hash = ?', [$contentHash])) {
+        $pdo->prepare('UPDATE reports SET photo_urls = COALESCE(photo_urls, ?) WHERE content_hash = ?')
+            ->execute([json_encode(["/uploads/demo/report-{$i}.svg"]), $contentHash]);
         continue;
     }
 
     $reportId = insert($pdo, 'reports', [
         'resident_id'         => $resident,
         'animal_description'  => $desc,
+        'photo_urls'          => json_encode(["/uploads/demo/report-{$i}.svg"]),
         'latitude'            => $lat,
         'longitude'           => $lng,
         'address_text'        => "{$brgy}, City of Mati",

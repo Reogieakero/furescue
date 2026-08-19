@@ -2,11 +2,14 @@
 import { AppShell } from "../../layout/app-shell.js";
 import { PaginationBar } from "../../../../js/components/ui/pagination.js";
 import { Select } from "../../../../js/components/ui/select.js";
+import { Button } from "../../../../js/components/ui/button.js";
 import { state, queueState } from "./state.js";
-import { shortId, truncate, initials, timeAgo } from "./helpers.js";
+import { shortId, initials, timeAgo, titleCase } from "./helpers.js";
 
 const QUEUE_PAGE_SIZE = 7;
 const ACTIVITY_PAGE_SIZE = 5;
+
+const ChevronRight = () => '<i data-lucide="chevron-right" class="link-chevron"></i>';
 
 function EmptyState({ icon = "inbox", text = "No records." } = {}) {
   return `<div class="empty-state"><i data-lucide="${icon}"></i><span>${text}</span></div>`;
@@ -33,11 +36,11 @@ function Greeting(user) {
     <div>
       <span class="stamp stamp--coral">Command Center</span>
       <h1 class="greeting-title">Good morning, ${name}</h1>
-      <p class="greeting-sub">${state.decisionCount} items need a decision today across reports, rescuers, health records, and adoptions.</p>
+      <p class="greeting-sub" id="greeting-sub">${state.decisionCount} items need a decision today across reports, rescuers, health records, and adoptions.</p>
     </div>
     <div class="greeting-actions">
-      <button class="btn btn-outline"><i data-lucide="download"></i> Export Report</button>
-      <button class="btn btn-solid"><i data-lucide="megaphone"></i> New Announcement</button>
+      ${Button({ text: "Export Report", variant: "outline", icon: "download" })}
+      ${Button({ text: "New Announcement", variant: "default", icon: "megaphone" })}
     </div>
   </div>`;
 }
@@ -48,9 +51,9 @@ function buildKpis() {
   const o = state.overview;
   return [
     { icon: "map-pin", value: o.reports, label: "Active reports", note: null },
-    { icon: "badge-check", value: state.reportsPending.total, label: "Pending verify", note: state.reportsPending.total ? { text: "needs you", cls: "kpi-note--coral" } : null },
+    { icon: "badge-check", value: state.reportsPending.total, label: "Pending verify", note: state.reportsPending.total ? { text: "Needs You", cls: "kpi-note--coral" } : null },
     { icon: "siren", value: o.rescuers_on_duty, label: "Rescuers on duty", note: null },
-    { icon: "heart-pulse", value: state.healthUpdates.total, label: "Health updates", note: state.healthUpdates.total ? { text: "recent", cls: "kpi-note--muted" } : null },
+    { icon: "heart-pulse", value: state.healthUpdates.total, label: "Health updates", note: state.healthUpdates.total ? { text: "Recent", cls: "kpi-note--muted" } : null },
     { icon: "home", value: o.adoptions_pending, label: "Pending adoptions" },
     { icon: "check-circle-2", value: o.cases_resolved, label: "Resolved cases", dark: true },
   ];
@@ -71,8 +74,8 @@ function KpiTile(k) {
   </div>`;
 }
 
-function KpiGrid() {
-  return `<div class="kpi-grid">${buildKpis().map(KpiTile).join("")}</div>`;
+export function KpiGrid() {
+  return `<div class="kpi-grid" id="kpi-grid">${buildKpis().map(KpiTile).join("")}</div>`;
 }
 
 /* ---------- queue tabs (Needs your attention) ---------- */
@@ -98,13 +101,11 @@ function paginationBar(key, total) {
 }
 
 function mapReport(r) {
-  const desc = String(r.animal_description || "").trim();
   return {
     id: shortId(r.id),
+    rid: r.id,
     brgy: r.address_text || "—",
     reporter: shortId(r.resident_id),
-    cond: truncate(desc || "—", 18),
-    condCls: r.validation_status === "validated" ? "stamp--accent" : "stamp--muted",
     when: timeAgo(r.created_at),
   };
 }
@@ -112,6 +113,7 @@ function mapReport(r) {
 function mapRescuerApplicant(u) {
   return {
     name: u.full_name || "Unnamed applicant",
+    rid: u.id,
     img: u.profile_photo_url || "",
     org: u.phone_number || "—",
     file: "—",
@@ -124,20 +126,23 @@ function mapHealthUpdate(h) {
   const animal = [h.animal_name || "", h.breed_type || ""].filter(Boolean).join(", ") || "Unnamed animal";
   return {
     id: shortId(h.id),
+    rid: h.id,
     animal,
     by: h.logged_by_name || "—",
     when: timeAgo(h.logged_at),
     icon: h.species === "cat" ? "cat" : "paw-print",
-    status: healthy ? "Stable" : "Needs attention",
-    statusCls: healthy ? "stamp--accent" : "stamp--coral",
-    note: `Rescue status: ${String(h.rescue_status || "rescued").replace(/_/g, " ")} &middot; ${healthy ? "Stable" : "Needs attention"}.`,
+    ok: healthy,
+    rescue: titleCase(h.rescue_status) || "Rescued",
+    status: healthy ? "Stable" : "Needs Attention",
+    statusCls: healthy ? "hc-card--accent" : "hc-card--coral",
   };
 }
 
 function mapAdoption(a) {
   return {
-    name: shortId(a.applicant_id),
-    animal: shortId(a.animal_id),
+    name: a.applicant_name || shortId(a.applicant_id),
+    rid: a.id,
+    animal: a.animal_name || shortId(a.animal_id),
     visit: "—",
     visitCls: "status-text--muted",
     when: timeAgo(a.created_at),
@@ -155,7 +160,7 @@ function mapCase(c) {
     animal: "—",
     brgy: "—",
     rescuer: "—",
-    status: status.replace(/_/g, " "),
+    status: titleCase(status),
     statusCls,
     when: timeAgo(c.updated_at || c.created_at),
   };
@@ -173,12 +178,12 @@ export function ReportsQueueInner() {
       <td class="table-cell table-cell--mono table-cell--strong">${r.id}</td>
       <td class="table-cell">${r.brgy}</td>
       <td class="table-cell">${r.reporter}</td>
-      <td class="table-cell"><span class="stamp stamp--sm ${r.condCls}">${r.cond}</span></td>
       <td class="table-cell table-cell--mono table-cell--muted">${r.when}</td>
       <td class="table-cell table-cell--right table-cell--nowrap">
         <span class="table-actions">
-          <button class="btn btn-sm btn-accent">Verify</button>
-          <button class="btn btn-sm btn-ghost-danger">Dismiss</button>
+          <a href="#" class="action-link" data-action="details" data-id="${r.rid}">Details</a>
+          <a href="#" class="action-link" data-action="verify" data-id="${r.rid}">Verify</a>
+          <a href="#" class="action-link action-link--danger" data-action="dismiss" data-id="${r.rid}">Dismiss</a>
         </span>
       </td>
     </tr>`
@@ -186,11 +191,11 @@ export function ReportsQueueInner() {
   return `
     <div class="table-wrap">
       <table class="table">
-        ${TableHead(["Case", "Barangay", "Reporter", "Condition", "Submitted", "Action"])}
+        ${TableHead(["Case", "Barangay", "Reporter", "Submitted", "Action"])}
         <tbody>${rows}</tbody>
       </table>
     </div>
-    <div class="panel-foot"><a href="#" class="btn-link">View all ${state.reportsPending.total} reports &rarr;</a></div>
+    <div class="panel-foot"><a href="#" class="btn-link">View all ${state.reportsPending.total} reports ${ChevronRight()}</a></div>
     ${paginationBar("reports", list.length)}`;
 }
 
@@ -209,8 +214,9 @@ export function RescuersQueueInner() {
       <td class="table-cell table-cell--mono table-cell--muted">${r.when}</td>
       <td class="table-cell table-cell--right table-cell--nowrap">
         <span class="table-actions">
-          <button class="btn btn-sm btn-accent">Approve</button>
-          <button class="btn btn-sm btn-ghost-danger">Reject</button>
+          <a href="#" class="action-link" data-action="details" data-id="${r.rid}">Details</a>
+          <a href="#" class="action-link" data-action="approve-rescuer" data-id="${r.rid}">Approve</a>
+          <a href="#" class="action-link action-link--danger" data-action="reject-rescuer" data-id="${r.rid}">Reject</a>
         </span>
       </td>
     </tr>`
@@ -239,7 +245,12 @@ export function HealthQueueInner() {
       <td class="table-cell">${r.by}</td>
       <td class="table-cell table-cell--muted">${r.status}</td>
       <td class="table-cell table-cell--mono table-cell--muted">${r.when}</td>
-      <td class="table-cell table-cell--right table-cell--nowrap"><button class="btn btn-sm btn-accent">View record</button></td>
+      <td class="table-cell table-cell--right table-cell--nowrap">
+        <span class="table-actions">
+          <a href="#" class="action-link" data-action="details" data-id="${r.rid}">Details</a>
+          <a href="#" class="action-link">View record</a>
+        </span>
+      </td>
     </tr>`
     ).join("");
   return `
@@ -267,8 +278,9 @@ export function AdoptionQueueInner() {
       <td class="table-cell table-cell--mono table-cell--muted">${r.when}</td>
       <td class="table-cell table-cell--right table-cell--nowrap">
         <span class="table-actions">
-          <button class="btn btn-sm btn-accent">Approve</button>
-          <button class="btn btn-sm btn-ghost-danger">Decline</button>
+          <a href="#" class="action-link" data-action="details" data-id="${r.rid}">Details</a>
+          <a href="#" class="action-link" data-action="approve-adoption" data-id="${r.rid}">Approve</a>
+          <a href="#" class="action-link action-link--danger" data-action="decline-adoption" data-id="${r.rid}">Decline</a>
         </span>
       </td>
     </tr>`
@@ -280,7 +292,7 @@ export function AdoptionQueueInner() {
         <tbody>${rows}</tbody>
       </table>
     </div>
-    <div class="panel-foot"><a href="#" class="btn-link">View all ${state.adoptionsPending.total} applications &rarr;</a></div>
+    <div class="panel-foot"><a href="#" class="btn-link">View all ${state.adoptionsPending.total} applications ${ChevronRight()}</a></div>
     ${paginationBar("adopt", list.length)}`;
 }
 
@@ -315,7 +327,7 @@ function HealthCarousel() {
   <div class="panel health-carousel">
     <div class="panel-head">
       <div class="panel-title-wrap"><i data-lucide="heart-pulse"></i><h2 class="panel-title panel-title--sm">Recent health updates</h2></div>
-      <span class="stamp stamp--sm stamp--accent">0 updates</span>
+      <span class="stamp stamp--sm stamp--accent">0 Updates</span>
     </div>
     <div class="carousel">
       <div class="carousel-empty">
@@ -333,9 +345,23 @@ function HealthCarousel() {
           <div class="hc-animal">${h.animal}</div>
           <div class="hc-when">${h.when}</div>
         </div>
-        ${h.status ? `<span class="stamp stamp--sm ${h.statusCls} hc-status">${h.status}</span>` : ""}
       </div>
-      <p class="hc-note">${h.note}</p>
+      <div class="hc-cards">
+        <div class="hc-card">
+          <span class="hc-card-icon"><i data-lucide="shield-check"></i></span>
+          <div class="hc-card-body">
+            <span class="hc-card-label">Rescue status</span>
+            <span class="hc-card-value hc-card--accent">${h.rescue}</span>
+          </div>
+        </div>
+        <div class="hc-card ${h.statusCls}">
+          <span class="hc-card-icon"><i data-lucide="activity"></i></span>
+          <div class="hc-card-body">
+            <span class="hc-card-label">Health</span>
+            <span class="hc-card-value">${h.status}</span>
+          </div>
+        </div>
+      </div>
     </div>`;
   const dotsHtml = list
     .map((_, i) => `<button class="carousel-dot${i === 0 ? " is-active" : ""}" data-i="${i}" aria-label="Slide ${i + 1}"></button>`)
@@ -344,7 +370,7 @@ function HealthCarousel() {
   <div class="panel health-carousel">
     <div class="panel-head">
       <div class="panel-title-wrap"><i data-lucide="heart-pulse"></i><h2 class="panel-title panel-title--sm">Recent health updates</h2></div>
-      <span class="stamp stamp--sm stamp--accent">${list.length} updates</span>
+      <span class="stamp stamp--sm stamp--accent">${list.length} Updates</span>
     </div>
     <div class="carousel">
       <div class="carousel-track">${list.map(slideHtml).join("")}${slideHtml(list[0])}</div>
@@ -380,7 +406,10 @@ function RescuersCard() {
   <div class="panel">
     <div class="panel-head">
       <div class="panel-title-wrap"><i data-lucide="siren"></i><h2 class="panel-title panel-title--sm">Rescuers on duty</h2></div>
-      <span class="stamp stamp--sm stamp--accent">${state.overview.rescuers_on_duty} active</span>
+      <div class="rescuer-head-tools">
+        <span class="stamp stamp--sm stamp--accent">${state.overview.rescuers_on_duty} Active</span>
+        <a href="#" class="btn-link">View all ${ChevronRight()}</a>
+      </div>
     </div>
     ${rows ? `<div class="rescuer-list">${rows}</div>` : EmptyState({ icon: "siren", text: "No rescuers on duty." })}
   </div>`;
@@ -417,11 +446,11 @@ function MapCard() {
           ],
         })}
         <button type="button" id="map-expand" class="map-expand" aria-label="Expand map" title="Expand map"><i data-lucide="maximize"></i></button>
-        <a href="#" class="btn-link">Open full map &rarr;</a>
+        <a href="#" class="btn-link">Open full map ${ChevronRight()}</a>
       </div>
     </div>
     <div id="case-density-map" class="map-canvas map-canvas--leaflet"></div>
-    <div class="map-foot"><span id="heat-count">0</span> active pins &middot; live</div>
+    <div class="map-foot"><span id="heat-count">0</span> Active pins &middot; Live</div>
   </div>`;
 }
 
@@ -463,7 +492,7 @@ function ActivityTable() {
   <div class="panel">
     <div class="panel-head">
       <div class="panel-title-wrap"><i data-lucide="list"></i><h2 class="panel-title">Recent case activity</h2></div>
-      <a href="#" class="btn-link">View all cases &rarr;</a>
+      <a href="#" class="btn-link">View all cases ${ChevronRight()}</a>
     </div>
     <div id="activity-table" class="activity-table">${ActivityInner()}</div>
   </div>`;
@@ -483,7 +512,7 @@ function ChartCard() {
       : ` &middot; <span class="chart-foot-accent">${state.growth > 0 ? "+" : ""}${state.growth}% vs last week</span>`;
   return `
   <div class="panel panel--padded">
-    <div class="panel-title-wrap"><i data-lucide="bar-chart-3"></i><h2 class="panel-title panel-title--sm">Adoptions this week</h2></div>
+    <div class="panel-title-wrap"><i data-lucide="bar-chart-3"></i><h2 class="panel-title panel-title--sm">Report this week</h2></div>
     <div class="chart">${bars}</div>
     <div class="chart-foot">
       <span class="chart-foot-muted">Total approved</span>
@@ -506,7 +535,7 @@ function ElearningCard() {
       <span class="ec-category">${m.category || "Module"}</span>
       <h3 class="ec-title">${m.title || "Untitled module"}</h3>
       <p class="ec-meta">${timeAgo(m.created_at)} &middot; Published</p>
-      <a href="#" class="btn-link ec-link">Read module &rarr;</a>
+      <a href="#" class="btn-link ec-link">Read module ${ChevronRight()}</a>
     </div>`;
   const dotsHtml = list
     .map((_, i) => `<button class="carousel-dot${i === 0 ? " is-active" : ""}" data-i="${i}" aria-label="Slide ${i + 1}"></button>`)
@@ -520,7 +549,7 @@ function ElearningCard() {
       </div>
       <div class="carousel-dots">${dotsHtml}</div>
     </div>
-    <button class="btn btn-block btn-border-jungle elearn-action">Manage content</button>
+    ${Button({ text: "Manage content", variant: "outline", className: "w-full elearn-action" })}
   </div>`;
 }
 

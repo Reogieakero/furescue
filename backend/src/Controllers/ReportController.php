@@ -79,7 +79,7 @@ class ReportController extends AbstractController
     public function index(Request $req): void
     {
         $repo = $this->repo('reports', [
-            'id','resident_id','animal_description','latitude','longitude','address_text',
+            'id','resident_id','animal_description','photo_urls','latitude','longitude','address_text',
             'validation_status','status','duplicate_of_report_id','created_at'
         ]);
         $filters = [];

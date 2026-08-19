@@ -31,6 +31,20 @@ require __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->safeLoad();
 
+// Serve uploaded media (photos) directly; everything else goes through the router.
+$uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+if (is_string($uri) && str_starts_with($uri, '/uploads/')) {
+    $file = __DIR__ . $uri;
+    if (is_file($file)) {
+        $types = ['svg' => 'image/svg+xml', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'gif' => 'image/gif', 'webp' => 'image/webp'];
+        $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+        header('Content-Type: ' . ($types[$ext] ?? 'application/octet-stream'));
+        header('Content-Length: ' . (string) filesize($file));
+        readfile($file);
+        exit;
+    }
+}
+
 set_error_handler(function ($no, $str, $file, $line) {
     if (!(error_reporting() & $no)) return false;
     Response::error('SERVER_ERROR', "{$str} in {$file}:{$line}", 500);

@@ -23,6 +23,16 @@ export function initials(name) {
     .toUpperCase();
 }
 
+// Title-cases display text/statuses, e.g. "pending_verification" -> "Pending Verification".
+export function titleCase(value) {
+  return String(value ?? "")
+    .replace(/_/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 export function timeAgo(value) {
   if (!value) return "—";
   const date = new Date(value);

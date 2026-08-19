@@ -48,3 +48,16 @@ export const fetchHealthUpdates = () =>
 
 export const fetchHeatmap = () =>
   raw("/reports/map/heatmap").then((d) => (d && d.points) || []);
+
+async function post(path, body = {}) {
+  return apiFetchFull(path, { method: "POST", body });
+}
+
+export const verifyReport = (id) => post(`/reports/${id}/verify`);
+export const dismissReport = (id, reason) =>
+  post(`/reports/${id}/dismiss`, { dismiss_reason: reason });
+export const approveRescuer = (id) => post(`/admin/rescuers/${id}/approve`);
+export const rejectRescuer = (id) => post(`/admin/rescuers/${id}/reject`);
+export const approveAdoption = (id) => post(`/adoptions/${id}/approve`);
+export const rejectAdoption = (id, reason) =>
+  post(`/adoptions/${id}/reject`, { rejection_reason: reason });

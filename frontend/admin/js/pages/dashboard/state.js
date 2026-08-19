@@ -69,3 +69,22 @@ export async function loadDashboard() {
   state.decisionCount =
     state.reportsPending.total + state.rescuersPending.total + state.healthUpdates.total + state.adoptionsPending.total;
 }
+
+// Refetches a single pending queue (after an admin action) and keeps the
+// overview + decision count in sync, without reloading the whole dashboard.
+export async function refreshQueue(key) {
+  const fetchers = {
+    reports: api.fetchReports("pending_verification"),
+    rescuers: api.fetchRescuerApplicants(),
+    adopt: api.fetchAdoptions("pending"),
+  };
+  const result = await safe(fetchers[key], { items: [], total: 0 });
+  const overview = await safe(api.fetchOverview(), null);
+
+  if (key === "reports") state.reportsPending = { items: result.items || [], total: result.total || 0 };
+  if (key === "rescuers") state.rescuersPending = { items: result.items || [], total: result.total || 0 };
+  if (key === "adopt") state.adoptionsPending = { items: result.items || [], total: result.total || 0 };
+  if (overview) state.overview = overview;
+  state.decisionCount =
+    state.reportsPending.total + state.rescuersPending.total + state.healthUpdates.total + state.adoptionsPending.total;
+}

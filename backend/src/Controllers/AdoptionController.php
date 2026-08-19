@@ -38,16 +38,36 @@ class AdoptionController extends AbstractController
 
     public function index(Request $req): void
     {
-        $repo = $this->repo('adoptions');
-        $filters = [];
+        $where = [];
+        $params = [];
         if ($req->user['role'] === 'resident') {
-            $filters['applicant_id'] = $req->user['id'];
+            $where[] = 'a.applicant_id = ?';
+            $params[] = $req->user['id'];
         }
         if (!empty($req->query['status'])) {
-            $filters['status'] = $req->query['status'];
+            $where[] = 'a.status = ?';
+            $params[] = $req->query['status'];
         }
-        $result = $repo->paginate($this->page($req), $this->perPage($req), $filters);
-        Response::paginated($result['items'], $this->meta($result['page'], $result['per_page'], $result['total']));
+        $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        $page = $this->page($req);
+        $perPage = $this->perPage($req);
+
+        $totalStmt = $this->pdo->prepare("SELECT COUNT(*) FROM adoptions a {$whereSql}");
+        $totalStmt->execute($params);
+        $total = (int) $totalStmt->fetchColumn();
+
+        $stmt = $this->pdo->prepare(
+            "SELECT a.*, u.full_name AS applicant_name, an.name AS animal_name
+             FROM adoptions a
+             LEFT JOIN users u ON u.id = a.applicant_id
+             LEFT JOIN animals an ON an.id = a.animal_id
+             {$whereSql}
+             ORDER BY a.created_at DESC
+             LIMIT " . (int) $perPage . " OFFSET " . (int) (($page - 1) * $perPage)
+        );
+        $stmt->execute($params);
+        Response::paginated($stmt->fetchAll(\PDO::FETCH_ASSOC), $this->meta($page, $perPage, $total));
     }
 
     public function show(Request $req): void
