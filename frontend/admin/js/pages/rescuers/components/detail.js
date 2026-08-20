@@ -2,7 +2,7 @@ import { createIcons, icons } from "lucide";
 import { esc } from "./util.js";
 import { shortId, timeAgo, titleCase } from "../../dashboard/helpers.js";
 import { rescuerAvatar } from "../../dashboard/components/util.js";
-import { state } from "../state.js";
+import { state, persistSelection } from "../state.js";
 import * as api from "../../../../js/lib/admin-data.js";
 
 function caseStampCls(status) {
@@ -271,6 +271,7 @@ export async function selectRescuer(id) {
   if (state.selectedId !== id) return;
   state.selectedRescuer = rescuer;
   state.selectedRescuerCases = casesRes.items || [];
+  persistSelection();
   renderRescuerDetail();
 }
 

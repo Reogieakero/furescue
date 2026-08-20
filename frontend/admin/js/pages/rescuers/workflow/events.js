@@ -1,6 +1,6 @@
 import { createIcons, icons } from "lucide";
-import { state, loadRescuers } from "../state.js";
-import { RescuerTable, rerenderAll, selectRescuer, toggleCaseNode, openRescuerModal } from "../components.js";
+import { state, loadRescuers, persistSelection } from "../state.js";
+import { RescuerTable, rerenderAll, selectRescuer, toggleCaseNode, openRescuerModal, renderRescuerDetail } from "../components.js";
 import { runApprove, runReject, runSuspend, runActivate } from "./actions.js";
 
 export function initRescuerEvents() {
@@ -13,6 +13,7 @@ export function initRescuerEvents() {
     if (tab) {
       state.filter = tab.dataset.filter;
       state.page = 1;
+      persistSelection();
       rerenderAll();
       return;
     }
@@ -22,6 +23,7 @@ export function initRescuerEvents() {
       const page = parseInt(pageBtn.dataset.page, 10);
       if (!page || page === state.page) return;
       state.page = page;
+      persistSelection();
       const table = document.getElementById("rescuer-table");
       if (table) {
         table.innerHTML = RescuerTable();
@@ -64,10 +66,19 @@ export function initRescuerEvents() {
     if (!s) return;
     state.query = s.value;
     state.page = 1;
+    persistSelection();
     const table = document.getElementById("rescuer-table");
     if (table) {
       table.innerHTML = RescuerTable();
       createIcons({ icons });
     }
   });
+}
+
+export function restoreSelection() {
+  if (!state.selectedId) return;
+  renderRescuerDetail();
+  if (state.selectedRescuer === undefined) {
+    selectRescuer(state.selectedId);
+  }
 }

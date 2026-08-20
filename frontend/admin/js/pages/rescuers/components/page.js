@@ -25,7 +25,7 @@ function PageHead() {
 
 function RescuersPanel() {
   return `
-  <div class="panel">
+  <div class="panel rescuer-record-panel">
     <div class="panel-head">
       <div class="panel-title-wrap">
         <i data-lucide="siren"></i>

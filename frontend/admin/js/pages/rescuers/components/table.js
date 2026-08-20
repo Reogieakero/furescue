@@ -5,7 +5,7 @@ import { shortId, timeAgo } from "../../dashboard/helpers.js";
 import { rescuerAvatar } from "../../dashboard/components/util.js";
 import { state } from "../state.js";
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 10;
 
 function filteredRescuers() {
   const q = state.query.trim().toLowerCase();

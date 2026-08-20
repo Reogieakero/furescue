@@ -2,8 +2,8 @@ import { createIcons, icons } from "lucide";
 import { requireAuth } from "../../js/lib/api.js";
 import { initShell } from "./layout/app-shell.js";
 import { RescuersPage } from "./pages/rescuers/components.js";
-import { loadRescuers, hydrateFromCache } from "./pages/rescuers/state.js";
-import { initRescuerEvents } from "./pages/rescuers/workflow.js";
+import { loadRescuers, hydrateFromCache, hydrateSelection } from "./pages/rescuers/state.js";
+import { initRescuerEvents, restoreSelection } from "./pages/rescuers/workflow.js";
 import { initDropdownMenu } from "../../js/components/ui/dropdown-menu.js";
 
 function render(user, { loading = false } = {}) {
@@ -21,6 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const user = requireAuth(["admin"]);
   if (!user) return;
   const cached = hydrateFromCache();
+  hydrateSelection();
   render(user, { loading: !cached });
-  loadRescuers().finally(() => render(user, { loading: false }));
+  loadRescuers().finally(() => {
+    render(user, { loading: false });
+    restoreSelection();
+  });
 });
