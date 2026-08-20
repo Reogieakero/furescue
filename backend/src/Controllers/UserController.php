@@ -61,9 +61,9 @@ class UserController extends AbstractController
              LEFT JOIN rescuer_duty_status d ON d.user_id = u.id
              {$whereSql}
              ORDER BY u.created_at DESC
-             LIMIT ? OFFSET ?"
+             LIMIT " . (int) $perPage . " OFFSET " . (int) $offset
         );
-        $stmt->execute(array_merge($params, [$perPage, $offset]));
+        $stmt->execute($params);
         $clean = array_map(function ($u) {
             unset($u['password_hash']);
             return $u;

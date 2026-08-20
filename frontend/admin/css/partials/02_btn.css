@@ -132,6 +132,9 @@
 .stamp--muted {
   color: hsl(var(--stamp));
 }
+.stamp--jungle {
+  color: hsl(152, 58%, 34%);
+}
 
 .kpi-grid {
   display: grid;

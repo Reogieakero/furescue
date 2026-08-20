@@ -25,6 +25,11 @@ export const fetchAdoptions = (status = "pending") =>
 
 export const fetchCases = () => list("/cases");
 
+export const fetchAnimals = () => list("/animals");
+
+export const createAnimal = (body) =>
+  post("/animals", body).then((p) => (p && p.data ? p.data.animal : null));
+
 export const fetchRescuerCases = (rescuerId) =>
   list(`/cases?assigned_rescuer_id=${encodeURIComponent(rescuerId)}`);
 
@@ -62,6 +67,22 @@ async function post(path, body = {}) {
 async function patch(path, body = {}) {
   return apiFetchFull(path, { method: "PATCH", body });
 }
+
+async function del(path) {
+  return apiFetchFull(path, { method: "DELETE" });
+}
+
+export const updateAnimal = (id, body) =>
+  patch(`/animals/${id}`, body).then((p) => (p && p.data ? p.data.animal : null));
+
+export const deleteAnimal = (id) => del(`/animals/${id}`);
+
+async function put(path, body = {}) {
+  return apiFetchFull(path, { method: "PUT", body });
+}
+
+export const upsertAnimalMedical = (id, body) =>
+  put(`/animals/${id}/medical`, body).then((p) => (p && p.data ? p.data.medical : null));
 
 export const fetchRescuers = () =>
   list("/users?role=rescuer&account_status=active");

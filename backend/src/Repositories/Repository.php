@@ -74,8 +74,8 @@ class Repository
         $dir = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
         $offset = ($page - 1) * $perPage;
 
-        $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} {$where} ORDER BY {$orderBy} {$dir} LIMIT ? OFFSET ?");
-        $stmt->execute(array_merge($params, [$perPage, $offset]));
+        $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} {$where} ORDER BY {$orderBy} {$dir} LIMIT " . (int) $perPage . " OFFSET " . (int) $offset);
+        $stmt->execute($params);
         return [
             'items' => $stmt->fetchAll(PDO::FETCH_ASSOC),
             'total' => $total,

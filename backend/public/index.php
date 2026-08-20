@@ -98,6 +98,7 @@ $router->add('GET', '/api/v1/animals', fn(Request $r) => (new AnimalController($
 $router->add('GET', '/api/v1/animals/{id}', fn(Request $r) => (new AnimalController($pdo))->show($r), [$authMw]);
 $router->add('POST', '/api/v1/animals', fn(Request $r) => (new AnimalController($pdo))->create($r), [$authMw, $adminMw]);
 $router->add('PATCH', '/api/v1/animals/{id}', fn(Request $r) => (new AnimalController($pdo))->update($r), [$authMw, $adminMw]);
+$router->add('DELETE', '/api/v1/animals/{id}', fn(Request $r) => (new AnimalController($pdo))->delete($r), [$authMw, $adminMw]);
 $router->add('POST', '/api/v1/animals/{id}/field-status', fn(Request $r) => (new AnimalController($pdo))->logFieldStatus($r), [$authMw, $staffMw]);
 $router->add('GET', '/api/v1/animals/{id}/field-status', fn(Request $r) => (new AnimalController($pdo))->fieldStatusHistory($r), [$authMw]);
 

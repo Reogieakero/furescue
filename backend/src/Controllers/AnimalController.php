@@ -8,26 +8,43 @@ use App\Http\Response;
 
 class AnimalController extends AbstractController
 {
+    private function findActive(string $id): ?array
+    {
+        $row = $this->repo('animals')->find($id);
+        if (!$row || !empty($row['deleted_at'])) {
+            return null;
+        }
+        return $row;
+    }
+
     public function index(Request $req): void
     {
-        $repo = $this->repo('animals', [
-            'id','name','species','breed_type','sex','age_estimate','color_markings',
-            'adoption_status','source','created_at'
-        ]);
-        $filters = [];
-        foreach (['species','breed_type','sex','adoption_status','source'] as $f) {
+        $where = "WHERE deleted_at IS NULL";
+        $params = [];
+        foreach (['species', 'breed_type', 'sex', 'adoption_status', 'source'] as $f) {
             if (!empty($req->query[$f])) {
-                $filters[$f] = $req->query[$f];
+                $where .= " AND {$f} = ?";
+                $params[] = $req->query[$f];
             }
         }
-        $result = $repo->paginate($this->page($req), $this->perPage($req), $filters);
-        Response::paginated($result['items'], $this->meta($result['page'], $result['per_page'], $result['total']));
+        $page = $this->page($req);
+        $perPage = $this->perPage($req);
+        $countStmt = $this->pdo->prepare("SELECT COUNT(*) FROM animals {$where}");
+        $countStmt->execute($params);
+        $total = (int) $countStmt->fetchColumn();
+        $offset = ($page - 1) * $perPage;
+        $stmt = $this->pdo->prepare(
+            "SELECT id,name,species,breed_type,sex,age_estimate,color_markings,photo_urls,adoption_status,source,created_at
+             FROM animals {$where} ORDER BY created_at DESC LIMIT " . (int) $perPage . " OFFSET " . (int) $offset
+        );
+        $stmt->execute($params);
+        $items = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        Response::paginated($items, $this->meta($page, $perPage, $total));
     }
 
     public function show(Request $req): void
     {
-        $repo = $this->repo('animals');
-        $animal = $repo->find($req->params['id']);
+        $animal = $this->findActive($req->params['id']);
         if (!$animal) {
             Response::error('NOT_FOUND', 'Animal not found', 404);
             return;
@@ -40,12 +57,12 @@ class AnimalController extends AbstractController
     public function create(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('species')->in('species', ['dog','cat'])
-            ->required('breed_type')->in('breed_type', ['aspin','puspin'])
-            ->required('sex')->in('sex', ['male','female'])
+        $v->required('species')->in('species', ['dog', 'cat'])
+            ->required('breed_type')->in('breed_type', ['aspin', 'puspin'])
+            ->required('sex')->in('sex', ['male', 'female'])
             ->optional('name')->string(100)
-            ->optional('adoption_status')->in('adoption_status', ['not_listed','available','pending','adopted'])
-            ->optional('source')->in('source', ['rescued_case','resident_listing'])
+            ->optional('adoption_status')->in('adoption_status', ['not_listed', 'available', 'pending', 'adopted'])
+            ->optional('source')->in('source', ['rescued_case', 'resident_listing'])
             ->optional('description')->string(2000);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
@@ -74,18 +91,17 @@ class AnimalController extends AbstractController
 
     public function update(Request $req): void
     {
-        $repo = $this->repo('animals');
-        $animal = $repo->find($req->params['id']);
+        $animal = $this->findActive($req->params['id']);
         if (!$animal) {
             Response::error('NOT_FOUND', 'Animal not found', 404);
             return;
         }
-        $allowed = ['name','age_estimate','color_markings','description','photo_urls','model_3d_url','photo_360_set','adoption_status'];
+        $allowed = ['name', 'age_estimate', 'color_markings', 'description', 'photo_urls', 'model_3d_url', 'photo_360_set', 'adoption_status'];
         $data = [];
         foreach ($allowed as $f) {
             if (array_key_exists($f, $req->body)) {
                 $val = $req->body[$f];
-                if (in_array($f, ['photo_urls','photo_360_set'], true) && is_array($val)) {
+                if (in_array($f, ['photo_urls', 'photo_360_set'], true) && is_array($val)) {
                     $val = json_encode($val);
                 }
                 $data[$f] = $val;
@@ -95,21 +111,32 @@ class AnimalController extends AbstractController
             Response::error('VALIDATION_ERROR', 'No updatable fields', 400);
             return;
         }
-        $repo->update($animal['id'], $data);
-        Response::success(['animal' => $repo->find($animal['id'])]);
+        $this->repo('animals')->update($animal['id'], $data);
+        Response::success(['animal' => $this->repo('animals')->find($animal['id'])]);
+    }
+
+    public function delete(Request $req): void
+    {
+        $animal = $this->findActive($req->params['id']);
+        if (!$animal) {
+            Response::error('NOT_FOUND', 'Animal not found', 404);
+            return;
+        }
+        $this->pdo->prepare("UPDATE animals SET deleted_at = NOW() WHERE id = ?")->execute([$animal['id']]);
+        Response::success(['animal' => $animal]);
     }
 
     public function logFieldStatus(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('rescue_status')->in('rescue_status', ['rescued','not_rescued'])
-            ->required('health_status')->in('health_status', ['healthy','not_healthy'])
+        $v->required('rescue_status')->in('rescue_status', ['rescued', 'not_rescued'])
+            ->required('health_status')->in('health_status', ['healthy', 'not_healthy'])
             ->optional('case_id')->string(36);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
         }
-        $animal = $this->repo('animals')->find($req->params['id']);
+        $animal = $this->findActive($req->params['id']);
         if (!$animal) {
             Response::error('NOT_FOUND', 'Animal not found', 404);
             return;
