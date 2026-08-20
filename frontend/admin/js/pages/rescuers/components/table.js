@@ -39,25 +39,16 @@ function rescuerRow(r) {
   const suspended = r.account_status === "suspended";
   const toggle = suspended
     ? Button({ text: "Activate", variant: "outline", size: "sm", icon: "user-check", attrs: `data-action="activate" data-id="${r.id}"` })
-    : Button({ text: "Suspend", variant: "destructive", size: "sm", icon: "slash", attrs: `data-action="suspend" data-id="${r.id}"` });
+    : Button({ text: "Suspend", variant: "destructive", size: "sm", attrs: `data-action="suspend" data-id="${r.id}"` });
   return `
-    <tr data-id="${r.id}">
-      <td class="table-cell">
-        <div class="rescuer-cell">
-          ${rescuerAvatar(r.profile_photo_url, r.full_name)}
-          <div>
-            <div class="table-cell--strong">${esc(r.full_name || "Unnamed")}</div>
-            <div class="table-cell--muted table-cell--mono">${shortId(r.id)}</div>
-          </div>
-        </div>
-      </td>
+    <tr data-id="${r.id}"${r.id === state.selectedId ? ' class="is-selected"' : ""}>
+      <td class="table-cell table-cell--strong">${esc(r.full_name || "Unnamed")}</td>
       <td class="table-cell">${esc(r.email || "—")}</td>
       <td class="table-cell table-cell--mono">${esc(r.phone_number || "—")}</td>
       <td class="table-cell"><span class="stamp stamp--sm ${dutyStampCls(duty)}">${dutyLabel(duty)}</span></td>
       <td class="table-cell">${timeAgo(r.created_at)}</td>
       <td class="table-cell table-cell--right table-cell--nowrap">
         <span class="table-actions">
-          ${Button({ text: "View", variant: "ghost", size: "sm", icon: "eye", attrs: `data-action="view" data-id="${r.id}"` })}
           ${toggle}
         </span>
       </td>

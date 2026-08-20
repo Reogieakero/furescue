@@ -3,12 +3,14 @@ import { toast } from "../../../../../js/components/ui/toast.js";
 import { confirmDialog, detailsDialog } from "../../../../../js/components/ui/dialog.js";
 import * as api from "../../../lib/admin-data.js";
 import { state, loadRescuers } from "../state.js";
-import { rerenderAll } from "../components.js";
+import { rerenderAll, selectRescuer, renderRescuerDetail } from "../components.js";
 import { shortId, titleCase } from "../../dashboard/helpers.js";
 
 async function refresh() {
   await loadRescuers();
   rerenderAll();
+  if (state.selectedId) await selectRescuer(state.selectedId);
+  else renderRescuerDetail();
   createIcons({ icons });
 }
 

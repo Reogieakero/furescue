@@ -1,8 +1,8 @@
 import { createIcons, icons } from "lucide";
 import { state, reloadData } from "../state.js";
 import { ReportTable, rerenderAll, attachReportTooltips, hideReportMapDrawer } from "../components.js";
-import { openReportDrawer } from "./drawer.js";
-import { runVerify, runDismiss, assignDialog } from "./actions.js";
+import { openReportDrawer, openTimelineDrawer } from "./drawer.js";
+import { runVerify, runDismiss, assignDialog, runCaseStatus } from "./actions.js";
 
 export function initReportsEvents() {
   const main = document.getElementById("app");
@@ -55,6 +55,12 @@ export function initReportsEvents() {
             createIcons({ icons });
           });
         });
+        return;
+      }
+      if (action === "progress") return runCaseStatus(caseId, id, "in_progress", "Mark in progress", "marked in progress");
+      if (action === "resolve") return runCaseStatus(caseId, id, "resolved", "Resolve case", "resolved");
+      if (action === "timeline") {
+        openTimelineDrawer(caseId, id);
         return;
       }
       return;

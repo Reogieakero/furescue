@@ -16,13 +16,14 @@ function initDate() {
   });
 }
 
-function render(user) {
+function render(user, { loading = false } = {}) {
   const app = document.getElementById("app");
   if (!app) return;
-  app.innerHTML = ReportsPage(user);
+  app.innerHTML = ReportsPage(user, { loading });
   createIcons({ icons });
   initShell();
   initDropdownMenu(document);
+  if (loading) return;
   initReportsEvents();
   initReportSort();
   initDate();
@@ -32,5 +33,6 @@ function render(user) {
 document.addEventListener("DOMContentLoaded", () => {
   const user = requireAuth(["admin"]);
   if (!user) return;
-  loadReports().finally(() => render(user));
+  render(user, { loading: true });
+  loadReports().finally(() => render(user, { loading: false }));
 });

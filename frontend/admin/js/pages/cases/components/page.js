@@ -1,6 +1,8 @@
 import { AppShell } from "../../../layout/app-shell.js";
 import { createIcons, icons } from "lucide";
 import { Button } from "../../../../../js/components/ui/button.js";
+import { SkeletonCases } from "../../../../../js/components/ui/skeleton.js";
+import { setNavBadge } from "../../../../../js/lib/swr.js";
 import { state } from "../state.js";
 import { KpiStrip, CaseFilterTabs, CaseToolbar, renderStatusBreakdown } from "./kpi.js";
 import { CasePanel, CaseList, renderCaseList, initCaseSort } from "./list.js";
@@ -20,7 +22,16 @@ function PageHead() {
   </div>`;
 }
 
-export function CasesPage(user) {
+export function CasesPage(user, { loading = false } = {}) {
+  if (loading) {
+    return AppShell({
+      user,
+      notifications: 0,
+      badges: { cases: state.cases.length },
+      activeNav: "cases",
+      children: SkeletonCases(),
+    });
+  }
   return AppShell({
     user,
     notifications: 0,
@@ -54,5 +65,6 @@ export function rerenderAll() {
   initCaseSort();
   const navBadge = document.querySelector('.sidebar-link[data-nav="cases"] .sidebar-badge');
   if (navBadge) navBadge.textContent = String(state.cases.length);
+  setNavBadge("cases", state.cases.length);
   createIcons({ icons });
 }

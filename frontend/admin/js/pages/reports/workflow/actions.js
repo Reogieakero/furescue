@@ -58,6 +58,25 @@ async function runDismiss(id) {
   createIcons({ icons });
 }
 
+async function runCaseStatus(caseId, reportId, status, label, verb) {
+  const ok = await confirmDialog({
+    title: label,
+    message: `Mark case ${shortId(caseId)} as ${status.replace("_", " ")}?`,
+    info: [
+      { label: "Case", value: shortId(caseId) },
+      { label: "Report", value: shortId(reportId) },
+    ],
+    confirmText: label,
+    cancelText: "Cancel",
+    run: () => api.updateCaseStatus(caseId, status),
+  });
+  if (!ok) return;
+  toast(`Case ${shortId(caseId)} ${verb}.`, { type: "success" });
+  await reloadData();
+  rerenderAll();
+  createIcons({ icons });
+}
+
 function assignDialog(caseId, reportId) {
   return new Promise((resolve) => {
     const rescuers = state.rescuers.filter(
@@ -134,4 +153,4 @@ function assignDialog(caseId, reportId) {
   });
 }
 
-export { runVerify, runDismiss, assignDialog };
+export { runVerify, runDismiss, runCaseStatus, assignDialog };

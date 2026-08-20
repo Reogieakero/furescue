@@ -19,10 +19,14 @@ export function openDrawer({
   footer = "",
   onMount = null,
   elevated = false,
+  side = "right",
 } = {}) {
   return new Promise((resolve) => {
     const overlay = document.createElement("div");
-    overlay.className = "drawer-overlay" + (elevated ? " drawer-overlay--elevated" : "");
+    overlay.className =
+      "drawer-overlay" +
+      (side === "left" ? " drawer-overlay--left" : "") +
+      (elevated ? " drawer-overlay--elevated" : "");
     overlay.innerHTML = `
       <div class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
         <div class="drawer-header">

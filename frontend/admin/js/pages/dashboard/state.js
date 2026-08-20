@@ -1,5 +1,8 @@
 import * as api from "../../lib/admin-data.js";
 import { safe, buildWeekChart } from "./helpers.js";
+import { readCache, writeCache, setNavBadge } from "../../../../js/lib/swr.js";
+
+const CACHE_KEY = "page:dashboard";
 
 const EMPTY_OVERVIEW = {
   reports: 0,
@@ -87,6 +90,24 @@ export async function loadDashboard() {
 
   state.decisionCount =
     state.reportsPending.total + state.rescuersPending.total + state.healthUpdates.total + state.adoptionsPending.total;
+  persistCache();
+}
+
+export function hydrateFromCache() {
+  const snap = readCache(CACHE_KEY);
+  if (!snap) return false;
+  Object.assign(state, snap);
+  return true;
+}
+
+export function persistCache() {
+  try {
+    writeCache(CACHE_KEY, JSON.parse(JSON.stringify(state)));
+  } catch {}
+  setNavBadge("reports", state.reportsTotal);
+  setNavBadge("health", state.healthUpdates.total);
+  setNavBadge("applications", state.adoptionsPending.total);
+  setNavBadge("notifications", state.notifications.total);
 }
 
 export async function refreshQueue(key) {

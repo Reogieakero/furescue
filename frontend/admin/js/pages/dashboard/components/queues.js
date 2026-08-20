@@ -1,5 +1,5 @@
 import { state, queueState } from "../state.js";
-import { shortId, initials, timeAgo, titleCase } from "../helpers.js";
+import { shortId, initials, timeAgo, titleCase, truncate } from "../helpers.js";
 import {
   ChevronRight,
   EmptyState,
@@ -68,9 +68,9 @@ export function mapCase(c) {
       : "stamp--coral";
   return {
     id: shortId(c.id),
-    animal: "—",
-    brgy: "—",
-    rescuer: "—",
+    animal: c.animal_description ? truncate(c.animal_description, 28) : "—",
+    brgy: c.address_text || "—",
+    rescuer: c.assigned_rescuer_name || "—",
     status: titleCase(status),
     statusCls,
     when: timeAgo(c.updated_at || c.created_at),

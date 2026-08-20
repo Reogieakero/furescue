@@ -12,18 +12,40 @@ class CaseController extends AbstractController
 {
     public function index(Request $req): void
     {
-        $repo = $this->repo('cases', ['id','report_id','assigned_rescuer_id','assigned_by','status','resolution_notes','created_at','updated_at']);
-        $filters = [];
+        $where = [];
+        $params = [];
         if ($req->user['role'] === 'rescuer') {
-            $filters['assigned_rescuer_id'] = $req->user['id'];
+            $where[] = 'c.assigned_rescuer_id = ?';
+            $params[] = $req->user['id'];
         }
-        foreach (['status','assigned_rescuer_id'] as $f) {
-            if (!empty($req->query[$f])) {
-                $filters[$f] = $req->query[$f];
-            }
+        if (!empty($req->query['status'])) {
+            $where[] = 'c.status = ?';
+            $params[] = $req->query['status'];
         }
-        $result = $repo->paginate($this->page($req), $this->perPage($req), $filters);
-        Response::paginated($result['items'], $this->meta($result['page'], $result['per_page'], $result['total']));
+        if (!empty($req->query['assigned_rescuer_id'])) {
+            $where[] = 'c.assigned_rescuer_id = ?';
+            $params[] = $req->query['assigned_rescuer_id'];
+        }
+        $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        $page = $this->page($req);
+        $perPage = $this->perPage($req);
+
+        $totalStmt = $this->pdo->prepare("SELECT COUNT(*) FROM cases c {$whereSql}");
+        $totalStmt->execute($params);
+        $total = (int) $totalStmt->fetchColumn();
+
+        $stmt = $this->pdo->prepare(
+            "SELECT c.*, r.animal_description, r.address_text, u.full_name AS assigned_rescuer_name
+             FROM cases c
+             LEFT JOIN reports r ON r.id = c.report_id
+             LEFT JOIN users u ON u.id = c.assigned_rescuer_id
+             {$whereSql}
+             ORDER BY c.updated_at DESC
+             LIMIT " . (int) $perPage . " OFFSET " . (int) (($page - 1) * $perPage)
+        );
+        $stmt->execute($params);
+        Response::paginated($stmt->fetchAll(\PDO::FETCH_ASSOC), $this->meta($page, $perPage, $total));
     }
 
     public function show(Request $req): void

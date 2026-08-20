@@ -1,5 +1,6 @@
 import { AppShell } from "../../../layout/app-shell.js";
 import { Button } from "../../../../../js/components/ui/button.js";
+import { SkeletonDashboard } from "../../../../../js/components/ui/skeleton.js";
 import { state } from "../state.js";
 import { KpiGrid } from "./kpis.js";
 import { AttentionRow, DashboardSections } from "./cards.js";
@@ -20,7 +21,19 @@ function Greeting(user) {
   </div>`;
 }
 
-export function DashboardPage(user) {
+export function DashboardPage(user, { loading = false } = {}) {
+  if (loading) {
+    return AppShell({
+      user,
+      notifications: state.notifications.total,
+      badges: {
+        reports: state.reportsTotal,
+        health: state.healthUpdates.total,
+        applications: state.adoptionsPending.total,
+      },
+      children: SkeletonDashboard(),
+    });
+  }
   return AppShell({
     user,
     notifications: state.notifications.total,

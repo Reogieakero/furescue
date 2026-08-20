@@ -1,6 +1,8 @@
 import { createIcons, icons } from "lucide";
 import { AppShell } from "../../../layout/app-shell.js";
 import { Button } from "../../../../../js/components/ui/button.js";
+import { SkeletonReports } from "../../../../../js/components/ui/skeleton.js";
+import { setNavBadge } from "../../../../../js/lib/swr.js";
 import { initSelect } from "../../../../../js/components/ui/select.js";
 import { state } from "../state.js";
 import { buildKpis, KpiTile } from "./kpis.js";
@@ -36,7 +38,16 @@ function ReportsPanel() {
   </div>`;
 }
 
-export function ReportsPage(user) {
+export function ReportsPage(user, { loading = false } = {}) {
+  if (loading) {
+    return AppShell({
+      user,
+      notifications: 0,
+      badges: { reports: state.reports.length },
+      activeNav: "reports",
+      children: SkeletonReports(),
+    });
+  }
   const kpis = buildKpis().map(KpiTile).join("");
   return AppShell({
     user,
@@ -81,5 +92,6 @@ export function rerenderAll() {
   initReportSort();
   const navBadge = document.querySelector('.sidebar-link[data-nav="reports"] .sidebar-badge');
   if (navBadge) navBadge.textContent = state.reports.length;
+  setNavBadge("reports", state.reports.length);
   createIcons({ icons });
 }

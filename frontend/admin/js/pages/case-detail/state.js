@@ -1,6 +1,9 @@
 import * as api from "../../lib/admin-data.js";
 import { safe } from "../dashboard/helpers.js";
 import { photos } from "./components/util.js";
+import { readCache, writeCache } from "../../../../js/lib/swr.js";
+
+const CACHE_PREFIX = "page:case-detail:";
 
 export const state = {
   caseId: null,
@@ -61,4 +64,18 @@ export async function loadCaseDetail(caseId) {
   state.caseData.rescuer_photo = user ? user.profile_photo_url : null;
 
   state.error = null;
+  persistCache(caseId);
+}
+
+export function hydrateFromCache(caseId) {
+  const snap = readCache(CACHE_PREFIX + caseId);
+  if (!snap) return false;
+  Object.assign(state, snap);
+  return true;
+}
+
+export function persistCache(caseId) {
+  try {
+    writeCache(CACHE_PREFIX + caseId, JSON.parse(JSON.stringify(state)));
+  } catch {}
 }

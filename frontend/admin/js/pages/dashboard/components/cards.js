@@ -147,11 +147,11 @@ export function ChartCard() {
       ? ""
       : ` &middot; <span class="chart-foot-accent">${state.growth > 0 ? "+" : ""}${state.growth}% vs last week</span>`;
   return `
-  <div class="panel panel--padded">
-    <div class="panel-title-wrap"><i data-lucide="bar-chart-3"></i><h2 class="panel-title panel-title--sm">Report this week</h2></div>
+    <div class="panel panel--padded">
+    <div class="panel-title-wrap"><i data-lucide="bar-chart-3"></i><h2 class="panel-title panel-title--sm">Adoptions this week</h2></div>
     <div class="chart">${bars}</div>
     <div class="chart-foot">
-      <span class="chart-foot-muted">Total approved</span>
+      <span class="chart-foot-muted">Total completed</span>
       <span class="chart-foot-total">${state.overview.adoptions_completed}${growth}</span>
     </div>
   </div>`;

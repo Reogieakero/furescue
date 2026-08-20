@@ -25,6 +25,9 @@ export const fetchAdoptions = (status = "pending") =>
 
 export const fetchCases = () => list("/cases");
 
+export const fetchRescuerCases = (rescuerId) =>
+  list(`/cases?assigned_rescuer_id=${encodeURIComponent(rescuerId)}`);
+
 export const fetchCase = (id) =>
   raw(`/cases/${id}`).then((d) => (d && d.case) || null);
 

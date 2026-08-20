@@ -1,10 +1,12 @@
 import { createIcons, icons } from "lucide";
 import { state, loadRescuers } from "../state.js";
-import { RescuerTable, rerenderAll } from "../components.js";
-import { runApprove, runReject, runSuspend, runActivate, openRescuer } from "./actions.js";
+import { RescuerTable, rerenderAll, selectRescuer, toggleCaseNode, openRescuerModal } from "../components.js";
+import { runApprove, runReject, runSuspend, runActivate } from "./actions.js";
 
 export function initRescuerEvents() {
   const main = document.getElementById("app");
+  if (!main || main.dataset.rescuerEvents) return;
+  main.dataset.rescuerEvents = "1";
 
   main.addEventListener("click", async (e) => {
     const tab = e.target.closest("button[data-filter]");
@@ -28,21 +30,33 @@ export function initRescuerEvents() {
       return;
     }
 
+    const toggleEl = e.target.closest("[data-case-toggle]");
+    if (toggleEl) {
+      e.preventDefault();
+      return toggleCaseNode(toggleEl.dataset.caseToggle);
+    }
+
+    const expandEl = e.target.closest('[data-act="expand"]');
+    if (expandEl) {
+      e.preventDefault();
+      return openRescuerModal();
+    }
+
     const actionEl = e.target.closest("[data-action]");
     if (actionEl) {
       e.preventDefault();
       const action = actionEl.dataset.action;
       const id = actionEl.dataset.id;
+      selectRescuer(id);
       if (action === "approve") return runApprove(id);
       if (action === "reject") return runReject(id);
       if (action === "suspend") return runSuspend(id);
       if (action === "activate") return runActivate(id);
-      if (action === "view") return openRescuer(id);
       return;
     }
 
     const row = e.target.closest("tr[data-id]");
-    if (row) return openRescuer(row.dataset.id);
+    if (row) return selectRescuer(row.dataset.id);
   });
 
   main.addEventListener("input", (e) => {

@@ -1,0 +1,69 @@
+.skeleton {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: rgba(100, 116, 139, 0.16);
+  border-radius: 0.5rem;
+  pointer-events: none;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.skeleton-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeleton-table .sk-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  align-items: center;
+}
+
+.skeleton-table .sk-head .sk-cell {
+  height: 0.7rem;
+  background: rgba(100, 116, 139, 0.28);
+  border-radius: 0.35rem;
+}
+
+.skeleton-table .sk-cell {
+  display: block;
+}
+
+.skeleton-map {
+  width: 100%;
+  min-height: 320px;
+  border-radius: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+}

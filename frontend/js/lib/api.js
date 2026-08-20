@@ -1,5 +1,5 @@
 export const API_BASE_URL =
-  window.FURESCUE_API_BASE_URL || "http://127.0.0.1:8899/api/v1";
+  window.FURESCUE_API_BASE_URL || "http://127.0.0.1:8000/api/v1";
 
 const TOKEN_KEY = "furescue_access_token";
 const REFRESH_KEY = "furescue_refresh_token";

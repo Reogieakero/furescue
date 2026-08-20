@@ -1,6 +1,6 @@
 import { PaginationBar } from "../../../../../js/components/ui/pagination.js";
 import { Button } from "../../../../../js/components/ui/button.js";
-import { esc, stampCls } from "./util.js";
+import { stampCls } from "./util.js";
 import { shortId, timeAgo, titleCase } from "../../dashboard/helpers.js";
 import { state } from "../state.js";
 
@@ -35,15 +35,17 @@ export function actionLinks(r) {
   if (r.status === "verified") {
     const c = state.cases.find((x) => x.report_id === r.id) || null;
     if (!c) return "";
+    const timeline = Button({ text: "Timeline", variant: "outline", size: "sm", icon: "history", attrs: `data-action="timeline" data-id="${r.id}" data-case="${c.id}"` });
     if (!c.assigned_rescuer_id) {
-      return Button({ text: "Assign rescuer", variant: "default", size: "sm", icon: "user-plus", attrs: `data-action="assign" data-id="${r.id}" data-case="${c.id}"` });
+      return `${Button({ text: "Assign rescuer", variant: "default", size: "sm", icon: "user-plus", attrs: `data-action="assign" data-id="${r.id}" data-case="${c.id}"` })}${timeline}`;
     }
     if (c.status === "assigned") {
-      return `<span class="action-text">${esc("Waiting for rescuer to accept the assigned rescue")}</span>`;
+      return `${Button({ text: "Mark in progress", variant: "default", size: "sm", icon: "play", attrs: `data-action="progress" data-id="${r.id}" data-case="${c.id}"` })}${timeline}`;
     }
     if (c.status === "in_progress") {
-      return `<span class="action-text">${esc("In progress")}</span>`;
+      return `${Button({ text: "Resolve", variant: "default", size: "sm", icon: "check-circle-2", attrs: `data-action="resolve" data-id="${r.id}" data-case="${c.id}"` })}${timeline}`;
     }
+    return timeline;
   }
   return "";
 }

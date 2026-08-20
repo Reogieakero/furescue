@@ -180,7 +180,8 @@
   z-index: 0;
   transition: height 0.35s ease;
 }
-#case-density-panel.is-expanded .map-canvas--leaflet {
+#case-density-panel.is-expanded .map-canvas--leaflet,
+.case-map-panel.is-expanded .map-canvas--leaflet {
   height: 75vh;
 }
 .map-expand {

@@ -1,5 +1,6 @@
 import { AppShell } from "../../../layout/app-shell.js";
 import { Button } from "../../../../../js/components/ui/button.js";
+import { SkeletonCaseDetail } from "../../../../../js/components/ui/skeleton.js";
 import { renderWorkflow } from "./workflow.js";
 import { renderCaseInfo, renderSourceReport } from "./info.js";
 import { renderAttachments } from "./files.js";
@@ -40,7 +41,15 @@ function renderHeader(caseData) {
     </div>`;
 }
 
-export function CaseDetailPage(caseData) {
+export function CaseDetailPage(caseData, { loading = false } = {}) {
+  if (loading) {
+    return AppShell({
+      user: (caseData && caseData.user) || null,
+      title: "Case detail",
+      activeNav: "cases",
+      children: SkeletonCaseDetail(),
+    });
+  }
   return AppShell({
     user: caseData.user,
     title: "Case detail",

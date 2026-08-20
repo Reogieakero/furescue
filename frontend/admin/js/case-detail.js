@@ -2,7 +2,7 @@ import { createIcons, icons } from "lucide";
 import { requireAuth } from "../../js/lib/api.js";
 import { initShell } from "./layout/app-shell.js";
 import { initDropdownMenu } from "../../js/components/ui/dropdown-menu.js";
-import { state, loadCaseDetail } from "./pages/case-detail/state.js";
+import { state, loadCaseDetail, hydrateFromCache } from "./pages/case-detail/state.js";
 import { CaseDetailPage, initCaseDetailEvents } from "./pages/case-detail/components.js";
 import { loadCases } from "./pages/cases/state.js";
 import { getCase } from "./pages/cases/components.js";
@@ -28,17 +28,29 @@ function renderNotFound() {
   createIcons({ icons });
 }
 
+function render(caseData, { loading = false } = {}) {
+  const app = document.getElementById("app");
+  if (!app) return;
+  app.innerHTML = CaseDetailPage(caseData, { loading });
+  createIcons({ icons });
+  initShell();
+  initDropdownMenu(document);
+  if (loading) return;
+  initCaseDetailEvents();
+}
+
 async function bootstrap() {
   const user = requireAuth(["admin"]);
   if (!user) return;
-  initShell();
-  initDropdownMenu();
 
   const caseId = getCaseId();
   if (!caseId) {
     alert("No case specified.");
     return;
   }
+
+  const cached = hydrateFromCache(caseId);
+  render(cached ? state.caseData : null, { loading: !cached });
 
   await loadCases();
   const existing = getCase(caseId);
@@ -50,15 +62,11 @@ async function bootstrap() {
   await loadCaseDetail(caseId);
 
   if (!state.caseData) {
-    alert("Case not found.");
+    renderNotFound();
     return;
   }
 
-  const app = document.getElementById("app");
-  if (!app) return;
-  app.innerHTML = CaseDetailPage(state.caseData);
-  initCaseDetailEvents();
-  createIcons({ icons });
+  render(state.caseData, { loading: false });
 }
 
 document.addEventListener("DOMContentLoaded", bootstrap);

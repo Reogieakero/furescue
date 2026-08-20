@@ -1,4 +1,6 @@
 
+import { getNavBadges } from "../../../js/lib/swr.js";
+
 const NAV_GROUPS = [
   {
     label: "Overview",
@@ -55,7 +57,7 @@ function NavItem(item, map, activeNav) {
 }
 
 export function Sidebar({ user, badges = {}, notifications = 3, activeNav } = {}) {
-  const map = { ...badges, notifications };
+  const map = { notifications, ...getNavBadges(), ...badges };
   const groups = NAV_GROUPS.map(
     (g) => `
     <div class="sidebar-group">

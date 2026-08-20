@@ -1,10 +1,13 @@
 import { createIcons, icons } from "lucide";
 import { AppShell } from "../../../layout/app-shell.js";
 import { Button } from "../../../../../js/components/ui/button.js";
+import { SkeletonRescuers } from "../../../../../js/components/ui/skeleton.js";
+import { setNavBadge } from "../../../../../js/lib/swr.js";
 import { state } from "../state.js";
 import { buildKpis, KpiTile, rescuerCounts } from "./kpis.js";
 import { FilterTabs } from "./filters.js";
 import { RescuerTable } from "./table.js";
+import { RescuerDetail } from "./detail.js";
 
 function PageHead() {
   return `
@@ -34,7 +37,16 @@ function RescuersPanel() {
   </div>`;
 }
 
-export function RescuersPage(user) {
+export function RescuersPage(user, { loading = false } = {}) {
+  if (loading) {
+    return AppShell({
+      user,
+      notifications: 0,
+      badges: { rescuers: rescuerCounts().pending },
+      activeNav: "rescuers",
+      children: SkeletonRescuers(),
+    });
+  }
   const kpis = buildKpis().map(KpiTile).join("");
   return AppShell({
     user,
@@ -44,7 +56,10 @@ export function RescuersPage(user) {
     children: [
       PageHead(),
       `<div id="rescuer-kpis" class="kpi-grid">${kpis}</div>`,
-      RescuersPanel(),
+      `<div class="rescuer-split">
+        ${RescuersPanel()}
+        <div id="rescuer-detail" class="panel rescuer-detail-panel">${RescuerDetail()}</div>
+      </div>`,
     ].join(""),
   });
 }
@@ -58,5 +73,6 @@ export function rerenderAll() {
   if (table) table.innerHTML = RescuerTable();
   const navBadge = document.querySelector('.sidebar-link[data-nav="rescuers"] .sidebar-badge');
   if (navBadge) navBadge.textContent = rescuerCounts().pending;
+  setNavBadge("rescuers", rescuerCounts().pending);
   createIcons({ icons });
 }
