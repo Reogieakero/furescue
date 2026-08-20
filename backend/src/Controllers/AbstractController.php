@@ -6,7 +6,6 @@ use App\Http\Request;
 use App\Repositories\Repository;
 use PDO;
 
-
 abstract class AbstractController
 {
     protected PDO $pdo;

@@ -1,6 +1,5 @@
 import { Button } from "../../js/components/ui/button.js";
 
-// Site navigation bar (sticky). Layout styled via plain CSS (.nav* classes).
 export function Navbar() {
   const links = [
     { label: "Home", href: "#home" },
@@ -51,4 +50,3 @@ export function Navbar() {
     </div>
   </header>`;
 }
-

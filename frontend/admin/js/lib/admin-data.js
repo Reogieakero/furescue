@@ -1,5 +1,3 @@
-// Backend data access for the admin console.
-// Uses apiFetchFull so paginated endpoints keep meta.total alongside items.
 import { apiFetchFull } from "../../../js/lib/api.js";
 
 async function list(path, perPage = 100) {
@@ -45,8 +43,6 @@ export const fetchHealthUpdates = () =>
 export const fetchHeatmap = () =>
   raw("/reports/map/heatmap").then((d) => (d && d.points) || []);
 
-// Reverse-geocodes a report's coordinates into a specific place name.
-// Returns { name, road, full } or null on the data payload.
 export const reverseGeocode = (lat, lng) =>
   raw(`/geo/reverse?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`);
 

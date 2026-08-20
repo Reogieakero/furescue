@@ -54,7 +54,6 @@ function initNavbarScroll() {
   onScroll();
 }
 
-// Smooth scroll for in-page anchors (graceful fallback to native behavior).
 function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach((a) => {
     a.addEventListener("click", (e) => {

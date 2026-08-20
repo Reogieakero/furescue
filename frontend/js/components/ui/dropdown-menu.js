@@ -1,8 +1,5 @@
 import { cn } from "../../lib/utils.js";
 
-// shadcn/ui DropdownMenu primitives (Tailwind). Markup is rendered as HTML
-// strings; initDropdownMenu() wires toggle, outside-click and Escape behaviour.
-
 export function DropdownMenuLabel({ text = "", className = "" } = {}) {
   return `<div class="${cn("px-2 py-1.5 text-xs font-semibold text-muted-foreground", className)}">${text}</div>`;
 }

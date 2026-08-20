@@ -8,7 +8,6 @@ use App\Http\Request;
 use App\Http\Response;
 use PDO;
 
-
 class AuthMiddleware
 {
     private PDO $pdo;

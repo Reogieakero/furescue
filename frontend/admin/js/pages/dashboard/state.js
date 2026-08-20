@@ -1,4 +1,3 @@
-// Dashboard page state — populated entirely from the FurEscue API.
 import * as api from "../../lib/admin-data.js";
 import { safe, buildWeekChart } from "./helpers.js";
 
@@ -32,7 +31,6 @@ export const state = {
   activityPage: 1,
 };
 
-// Current page per queue tab (1-indexed).
 export const queueState = { reports: 1, rescuers: 1, health: 1, adopt: 1 };
 
 export async function loadDashboard() {
@@ -70,8 +68,6 @@ export async function loadDashboard() {
     state.reportsPending.total + state.rescuersPending.total + state.healthUpdates.total + state.adoptionsPending.total;
 }
 
-// Refetches a single pending queue (after an admin action) and keeps the
-// overview + decision count in sync, without reloading the whole dashboard.
 export async function refreshQueue(key) {
   const fetchers = {
     reports: api.fetchReports("pending_verification"),

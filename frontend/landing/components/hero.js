@@ -1,7 +1,6 @@
 import { Button } from "../../js/components/ui/button.js";
 import { Badge } from "../../js/components/ui/badge.js";
 
-// Hero section — split layout: copy on the left, illustrative visual on the right.
 export function Hero() {
   return `
   <section id="home" class="hero">
@@ -110,4 +109,3 @@ export function Hero() {
     </div>
   </section>`;
 }
-

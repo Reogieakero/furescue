@@ -1,4 +1,3 @@
-// Topbar — sticky command bar (search, date/location, notifications, user).
 import { DropdownMenu } from "../../../js/components/ui/dropdown-menu.js";
 
 export function Topbar({ user } = {}) {

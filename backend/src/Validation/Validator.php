@@ -2,11 +2,10 @@
 
 namespace App\Validation;
 
-
 class Validator
 {
     private array $data;
-    
+
     private array $errors = [];
     private ?string $lastField = null;
 
@@ -127,7 +126,6 @@ class Validator
         return count($this->errors) === 0;
     }
 
-    
     public function errors(): array
     {
         return $this->errors;

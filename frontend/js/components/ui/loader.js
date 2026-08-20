@@ -1,8 +1,5 @@
 import { createIcons, icons } from "lucide";
 
-// Full-page overlay loader (shadcn-style spinner).
-// Usage: showLoader("Signing in…") / hideLoader()
-
 let overlay = null;
 
 function esc(value) {

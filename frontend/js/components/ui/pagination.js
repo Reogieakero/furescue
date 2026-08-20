@@ -1,8 +1,5 @@
 import { cn } from "../../lib/utils.js";
 
-// shadcn/ui Pagination primitives (Tailwind). Page buttons carry a data-page
-// attribute so the admin queue panel can re-render on click via event delegation.
-
 export function Pagination({ children = "", className = "" } = {}) {
   return `<nav class="${cn("mx-auto flex w-full justify-center", className)}" aria-label="Pagination">${children}</nav>`;
 }

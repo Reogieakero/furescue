@@ -1,6 +1,5 @@
 import { Stepper } from "../../js/components/ui/marker.js";
 
-// "How it works" steps section
 const steps = [
   {
     n: "01",

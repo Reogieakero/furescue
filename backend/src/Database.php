@@ -5,12 +5,10 @@ namespace App;
 use PDO;
 use PDOException;
 
-
 class Database
 {
     private static ?PDO $pdo = null;
 
-    
     public static function env(string $key, $default = null)
     {
         if (array_key_exists($key, $_ENV)) {
@@ -65,7 +63,6 @@ class Database
         return self::$pdo;
     }
 
-    
     public static function uuidV4(): string
     {
         $bytes = random_bytes(16);

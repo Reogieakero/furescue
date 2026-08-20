@@ -2,7 +2,6 @@
 
 namespace App\Http;
 
-
 class Request
 {
     public string $method;

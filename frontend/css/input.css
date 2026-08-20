@@ -2,36 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-/* =========================================================================
-   FurEscue — Shared base (compiled by Tailwind CLI: css/input.css -> css/style.css)
-   Contains: shadcn/ui theme tokens, reset, globals, brand/logo, lucide,
-   and shared component styles (Input, button icons).
-   Page-specific styles live in their own folders:
-     landing/css/landing.css, auth/css/auth.css, admin/css/admin.css
-   ========================================================================= */
-
-/* ---------- shadcn theme tokens (Spot palette: paper / ink / jungle) ---------- */
 :root {
-  --background: 210 4% 97%; /* paper */
-  --foreground: 213 72% 16%; /* ink */
+  --background: 210 4% 97%;
+  --foreground: 213 72% 16%;
   --card: 0 0% 100%;
   --card-foreground: 213 72% 16%;
-  --primary: 211 71% 38%; /* coral */
+  --primary: 211 71% 38%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 208 59% 91%; /* paperdark */
+  --secondary: 208 59% 91%;
   --secondary-foreground: 213 72% 16%;
-  --muted: 208 59% 91%; /* paperdark */
-  --muted-foreground: 215 16% 47%; /* stamp */
+  --muted: 208 59% 91%;
+  --muted-foreground: 215 16% 47%;
   --accent: 208 59% 91%;
-  --accent-foreground: 213 68% 25%; /* jungle */
+  --accent-foreground: 213 68% 25%;
   --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 98%;
   --border: 213 40% 90%;
   --input: 213 40% 90%;
-  --ring: 199 74% 53%; /* jungle2 */
+  --ring: 199 74% 53%;
   --radius: 0.5rem;
 
-  /* Spot palette (named tokens, admin + shared UI) */
   --paper: 210 4% 97%;
   --paperdark: 208 59% 91%;
   --ink: 213 72% 16%;
@@ -41,14 +31,12 @@
   --teal: 206 50% 53%;
   --stamp: 215 16% 47%;
 
-  /* typography */
   --font-sans: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: "Fraunces", Georgia, serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
-  /* page extras */
-  --brand-1: 211 71% 38%; /* coral */
-  --brand-2: 199 74% 53%; /* jungle2 */
+  --brand-1: 211 71% 38%;
+  --brand-2: 199 74% 53%;
   --surface-soft: 208 59% 91%;
   --max-width: 1180px;
   --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
@@ -80,7 +68,6 @@
   --shadow-md: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
 }
 
-/* ---------- reset & base ---------- */
 *,
 *::before,
 *::after {
@@ -115,7 +102,6 @@ img {
   color: hsl(var(--primary));
 }
 
-/* ---------- lucide icons ---------- */
 .lucide {
   width: 1em;
   height: 1em;
@@ -134,7 +120,6 @@ img {
   flex-shrink: 0;
 }
 
-/* ---------- shared Input component (js/components/ui/input.js) ---------- */
 .input {
   display: flex;
   width: 100%;
@@ -164,7 +149,6 @@ img {
   cursor: not-allowed;
 }
 
-/* ---------- separator (shadcn-style) ---------- */
 .separator {
   display: flex;
   align-items: center;
@@ -184,7 +168,6 @@ img {
   background: hsl(var(--border));
 }
 
-/* ---------- toast (shadcn-style) ---------- */
 .toast-viewport {
   position: fixed;
   bottom: 1rem;
@@ -270,7 +253,6 @@ img {
   height: 14px;
 }
 
-/* ---------- overlay loader (js/components/ui/loader.js) ---------- */
 .loader-overlay {
   position: fixed;
   inset: 0;
@@ -315,7 +297,6 @@ img {
   color: hsl(var(--muted-foreground));
 }
 
-/* ---------- brand / logo (shared across pages) ---------- */
 .logo-mark {
   width: 30px;
   height: 30px;
@@ -342,7 +323,6 @@ img {
   font-size: 1.05rem;
 }
 
-/* ---------- motion (respect reduced motion) ---------- */
 @media (prefers-reduced-motion: reduce) {
   * {
     scroll-behavior: auto !important;

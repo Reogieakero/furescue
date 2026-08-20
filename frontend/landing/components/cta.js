@@ -1,6 +1,5 @@
 import { Button } from "../../js/components/ui/button.js";
 
-// Final call-to-action
 export function CTA() {
   return `
   <section id="signup" class="section">
@@ -34,4 +33,3 @@ export function CTA() {
     </div>
   </section>`;
 }
-

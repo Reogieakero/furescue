@@ -1,7 +1,6 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../../js/components/ui/card.js";
 import { Badge } from "../../js/components/ui/badge.js";
 
-// "Who it helps" section: the three core audiences
 const audiences = [
   {
     id: "rescuers",
@@ -108,4 +107,3 @@ export function Audiences() {
     </div>
   </section>`;
 }
-

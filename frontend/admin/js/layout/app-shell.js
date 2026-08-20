@@ -1,4 +1,3 @@
-// App shell — composes sidebar + topbar + main and wires off-canvas behaviour.
 
 import { Sidebar } from "./sidebar.js";
 import { Topbar } from "./topbar.js";
@@ -17,8 +16,6 @@ export function AppShell({ user, badges = {}, notifications = 3, activeNav, chil
   </div>`;
 }
 
-// Maps a sidebar nav key to its admin HTML page. Only pages that exist are
-// listed; other links stay inert until their screens are built.
 const NAV_TARGETS = {
   dashboard: "index.html",
   reports: "reports.html",

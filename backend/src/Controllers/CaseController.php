@@ -90,7 +90,7 @@ class CaseController extends AbstractController
             return;
         }
         if ($case['assigned_rescuer_id'] !== $req->user['id'] && $req->user['role'] !== 'admin') {
-            
+
         }
         if ($req->user['role'] === 'rescuer' && $case['assigned_rescuer_id'] !== $req->user['id']) {
             Response::error('FORBIDDEN', 'Not your case', 403);

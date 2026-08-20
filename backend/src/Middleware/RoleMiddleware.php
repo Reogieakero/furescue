@@ -5,10 +5,9 @@ namespace App\Middleware;
 use App\Http\Request;
 use App\Http\Response;
 
-
 class RoleMiddleware
 {
-    
+
     private array $allowed;
 
     public function __construct(array $allowed)

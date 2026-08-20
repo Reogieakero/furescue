@@ -44,24 +44,12 @@ if ($sql !== '') {
 <meta charset="utf-8">
 <title>FURescue DB Viewer</title>
 <style>
-  body { font-family: system-ui, sans-serif; margin: 0; background: #f4f6f8; color: #1f2933; }
-  header { background: #0b6e4f; color: #fff; padding: 12px 18px; }
-  header h1 { margin: 0; font-size: 18px; }
+  body { font-family: system-ui, sans-serif; margin: 0; background:   header { background:   header h1 { margin: 0; font-size: 18px; }
   .wrap { display: flex; min-height: calc(100vh - 48px); }
-  .side { width: 260px; background: #fff; border-right: 1px solid #e0e4e8; padding: 10px; overflow: auto; }
-  .side a { display: block; padding: 6px 8px; color: #0b6e4f; text-decoration: none; border-radius: 4px; }
-  .side a:hover, .side a.active { background: #e6f4ef; }
-  .main { flex: 1; padding: 16px; overflow: auto; }
-  .msg { background: #e6f4ef; border: 1px solid #b7e0cf; padding: 8px 12px; border-radius: 4px; margin-bottom: 12px; }
-  .err { background: #fdecea; border-color: #f5c6cb; }
-  table { border-collapse: collapse; width: 100%; background: #fff; font-size: 13px; }
-  th, td { border: 1px solid #e0e4e8; padding: 6px 8px; text-align: left; vertical-align: top; max-width: 360px; word-break: break-word; }
-  th { background: #0b6e4f; color: #fff; }
-  tr:nth-child(even) td { background: #fafbfc; }
-  form { margin-bottom: 14px; }
+  .side { width: 260px; background:   .side a { display: block; padding: 6px 8px; color:   .side a:hover, .side a.active { background:   .main { flex: 1; padding: 16px; overflow: auto; }
+  .msg { background:   .err { background:   table { border-collapse: collapse; width: 100%; background:   th, td { border: 1px solid   th { background:   tr:nth-child(even) td { background:   form { margin-bottom: 14px; }
   textarea { width: 100%; height: 60px; font-family: monospace; padding: 8px; box-sizing: border-box; }
-  button { background: #0b6e4f; color: #fff; border: 0; padding: 8px 14px; border-radius: 4px; cursor: pointer; }
-  h2 { margin-top: 0; }
+  button { background:   h2 { margin-top: 0; }
 </style>
 </head>
 <body>

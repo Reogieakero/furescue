@@ -1,6 +1,5 @@
 import { cn } from "../../lib/utils.js";
 
-// shadcn-style Card components (Tailwind-based)
 export function Card({ className = "", children = "" } = {}) {
   return `<div class="${cn(
     "rounded-xl border bg-card text-card-foreground shadow",

@@ -1,4 +1,3 @@
-// Stats / impact band
 const stats = [
   { value: "1", label: "Centralized platform", sub: "for reports, maps & adoption" },
   { value: "24/7", label: "Community reporting", sub: "anytime, from anywhere" },

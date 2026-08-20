@@ -2,10 +2,9 @@
 
 namespace App\Http;
 
-
 class Router
 {
-    
+
     private array $routes = [];
 
     private array $fallback = [];

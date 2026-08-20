@@ -3,27 +3,6 @@ import { toast } from "./toast.js";
 import { Button } from "./button.js";
 import { Spinner } from "./spinner.js";
 
-// shadcn-style confirm Dialog (no framework — DOM based).
-// Usage:
-//   const ok = await confirmDialog({
-//     title: "Dismiss report",
-//     message: "Are you sure?",
-//     info: [
-//       { label: "Case", value: "#ABCD" },
-//       { label: "Barangay", value: "Mati Poblacion" },
-//     ],
-//     confirmText: "Dismiss",
-//     danger: true,
-//     withReason: true,
-//     reasonLabel: "Dismiss reason",
-//     reasonRequired: true,
-//     run: ({ reason }) => api.dismissReport(id, reason),
-//   });
-// Resolves with the run() result on success, false on cancel. On error it
-// shows a toast, keeps the dialog open (spinner shown in the confirm button
-// while running). If `onError` is provided it is called instead of the toast.
-// The confirm/cancel buttons use the shadcn Button component.
-
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({
     "&": "&amp;",

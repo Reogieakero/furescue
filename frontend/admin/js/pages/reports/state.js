@@ -1,4 +1,3 @@
-// Reports page state — populated entirely from the FurEscue API.
 import * as api from "../../lib/admin-data.js";
 import { safe } from "../dashboard/helpers.js";
 
@@ -34,8 +33,6 @@ export async function loadReports() {
   state.rescuers = rescuers.items || [];
 }
 
-// Re-fetches reports + cases + overview after an admin action, keeping the
-// current filter/query/page intact.
 export async function reloadData() {
   const [overview, reports, cases] = await Promise.all([
     safe(api.fetchOverview(), null),

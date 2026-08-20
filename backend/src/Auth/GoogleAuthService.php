@@ -9,7 +9,6 @@ use Firebase\JWT\BeforeValidException;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\SignatureInvalidException;
 
-
 class GoogleAuthService
 {
     private const CERTS_URL = 'https://www.googleapis.com/oauth2/v3/certs';
@@ -22,7 +21,6 @@ class GoogleAuthService
         $this->clientId = (string) Database::env('GOOGLE_CLIENT_ID', '');
     }
 
-    
     public function verifyIdToken(string $idToken): ?array
     {
         if ($this->clientId === '') {
@@ -70,7 +68,6 @@ class GoogleAuthService
         return is_array($header) ? ($header['kid'] ?? null) : null;
     }
 
-    
     private function fetchCerts(): array
     {
         $json = @file_get_contents(self::CERTS_URL);

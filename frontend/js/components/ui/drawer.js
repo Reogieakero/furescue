@@ -1,19 +1,7 @@
 import { createIcons, icons } from "lucide";
 import { Button } from "./button.js";
 
-// Tracks the currently open drawer so callers (e.g. hover-preview) can close it.
 let activeDrawer = null;
-
-// shadcn-style Drawer (bottom sheet, no framework — DOM based).
-// Usage:
-//   openDrawer({
-//     title: "Report details",
-//     description: "#ABCD · Mati Poblacion",
-//     body: `<div class="drawer-info">…</div><div id="report-detail-map" class="drawer-map"></div>`,
-//     footer: Button({ text: "Close", variant: "outline", attrs: 'data-act="close"' }),
-//     onMount: (bodyEl) => { /* init Leaflet map here */ },
-//   });
-// Resolves when the drawer is closed (overlay click, X, or Escape).
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({
@@ -74,7 +62,6 @@ export function openDrawer({
   });
 }
 
-// Closes the currently open drawer (used by the hover map preview).
 export function closeDrawer() {
   if (!activeDrawer) return;
   const overlay = activeDrawer;
@@ -83,7 +70,6 @@ export function closeDrawer() {
   setTimeout(() => overlay.remove(), 300);
 }
 
-// Returns the open drawer's overlay element, or null.
 export function getOpenDrawer() {
   return activeDrawer;
 }

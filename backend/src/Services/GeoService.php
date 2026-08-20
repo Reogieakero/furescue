@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Database;
 use PDO;
 
-
 class GeoService
 {
     private float $latMin;
@@ -27,7 +26,6 @@ class GeoService
             && $lng >= $this->lngMin && $lng <= $this->lngMax;
     }
 
-    
     public function heatmapPoints(?string $status = null): array
     {
         $where = "WHERE validation_status = 'validated' AND status = 'verified'";
@@ -45,10 +43,7 @@ class GeoService
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Reverse-geocodes a point into a specific, human-readable place name.
-    // Prefers the most granular component (hamlet / neighbourhood / suburb / …)
-    // over the broad barangay/city, so callers get the real spot, not just the area.
-    public function reverseGeocode(float $lat, float $lng): ?array
+                public function reverseGeocode(float $lat, float $lng): ?array
     {
         if (!is_numeric($lat) || !is_numeric($lng)) {
             return null;
@@ -98,10 +93,7 @@ class GeoService
         ];
     }
 
-    // Finds a CA bundle so PHP's curl can verify TLS to the geocoder without
-    // disabling peer verification. Override via GEO_CA_BUNDLE; otherwise probes
-    // common dev locations (Git for Windows, Linux/macOS system stores).
-    private function caBundle(): ?string
+                private function caBundle(): ?string
     {
         $candidates = [
             Database::env("GEO_CA_BUNDLE", ""),

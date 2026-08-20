@@ -1,4 +1,3 @@
-// Site footer. Layout styled via plain CSS (.footer* classes).
 export function Footer() {
   const year = new Date().getFullYear();
   const cols = [
@@ -53,4 +52,3 @@ export function Footer() {
     </div>
   </footer>`;
 }
-

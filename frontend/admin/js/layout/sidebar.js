@@ -1,4 +1,3 @@
-// Sidebar — grouped nav rail (Command Center). Mobile off-canvas wired in app-shell.js.
 
 const NAV_GROUPS = [
   {

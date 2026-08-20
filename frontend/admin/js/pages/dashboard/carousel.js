@@ -1,7 +1,3 @@
-// Auto-advancing, infinite right-to-left carousel.
-// Uses the clone-first-slide technique: a duplicate of slide 0 is appended to
-// the track so the loop never jumps back to the beginning — it glides onto the
-// clone, then snaps (transition disabled) to the real first slide.
 
 const INTERVAL_MS = 4000;
 const TRANSITION_MS = 500;
@@ -32,8 +28,7 @@ export function createCarousel(root) {
 
   const advance = () => {
     if (index === dots.length - 1) {
-      // Move onto the clone (which shows the first slide), then snap home.
-      setPos(index + 1, true);
+            setPos(index + 1, true);
       syncDots();
       window.setTimeout(() => {
         index = 0;

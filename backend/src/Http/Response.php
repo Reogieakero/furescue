@@ -2,7 +2,6 @@
 
 namespace App\Http;
 
-
 class Response
 {
     public static bool $sent = false;

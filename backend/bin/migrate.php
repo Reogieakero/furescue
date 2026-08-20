@@ -1,7 +1,4 @@
-#!/usr/bin/env php
 <?php
-
-
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -9,7 +6,6 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->safeLoad();
 
 use App\Database;
-
 
 function splitStatements(string $sql): array
 {

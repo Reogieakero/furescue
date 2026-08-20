@@ -5,13 +5,11 @@ namespace App\Repositories;
 use App\Database;
 use PDO;
 
-
 class Repository
 {
     protected PDO $pdo;
     protected string $table;
 
-    
     protected array $columns = [];
 
     public function __construct(PDO $pdo, string $table, array $columns = [])
@@ -38,7 +36,6 @@ class Repository
         return $row ?: null;
     }
 
-    
     public function findByComposite(array $columns, array $values): ?array
     {
         $clauses = [];
@@ -53,7 +50,6 @@ class Repository
         return $row ?: null;
     }
 
-    
     public function all(array $filters = [], string $orderBy = 'created_at', string $direction = 'DESC'): array
     {
         [$where, $params] = $this->buildWhere($filters);
@@ -64,7 +60,6 @@ class Repository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    
     public function paginate(int $page, int $perPage, array $filters = [], string $orderBy = 'created_at', string $direction = 'DESC'): array
     {
         $page = max(1, $page);
@@ -89,7 +84,6 @@ class Repository
         ];
     }
 
-    
     public function create(array $data): string
     {
         if (empty($data['id'])) {
@@ -106,7 +100,6 @@ class Repository
         return $data['id'];
     }
 
-    
     public function update(string $id, array $data): bool
     {
         unset($data['id']);
@@ -140,7 +133,6 @@ class Repository
         return (int) $stmt->fetchColumn();
     }
 
-    
     protected function buildWhere(array $filters): array
     {
         $clauses = [];

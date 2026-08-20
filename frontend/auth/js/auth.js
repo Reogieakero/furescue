@@ -10,7 +10,6 @@ import { Separator } from "../../js/components/ui/separator.js";
 import { toast } from "../../js/components/ui/toast.js";
 import { showLoader, hideLoader } from "../../js/components/ui/loader.js";
 
-// Inline Google "G" so we don't depend on a brand icon pack
 function GoogleIcon() {
   return `<svg class="google-icon" viewBox="0 0 48 48" width="18" height="18" aria-hidden="true">
     <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.4 1.1 7.3 2.8l5.7-5.7C33.5 6.5 29 5 24 5 13.5 5 5 13.5 5 24s8.5 19 19 19 19-8.5 19-19c0-1.3-.1-2.3-.4-3.5z"/>
@@ -157,5 +156,3 @@ document.addEventListener("DOMContentLoaded", () => {
   createIcons({ icons });
   initLogin();
 });
-
-

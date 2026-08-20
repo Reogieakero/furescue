@@ -1,6 +1,3 @@
-// Queue tab switching, shadcn pagination, and admin actions for
-// "Needs your attention" (verify/dismiss reports, approve/reject rescuers,
-// approve/decline adoptions). All actions confirm first and hit the API.
 import { createIcons, icons } from "lucide";
 import { queueState, state, refreshQueue } from "./state.js";
 import { toast } from "../../../../js/components/ui/toast.js";

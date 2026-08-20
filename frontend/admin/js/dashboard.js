@@ -1,4 +1,3 @@
-// Admin Command Center — dashboard entry.
 import { createIcons, icons } from "lucide";
 import { requireAuth } from "../../js/lib/api.js";
 import { initShell } from "./layout/app-shell.js";

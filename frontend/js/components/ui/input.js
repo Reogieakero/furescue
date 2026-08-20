@@ -1,6 +1,5 @@
 import { cn } from "../../lib/utils.js";
 
-// shadcn-style Input
 export function Input({
   id = "",
   name = "",

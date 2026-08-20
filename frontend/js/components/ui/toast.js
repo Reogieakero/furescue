@@ -1,9 +1,5 @@
 import { createIcons, icons } from "lucide";
 
-// shadcn-style Toast (no framework — DOM based).
-// Usage: toast("Report verified", { type: "success" });
-// type: "success" | "error" | "info" | "default"
-
 const ICONS = {
   success: "check-circle-2",
   error: "alert-circle",

@@ -1,6 +1,5 @@
 import { cn } from "../../lib/utils.js";
 
-// shadcn-style Checkbox (native input, styled)
 export function Checkbox({
   id = "",
   name = "",

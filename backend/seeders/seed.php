@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -56,9 +55,6 @@ function rowExists(\PDO $pdo, string $table, string $where, array $params = []):
 
 $adminEmail = 'admin@furescue.local';
 
-/* ------------------------------------------------------------------ */
-/*  Base accounts + starter e-learning (only when admin is missing)   */
-/* ------------------------------------------------------------------ */
 $adminId = userId($pdo, $adminEmail);
 if (!$adminId) {
     $adminId = insert($pdo, 'users', [
@@ -105,9 +101,6 @@ if (!$adminId) {
     echo "Admin already exists — base accounts skipped.\n";
 }
 
-/* ------------------------------------------------------------------ */
-/*  Extra e-learning modules (idempotent)                              */
-/* ------------------------------------------------------------------ */
 $extraModules = [
     ['Loose Leash Walking', 'basic_training', 'Step-by-step guide to calm loose-leash walking for shelter dogs.', 'published'],
     ['Enrichment for Shelter Dogs', 'general_care', 'Simple enrichment ideas that keep rescued dogs mentally stimulated.', 'published'],
@@ -122,13 +115,8 @@ foreach ($extraModules as $m) {
     }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Demo dataset — every insert below is idempotent, so re-runs only   */
-/*  fill in anything that was missing (safe to run repeatedly).        */
-/* ------------------------------------------------------------------ */
 echo "Seeding demo datasets...\n";
 
-/* Residents */
 $residents = [
     ['Ana Santos',   'ana@furescue.local',   '09171234563', 'Barangay Matiao, City of Mati'],
     ['Pedro Ramos',  'pedro@furescue.local', '09171234564', 'Barangay Bobon, City of Mati'],
@@ -146,7 +134,6 @@ foreach ($residents as $r) {
 $residentIds[] = userId($pdo, 'juan@furescue.local');
 $residentIds[] = userId($pdo, 'maria@furescue.local');
 
-/* Active rescuers (approved + on duty) */
 $activeRescuers = [
     ['Rescuer Two',   'rescuer2@furescue.local', '09171234567'],
     ['Rescuer Three', 'rescuer3@furescue.local', '09171234568'],
@@ -170,7 +157,6 @@ foreach ($activeRescuers as $r) {
     $rescuerIds[] = $id;
 }
 
-/* Pending rescuer applicants */
 $applicants = [
     ['Rescuer Six',   'rescuer6@furescue.local', '09171234571'],
     ['Rescuer Seven', 'rescuer7@furescue.local', '09171234572'],
@@ -182,7 +168,6 @@ foreach ($applicants as $r) {
     ]);
 }
 
-/* Barangay hotspots around City of Mati (within MATI bounds) */
 $spots = [
     ['Poblacion',     6.9510, 126.1990],
     ['Dahican',       6.9412, 126.2300],
@@ -284,7 +269,6 @@ for ($i = 0; $i < count($spots); $i++) {
     ]);
 }
 
-/* Medical records for a handful of animals */
 foreach ([0, 1, 3, 4, 6] as $mi) {
     if (!isset($animalByIdx[$mi])) {
         continue;
@@ -302,7 +286,6 @@ foreach ([0, 1, 3, 4, 6] as $mi) {
     ]);
 }
 
-/* Adoption listings + applications */
 $listingAnimals = [0, 1, 2, 3, 4, 5, 6];
 foreach ($listingAnimals as $li) {
     if (!isset($animalByIdx[$li])) {
@@ -323,8 +306,7 @@ foreach ($listingAnimals as $li) {
 }
 
 $adoptionRows = [
-    // animalIdx, applicantEmail, status, completedOffsetDays
-    [0, 'juan@furescue.local',   'completed', 1],
+        [0, 'juan@furescue.local',   'completed', 1],
     [1, 'maria@furescue.local',  'completed', 4],
     [3, 'ana@furescue.local',    'approved',  null],
     [5, 'rosa@furescue.local',   'approved',  null],
@@ -357,7 +339,6 @@ foreach ($adoptionRows as $row) {
     }
 }
 
-/* Unread notifications for the admin */
 $notifications = [
     'New report flagged in Poblacion — awaiting verification.',
     'Rescuer application from Rescuer Six needs your review.',

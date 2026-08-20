@@ -1,5 +1,3 @@
-// Shared API client for FurEscue frontend.
-// Set window.FURESCUE_API_BASE_URL before this module loads to override the backend URL.
 export const API_BASE_URL =
   window.FURESCUE_API_BASE_URL || "http://127.0.0.1:8899/api/v1";
 
@@ -7,8 +5,6 @@ const TOKEN_KEY = "furescue_access_token";
 const REFRESH_KEY = "furescue_refresh_token";
 const USER_KEY = "furescue_user";
 
-// All entry pages live one folder deep under frontend/ (landing/, auth/, admin/),
-// so root-relative redirects are "../<folder>/<page>".
 export function getAccessToken() {
   return localStorage.getItem(TOKEN_KEY) || "";
 }
@@ -56,8 +52,6 @@ export async function apiFetch(path, { method = "GET", body, auth = true } = {})
   return payload && payload.data;
 }
 
-// Like apiFetch but returns the full payload { data, meta } so paginated
-// reads can access meta.total (item count) alongside the rows.
 export async function apiFetchFull(path, opts = {}) {
   return request(path, opts);
 }
@@ -84,7 +78,7 @@ async function request(path, { method = "GET", body, auth = true } = {}) {
   try {
     payload = await res.json();
   } catch {
-    /* non-JSON response */
+
   }
 
   if (!res.ok) {
@@ -114,8 +108,6 @@ export function login(email, password) {
   });
 }
 
-// Guards a page: redirects to login when unauthenticated and to the right
-// home when the role doesn't match. Returns the session user or null.
 export function requireAuth(roles = []) {
   const user = getSessionUser();
   if (!getAccessToken() || !user) {

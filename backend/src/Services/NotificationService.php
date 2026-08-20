@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Database;
 use PDO;
 
-
 class NotificationService
 {
     private PDO $pdo;

@@ -1,4 +1,3 @@
-// Pure helpers for the dashboard page.
 
 export function shortId(id) {
   if (!id) return "—";
@@ -23,7 +22,6 @@ export function initials(name) {
     .toUpperCase();
 }
 
-// Title-cases display text/statuses, e.g. "pending_verification" -> "Pending Verification".
 export function titleCase(value) {
   return String(value ?? "")
     .replace(/_/g, " ")
@@ -81,8 +79,6 @@ export function buildWeekChart(trends) {
   return { bars: out, growth };
 }
 
-// Runs a promise and returns `fallback` instead of throwing, so one dead
-// endpoint never takes down the whole dashboard.
 export async function safe(promise, fallback) {
   try {
     return await promise;

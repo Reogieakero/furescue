@@ -6,7 +6,6 @@ use App\Database;
 use App\Repositories\Repository;
 use PDO;
 
-
 class DedupService
 {
     private PDO $pdo;
@@ -29,7 +28,6 @@ class DedupService
         return hash('sha256', $normalized . '|' . $roundedLat . '|' . $roundedLng . '|' . $day);
     }
 
-    
     public function findDuplicate(string $contentHash, float $lat, float $lng): ?string
     {
         $since = date('Y-m-d H:i:s', strtotime("-{$this->windowHours} hours"));

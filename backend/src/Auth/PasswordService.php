@@ -2,7 +2,6 @@
 
 namespace App\Auth;
 
-
 class PasswordService
 {
     private const ALGO = PASSWORD_ARGON2ID;

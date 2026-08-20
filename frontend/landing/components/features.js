@@ -1,6 +1,5 @@
 import { Card, CardHeader, CardTitle, CardDescription } from "../../js/components/ui/card.js";
 
-// Feature highlights of the platform
 const features = [
   {
     icon: "map",
@@ -71,4 +70,3 @@ export function Features() {
     </div>
   </section>`;
 }
-

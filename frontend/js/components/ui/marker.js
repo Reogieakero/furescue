@@ -1,7 +1,5 @@
 import { Spinner } from "./spinner.js";
 
-// shadcn-style Marker / Stepper UI primitive
-// Numbered markers up top; optional status line (spinner + text) under each description.
 export function Stepper({ steps = [], className = "" } = {}) {
   const items = steps
     .map((s, i) => {

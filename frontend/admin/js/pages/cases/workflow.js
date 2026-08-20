@@ -1,4 +1,3 @@
-// Cases page workflow — assign rescuer, resolve, reassign, drawer actions.
 import { createIcons, icons } from "lucide";
 import * as api from "../../lib/admin-data.js";
 import { toast } from "../../../../js/components/ui/toast.js";
@@ -23,8 +22,6 @@ function esc(value) {
 function caseOf(id) {
   return state.cases.find((c) => c.id === id) || null;
 }
-
-/* ---------- assign rescuer ---------- */
 
 function assignDialog(caseId, reportId) {
   return new Promise((resolve) => {
@@ -100,8 +97,6 @@ function assignDialog(caseId, reportId) {
   });
 }
 
-/* ---------- resolve ---------- */
-
 async function runResolve(id) {
   const c = caseOf(id);
   const ok = await confirmDialog({
@@ -133,8 +128,6 @@ async function runReassign(id, reportId) {
     });
   });
 }
-
-/* ---------- events ---------- */
 
 export function initCasesEvents() {
   const main = document.getElementById("app");
@@ -195,8 +188,7 @@ export function initCasesEvents() {
     renderCaseList();
   });
 
-  // Drawer action buttons live outside #app, so they need their own listener.
-  document.addEventListener("click", (e) => {
+    document.addEventListener("click", (e) => {
     const dAction = e.target.closest("[data-drawer-action]");
     if (!dAction) return;
     const action = dAction.dataset.drawerAction;

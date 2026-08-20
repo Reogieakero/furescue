@@ -9,7 +9,6 @@ use Firebase\JWT\ExpiredException;
 use Firebase\JWT\SignatureInvalidException;
 use Firebase\JWT\BeforeValidException;
 
-
 class JwtService
 {
     private string $secret;
@@ -27,7 +26,6 @@ class JwtService
         $this->refreshTtlDays = (int) Database::env('JWT_REFRESH_TTL_DAYS', 7);
     }
 
-    
     public function issueAccessToken(array $user): string
     {
         $now = time();
@@ -43,7 +41,6 @@ class JwtService
         return JWT::encode($payload, $this->secret, $this->algo);
     }
 
-    
     public function issueRefreshToken(array $user): string
     {
         $now = time();
@@ -58,7 +55,6 @@ class JwtService
         return JWT::encode($payload, $this->refreshSecret, $this->algo);
     }
 
-    
     public function verifyAccessToken(string $token): ?array
     {
         try {
@@ -73,7 +69,6 @@ class JwtService
         return $arr;
     }
 
-    
     public function verifyRefreshToken(string $token): ?array
     {
         try {
