@@ -27,6 +27,9 @@ export const fetchCases = () => list("/cases");
 
 export const fetchAnimals = () => list("/animals");
 
+export const fetchAllAnimals = (perPage = 1000) =>
+  apiFetchFull(`/animals?per_page=${perPage}`).then((d) => (d && Array.isArray(d.data) ? d.data : []));
+
 export const createAnimal = (body) =>
   post("/animals", body).then((p) => (p && p.data ? p.data.animal : null));
 
@@ -53,6 +56,20 @@ export const fetchAdoptionTrends = () =>
 
 export const fetchHealthUpdates = () =>
   raw("/health/updates").then((d) => (d && d.updates) || []);
+
+export const fetchHealthRecords = () =>
+  raw("/health/records").then((d) => (d && d.records) || []);
+
+export const fetchMedicalAnimalIds = () =>
+  fetchHealthRecords()
+    .then((records) => {
+      const list = Array.isArray(records) ? records : [];
+      return new Set(list.filter((r) => r.hasMedicalRecord).map((r) => r.animalId));
+    })
+    .catch(() => new Set());
+
+export const fetchHealthActivity = () =>
+  raw("/health/activity").then((d) => (d && d.daily) || []);
 
 export const fetchHeatmap = () =>
   raw("/reports/map/heatmap").then((d) => (d && d.points) || []);

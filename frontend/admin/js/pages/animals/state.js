@@ -76,6 +76,10 @@ export const state = {
 export async function loadAnimals() {
   const res = await safe(api.fetchAnimals(), { items: [], total: 0 });
   state.animals = (res.items || []).map(normalize);
+  const medSet = await safe(api.fetchMedicalAnimalIds(), new Set());
+  state.animals.forEach((a) => {
+    a.hasMedical = medSet.has(a.id);
+  });
   return state.animals;
 }
 

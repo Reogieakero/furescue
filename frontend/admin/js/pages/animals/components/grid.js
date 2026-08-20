@@ -11,6 +11,7 @@ function AnimalCard(a) {
     <div class="animal-thumb animal-thumb--${a.species.toLowerCase()}">
       ${a.photo ? `<img src="${esc(a.photo)}" alt="${esc(a.name)}" class="animal-thumb-img">` : `<span class="animal-thumb-initial">${esc(initial)}</span><i data-lucide="${speciesIcon(a.species)}" class="animal-thumb-icon"></i>`}
       ${a.isNew ? `<span class="stamp stamp--sm stamp--jungle animal-card-new">New</span>` : ""}
+      <span class="animal-card-ribbon ${a.hasMedical ? "animal-card-ribbon--green" : "animal-card-ribbon--red"}">${a.hasMedical ? "Medical" : "No records"}</span>
     </div>
     <div class="animal-card-body">
       <div class="animal-card-top">

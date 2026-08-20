@@ -11,6 +11,7 @@ use App\Controllers\AnimalMedicalController;
 use App\Controllers\AuthController;
 use App\Controllers\CaseController;
 use App\Controllers\ElearningController;
+use App\Controllers\HealthController;
 use App\Controllers\MessageController;
 use App\Controllers\NotificationController;
 use App\Controllers\ReportController;
@@ -139,6 +140,8 @@ $router->add('POST', '/api/v1/elearning/progress', fn(Request $r) => (new Elearn
 $router->add('GET', '/api/v1/analytics/overview', fn(Request $r) => (new AnalyticsController($pdo))->overview($r), [$authMw, $adminMw]);
 $router->add('GET', '/api/v1/analytics/adoption-trends', fn(Request $r) => (new AnalyticsController($pdo))->adoptionTrends($r), [$authMw, $adminMw]);
 $router->add('GET', '/api/v1/health/updates', fn(Request $r) => (new AnalyticsController($pdo))->healthUpdates($r), [$authMw, $adminMw]);
+$router->add('GET', '/api/v1/health/records', fn(Request $r) => (new HealthController($pdo))->records($r), [$authMw, $adminMw]);
+$router->add('GET', '/api/v1/health/activity', fn(Request $r) => (new HealthController($pdo))->activity($r), [$authMw, $adminMw]);
 
 $router->add('GET', '/api/v1/geo/reverse', function (Request $r) use ($geo) {
     $lat = $r->query['lat'] ?? null;

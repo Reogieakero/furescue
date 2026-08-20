@@ -81,6 +81,7 @@
 }
 
 .animal-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   text-align: left;
@@ -93,6 +94,33 @@
   font: inherit;
   color: hsl(var(--ink));
   transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+}
+
+/* Diagonal corner ribbon (gift-style wrap) — medical-record status */
+.animal-card-ribbon {
+  position: absolute;
+  top: 14px;
+  right: -40px;
+  width: 150px;
+  transform: rotate(45deg);
+  transform-origin: center;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 4px 0;
+  color: #fff;
+  z-index: 3;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(8, 20, 35, 0.28);
+}
+.animal-card-ribbon--green {
+  background: hsl(152, 58%, 34%);
+}
+.animal-card-ribbon--red {
+  background: hsl(0, 72%, 51%);
 }
 .animal-card:hover {
   border-color: hsl(var(--jungle2));

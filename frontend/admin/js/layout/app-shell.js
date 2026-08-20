@@ -22,6 +22,7 @@ const NAV_TARGETS = {
   cases: "cases.html",
   rescuers: "rescuers.html",
   animals: "animals.html",
+  "health records": "health-records.html",
 };
 
 export function initShell() {

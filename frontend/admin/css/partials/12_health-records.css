@@ -1,0 +1,425 @@
+/* Health Records dashboard — new vocabulary only.
+   Layout primitives (.panel, .cols, .kpi-grid, .table, .status-dot…)
+   come from the earlier partials. */
+
+.hr-chart {
+  position: relative;
+  width: 100%;
+  height: 260px;
+}
+@media (max-width: 1023px) {
+  .hr-chart {
+    height: 220px;
+  }
+}
+
+/* donut legend colour dots */
+.status-dot.status-seg--complete {
+  background: hsl(199, 74%, 53%);
+}
+.status-dot.status-seg--partial {
+  background: hsl(206, 50%, 53%);
+}
+.status-dot.status-seg--none {
+  background: hsl(215, 16%, 47%);
+}
+.status-dot.status-seg--healthy {
+  background: hsl(199, 74%, 53%);
+}
+.status-dot.status-seg--treatment {
+  background: hsl(206, 50%, 53%);
+}
+.status-dot.status-seg--critical {
+  background: hsl(0, 72%, 51%);
+}
+
+/* top conditions — pure CSS bars */
+.hr-cond-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+.hr-cond-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 10px;
+  align-items: center;
+}
+.hr-cond-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(11, 37, 69, 0.7);
+}
+.hr-cond-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: hsl(var(--ink));
+}
+.hr-cond-track {
+  grid-column: 1 / -1;
+  height: 8px;
+  background: hsl(var(--paperdark));
+  overflow: hidden;
+}
+.hr-cond-bar {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: hsl(var(--jungle2));
+  transition: width 0.4s ease;
+}
+
+/* species toggle */
+.hr-toggle {
+  display: inline-flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.hr-toggle-btn {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+  background: hsl(var(--paperdark));
+  color: rgba(11, 37, 69, 0.6);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.hr-toggle-btn:hover {
+  color: hsl(var(--jungle));
+}
+.hr-toggle-btn.is-active {
+  background: hsl(var(--jungle));
+  color: #fff;
+}
+
+/* attention queue — card grid (3 per row inside the split column) */
+.hr-queue-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 16px;
+  align-content: start;
+  flex: 1 1 auto;
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .hr-queue-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .hr-queue-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.hr-queue-grid.is-expanded {
+  max-height: 340px;
+  overflow-y: auto;
+}
+.hr-queue-empty {
+  grid-column: 1 / -1;
+}
+.hr-queue-tally {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.hr-queue-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  text-align: left;
+  font: inherit;
+  color: hsl(var(--ink));
+  background: #fff;
+  border: 1px solid rgba(11, 37, 69, 0.12);
+  border-left: 3px solid rgba(11, 37, 69, 0.2);
+  cursor: pointer;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+}
+.hr-queue-card:hover {
+  border-color: hsl(var(--jungle2));
+  box-shadow: 0 6px 18px -10px rgba(11, 37, 69, 0.35);
+  transform: translateY(-2px);
+}
+.hr-queue-card:focus-visible {
+  outline: 2px solid hsl(var(--jungle2));
+  outline-offset: 2px;
+}
+.hr-queue-card--critical {
+  border-left-color: hsl(0, 72%, 51%);
+}
+.hr-queue-card--warn {
+  border-left-color: hsl(var(--coral));
+}
+.hr-queue-card--soon {
+  border-left-color: hsl(var(--stamp));
+}
+
+.hr-qc-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hr-qc-kind {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: hsl(var(--paperdark));
+  color: hsl(var(--jungle));
+}
+.hr-qc-kind .lucide {
+  width: 14px;
+  height: 14px;
+}
+.hr-qc-days {
+  margin-left: auto;
+  white-space: nowrap;
+}
+.hr-qc-days--critical {
+  color: hsl(0, 72%, 51%);
+}
+.hr-qc-days--warn {
+  color: hsl(var(--coral));
+}
+.hr-qc-days--soon {
+  color: hsl(var(--stamp));
+}
+.hr-qc-name {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hr-qc-meta {
+  font-size: 11px;
+  color: rgba(11, 37, 69, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hr-qc-reason {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 2px dashed rgba(11, 37, 69, 0.12);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(11, 37, 69, 0.7);
+}
+.hr-qc-id {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(11, 37, 69, 0.45);
+}
+.hr-qc-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(11, 37, 69, 0.5);
+}
+.hr-qc-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.hr-qc-date .lucide {
+  width: 12px;
+  height: 12px;
+}
+.hr-qc-go {
+  display: inline-flex;
+  color: hsl(var(--jungle2));
+  transition: transform 0.12s ease;
+}
+.hr-queue-card:hover .hr-qc-go {
+  transform: translateX(2px);
+}
+
+.hr-queue-all {
+  width: 100%;
+  margin-top: auto;
+  padding: 10px 16px;
+  border: none;
+  border-top: 2px dashed rgba(11, 37, 69, 0.12);
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: hsl(var(--jungle));
+  transition: color 0.15s ease;
+}
+.hr-queue-all:hover {
+  color: hsl(var(--coral));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hr-queue-card,
+  .hr-qc-go {
+    transition: none;
+  }
+  .hr-queue-card:hover {
+    transform: none;
+  }
+}
+
+/* records table: rows are not clickable (no drawer) */
+.hr-table tbody tr {
+  cursor: default;
+}
+.hr-table tbody tr:hover {
+  background: rgba(243, 248, 253, 0.7);
+}
+
+.hr-cell-animal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+.hr-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: hsl(var(--paperdark));
+  color: hsl(var(--ink));
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.hr-id {
+  font-family: var(--font-mono);
+  color: rgba(11, 37, 69, 0.5);
+  font-size: 11px;
+}
+.hr-species {
+  font-size: 11px;
+  color: rgba(11, 37, 69, 0.55);
+}
+
+/* toolbar label for the time-range / sort selects */
+.report-sort-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(11, 37, 69, 0.5);
+}
+
+/* vaccination row — three equal-height cards (dog / cat / top conditions) */
+.cols--vax {
+  margin-bottom: 16px;
+}
+
+/* split row — Health by barangay + Attention queue locked to the same height.
+   Wrappers use display:contents so the .panel becomes the grid item and
+   stretches equally with its sibling via grid align-items: stretch. */
+.cols--two.hr-split-row {
+  align-items: stretch;
+}
+.cols--two.hr-split-row > div {
+  display: contents;
+}
+.cols--two.hr-split-row > .panel {
+  margin-bottom: 0;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+}
+.cols--two.hr-split-row .hr-chart {
+  flex: 1 1 auto;
+  min-height: 260px;
+}
+.cols--vax > div {
+  display: contents;
+}
+.cols--vax > .panel {
+  margin-bottom: 0;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+}
+.cols--vax .donut {
+  width: 150px;
+  height: 150px;
+}
+.cols--vax .hr-vax-list {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 2px dashed rgba(11, 37, 69, 0.12);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.hr-vax-group {
+  flex: 1;
+  min-width: 110px;
+}
+.hr-vax-group-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: hsl(var(--jungle));
+  margin-bottom: 6px;
+}
+.hr-vax-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.hr-vax-items li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(11, 37, 69, 0.7);
+}
+.hr-vax-items li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: hsl(var(--jungle2));
+}
+
+/* records table — spacing + cell alignment */
+#hr-records {
+  margin-top: 16px;
+}
+.table-cell--center {
+  text-align: center;
+}
+.table-head th.table-cell--center {
+  text-align: center;
+}
