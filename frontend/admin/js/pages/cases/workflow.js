@@ -1,12 +1,11 @@
 import { createIcons, icons } from "lucide";
 import * as api from "../../lib/admin-data.js";
 import { toast } from "../../../../js/components/ui/toast.js";
-import { confirmDialog } from "../../../../js/components/ui/dialog.js";
 import { Button } from "../../../../js/components/ui/button.js";
 import { Select, initSelect } from "../../../../js/components/ui/select.js";
 import { Spinner } from "../../../../js/components/ui/spinner.js";
 import { state, reloadData, saveFilterPref } from "./state.js";
-import { rerenderAll, openCaseDrawer, renderCaseList } from "./components.js";
+import { rerenderAll, renderCaseList } from "./components.js";
 import { shortId, titleCase } from "../dashboard/helpers.js";
 
 function esc(value) {
@@ -19,13 +18,11 @@ function esc(value) {
   }[c]));
 }
 
-function caseOf(id) {
-  return state.cases.find((c) => c.id === id) || null;
-}
-
 function assignDialog(caseId, reportId) {
   return new Promise((resolve) => {
-    const rescuers = state.rescuers.filter((u) => u.role === "rescuer" && u.account_status === "active");
+    const rescuers = state.rescuers.filter(
+      (u) => u.role === "rescuer" && u.account_status === "active" && (u.duty_status || "off_duty") === "on_duty"
+    );
     const options = rescuers.map((u) => ({ value: u.id, label: u.full_name || "Unnamed rescuer" }));
 
     const overlay = document.createElement("div");
@@ -44,7 +41,7 @@ function assignDialog(caseId, reportId) {
           ${options.length
             ? `<label class="dialog-label" for="assign-rescuer">Rescuer<span class="dialog-req"> *</span></label>
                ${Select({ id: "assign-rescuer", options, placeholder: "Select a rescuer…", className: "w-full" })}`
-            : `<div class="empty-state"><i data-lucide="siren"></i><span>No active rescuers available.</span></div>`}
+            : `<div class="empty-state"><i data-lucide="siren"></i><span>No on-duty rescuers available.</span></div>`}
         </div>
         <div class="dialog-foot">
           ${Button({ text: "Cancel", variant: "outline", attrs: 'data-act="cancel"' })}
@@ -97,38 +94,6 @@ function assignDialog(caseId, reportId) {
   });
 }
 
-async function runResolve(id) {
-  const c = caseOf(id);
-  const ok = await confirmDialog({
-    title: "Resolve case",
-    message: `Mark ${shortId(id)} as resolved?`,
-    info: [
-      { label: "Case", value: shortId(id) },
-      { label: "Barangay", value: c && c.report_id ? titleCase((state.reports.find((r) => r.id === c.report_id) || {}).address_text || "—") : "—" },
-      { label: "Status", value: c ? titleCase(c.status) : "—" },
-    ],
-    confirmText: "Resolve",
-    cancelText: "Cancel",
-    danger: false,
-    run: () => api.updateCaseStatus(id, "resolved"),
-  });
-  if (!ok) return;
-  toast(`Case ${shortId(id)} marked resolved.`, { type: "success" });
-  await reloadData();
-  rerenderAll();
-  createIcons({ icons });
-}
-
-async function runReassign(id, reportId) {
-  assignDialog(id, reportId).then((payload) => {
-    if (!payload) return;
-    reloadData().then(() => {
-      rerenderAll();
-      createIcons({ icons });
-    });
-  });
-}
-
 export function initCasesEvents() {
   const main = document.getElementById("app");
 
@@ -176,7 +141,7 @@ export function initCasesEvents() {
 
     const card = e.target.closest("article[data-case-id]");
     if (card) {
-      openCaseDrawer(card.dataset.caseId);
+      window.location.href = "case-detail.html?id=" + encodeURIComponent(card.dataset.caseId);
     }
   });
 
@@ -186,15 +151,5 @@ export function initCasesEvents() {
     state.query = s.value;
     state.page = 1;
     renderCaseList();
-  });
-
-    document.addEventListener("click", (e) => {
-    const dAction = e.target.closest("[data-drawer-action]");
-    if (!dAction) return;
-    const action = dAction.dataset.drawerAction;
-    const caseId = dAction.dataset.case;
-    const reportId = dAction.dataset.report;
-    if (action === "resolve") return runResolve(caseId);
-    if (action === "reassign") return runReassign(caseId, reportId);
   });
 }

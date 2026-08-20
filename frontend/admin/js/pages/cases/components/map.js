@@ -1,7 +1,6 @@
 import { state } from "../state.js";
 import { createIcons, icons } from "lucide";
 import { esc, enrich } from "./util.js";
-import { openCaseDrawer } from "./drawer.js";
 
 const MATI_CENTER = [6.95, 126.2];
 const MATI_BOUNDS = [
@@ -72,13 +71,7 @@ export function renderCaseMap() {
       }).addTo(map);
       marker.bindPopup(`<strong>${esc(c.shortId)}</strong> &middot; ${esc(c.status)}<br>${esc(c.brgy)}`);
       marker.on("click", () => {
-        const card = document.querySelector(`[data-case-id="${cssEscape(c.id)}"]`);
-        if (card) {
-          card.scrollIntoView({ behavior: "smooth", block: "center" });
-          card.classList.add("is-highlight");
-          setTimeout(() => card.classList.remove("is-highlight"), 1800);
-        }
-        openCaseDrawer(c.id);
+        window.location.href = "case-detail.html?id=" + encodeURIComponent(c.id);
       });
     });
   }
@@ -91,10 +84,6 @@ export function renderCaseMap() {
 }
 
 let caseMapInstance = null;
-
-function cssEscape(value) {
-  return String(value).replace(/["\\]/g, "\\$&");
-}
 
 export function initCaseMapMode() {
   const wrap = document.getElementById("case-map-toggle");

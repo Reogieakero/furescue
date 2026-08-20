@@ -16,6 +16,11 @@ class UserController extends AbstractController
 
     public function index(Request $req): void
     {
+        if (($req->query['role'] ?? null) === 'rescuer') {
+            $this->indexRescuers($req);
+            return;
+        }
+
         $repo = $this->repo('users', ['id','full_name','email','role','account_status','phone_number','created_at']);
         $filters = [];
         if (!empty($req->query['role'])) {
@@ -30,6 +35,41 @@ class UserController extends AbstractController
             return $u;
         }, $result['items']);
         Response::paginated($clean, $this->meta($result['page'], $result['per_page'], $result['total']));
+    }
+
+    private function indexRescuers(Request $req): void
+    {
+        $where = [];
+        $params = [];
+        if (!empty($req->query['account_status'])) {
+            $where[] = 'u.account_status = ?';
+            $params[] = $req->query['account_status'];
+        }
+        $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
+
+        $page = $this->page($req);
+        $perPage = $this->perPage($req);
+        $offset = ($page - 1) * $perPage;
+
+        $countStmt = $this->pdo->prepare("SELECT COUNT(*) FROM users u {$whereSql}");
+        $countStmt->execute($params);
+        $total = (int) $countStmt->fetchColumn();
+
+        $stmt = $this->pdo->prepare(
+            "SELECT u.*, COALESCE(d.status, 'off_duty') AS duty_status
+             FROM users u
+             LEFT JOIN rescuer_duty_status d ON d.user_id = u.id
+             {$whereSql}
+             ORDER BY u.created_at DESC
+             LIMIT ? OFFSET ?"
+        );
+        $stmt->execute(array_merge($params, [$perPage, $offset]));
+        $clean = array_map(function ($u) {
+            unset($u['password_hash']);
+            return $u;
+        }, $stmt->fetchAll(\PDO::FETCH_ASSOC));
+
+        Response::paginated($clean, $this->meta($page, $perPage, $total));
     }
 
     public function show(Request $req): void

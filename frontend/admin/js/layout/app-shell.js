@@ -20,6 +20,7 @@ const NAV_TARGETS = {
   dashboard: "index.html",
   reports: "reports.html",
   cases: "cases.html",
+  rescuers: "rescuers.html",
 };
 
 export function initShell() {

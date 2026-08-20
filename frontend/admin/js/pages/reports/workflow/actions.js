@@ -60,7 +60,9 @@ async function runDismiss(id) {
 
 function assignDialog(caseId, reportId) {
   return new Promise((resolve) => {
-    const rescuers = state.rescuers.filter((u) => u.role === "rescuer" && u.account_status === "active");
+    const rescuers = state.rescuers.filter(
+      (u) => u.role === "rescuer" && u.account_status === "active" && (u.duty_status || "off_duty") === "on_duty"
+    );
     const options = rescuers.map((u) => ({ value: u.id, label: u.full_name || "Unnamed rescuer" }));
 
     const overlay = document.createElement("div");
@@ -79,7 +81,7 @@ function assignDialog(caseId, reportId) {
           ${options.length
             ? `<label class="dialog-label" for="assign-rescuer">Rescuer<span class="dialog-req"> *</span></label>
                ${Select({ id: "assign-rescuer", options, placeholder: "Select a rescuer…", className: "w-full" })}`
-            : `<div class="empty-state"><i data-lucide="siren"></i><span>No active rescuers available.</span></div>`}
+            : `<div class="empty-state"><i data-lucide="siren"></i><span>No on-duty rescuers available.</span></div>`}
         </div>
         <div class="dialog-foot">
           ${Button({ text: "Cancel", variant: "outline", attrs: 'data-act="cancel"' })}

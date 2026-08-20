@@ -18,7 +18,10 @@ class AnalyticsController extends AbstractController
             'animals_adopted' => $this->countWhere("animals", "adoption_status = 'adopted'"),
             'adoptions_pending' => $this->countWhere("adoptions", "status = 'pending'"),
             'adoptions_completed' => $this->countWhere("adoptions", "status = 'completed'"),
-            'rescuers_on_duty' => $this->countWhere("rescuer_duty_status", "status = 'on_duty'"),
+            'rescuers_on_duty' => $this->countWhere(
+                "rescuer_duty_status d JOIN users u ON u.id = d.user_id",
+                "d.status = 'on_duty' AND u.account_status = 'active' AND u.role = 'rescuer'"
+            ),
             'residents' => $this->countWhere("users", "role = 'resident'"),
         ];
         Response::success(['stats' => $stats]);

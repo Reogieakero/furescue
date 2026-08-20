@@ -20,3 +20,20 @@ export function formatMeta(value, key) {
   if (value && value[key]) return value[key];
   return "";
 }
+
+// JSON columns (photo_urls / resolution_photos) arrive from the API as JSON
+// strings; normalise them into an array of URL strings.
+export function photos(value) {
+  if (!value) return [];
+  if (typeof value === "string") {
+    try {
+      value = JSON.parse(value);
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((f) => (typeof f === "string" ? f : (f && f.url) || ""))
+    .filter(Boolean);
+}

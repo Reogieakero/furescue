@@ -25,7 +25,7 @@ export function DashboardPage(user) {
     user,
     notifications: state.notifications.total,
     badges: {
-      reports: state.overview.reports,
+      reports: state.reportsTotal,
       health: state.healthUpdates.total,
       applications: state.adoptionsPending.total,
     },

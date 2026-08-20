@@ -15,7 +15,19 @@ const INTENSITY_PRESETS = {
 
 export function initCaseDensityMap(points) {
   const el = document.getElementById("case-density-map");
-  if (!el || !window.L || !window.L.heatLayer) return null;
+
+  const heatPoints = (points || [])
+    .filter((p) => p.latitude != null && p.longitude != null)
+    .map((p) => [Number(p.latitude), Number(p.longitude), 1]);
+
+  const count = document.getElementById("heat-count");
+  if (count) count.textContent = String(heatPoints.length);
+
+  if (!el || !window.L || !window.L.heatLayer) {
+    if (el && !window.L) console.warn("Leaflet not loaded; heatmap skipped.");
+    if (el && window.L && !window.L.heatLayer) console.warn("leaflet.heat not loaded; heatmap skipped.");
+    return null;
+  }
 
   const map = L.map(el, {
     center: MATI_CENTER,
@@ -33,10 +45,6 @@ export function initCaseDensityMap(points) {
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
 
-  const heatPoints = (points || [])
-    .filter((p) => p.latitude != null && p.longitude != null)
-    .map((p) => [Number(p.latitude), Number(p.longitude), 1]);
-
   const heat = L.heatLayer(heatPoints, { radius: 25, blur: 15, maxZoom: 17 }).addTo(map);
 
   initSelect(document.getElementById("heat-intensity"), {
@@ -44,9 +52,6 @@ export function initCaseDensityMap(points) {
       heat.setOptions(INTENSITY_PRESETS[value] || INTENSITY_PRESETS.medium);
     },
   });
-
-  const count = document.getElementById("heat-count");
-  if (count) count.textContent = String(heatPoints.length);
 
   const panel = document.getElementById("case-density-panel");
   const expandBtn = document.getElementById("map-expand");

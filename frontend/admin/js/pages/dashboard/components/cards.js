@@ -74,12 +74,13 @@ export function HealthCarousel() {
 }
 
 export function RescuersCard() {
-  const rows = state.rescuers.slice(0, 4).map((u) => {
+  const onDuty = state.rescuers.filter((u) => (u.duty_status || "off_duty") === "on_duty");
+  const rows = onDuty.slice(0, 4).map((u) => {
     const r = {
       name: u.full_name || "Rescuer",
       img: u.profile_photo_url || "",
       org: u.phone_number || "Rescuer",
-      meta: "Active",
+      meta: "On duty",
     };
     return `
     <div class="rescuer">
@@ -99,8 +100,8 @@ export function RescuersCard() {
     <div class="panel-head">
       <div class="panel-title-wrap"><i data-lucide="siren"></i><h2 class="panel-title panel-title--sm">Rescuers on duty</h2></div>
       <div class="rescuer-head-tools">
-        <span class="stamp stamp--sm stamp--accent">${state.overview.rescuers_on_duty} Active</span>
-        <a href="#" class="btn-link">View all ${ChevronRight()}</a>
+        <span class="stamp stamp--sm stamp--accent">${state.overview.rescuers_on_duty} On duty</span>
+        <a href="rescuers.html" class="btn-link">View all ${ChevronRight()}</a>
       </div>
     </div>
     ${rows ? `<div class="rescuer-list">${rows}</div>` : EmptyState({ icon: "siren", text: "No rescuers on duty." })}

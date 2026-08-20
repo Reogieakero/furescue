@@ -1,15 +1,15 @@
 import { Badge } from "../../../../../js/components/ui/badge.js";
 import { Button } from "../../../../../js/components/ui/button.js";
-import { esc } from "./util.js";
+import { esc, photos } from "./util.js";
 
 export function renderAttachments(caseData) {
-  const files = caseData.attachments || [];
-  const gallery = files && files.length
+  const files = photos(caseData.report && caseData.report.photo_urls);
+  const gallery = files.length
     ? `<div class="cd-files">${
         files
           .map(
             (f) =>
-              `<a class="cd-file" href="${esc(f.url)}" target="_blank" rel="noopener"><img src="${esc(f.url)}" alt="Case attachment" loading="lazy"></a>`
+              `<a class="cd-file" href="${esc(f)}" target="_blank" rel="noopener"><img src="${esc(f)}" alt="Case attachment" loading="lazy"></a>`
           )
           .join("")}</div>`
     : `<div class="empty-state"><i data-lucide="image-off"></i><span>No attachments submitted.</span></div>`;
@@ -27,14 +27,14 @@ export function renderAttachments(caseData) {
 }
 
 export function renderProof(caseData) {
-  const proof = caseData.proof || [];
+  const proof = photos(caseData.resolution_photos);
   const isRescuer = caseData.role === "rescuer";
-  const gallery = proof && proof.length
+  const gallery = proof.length
     ? `<div class="cd-files">${
         proof
           .map(
             (p) =>
-              `<a class="cd-file" href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.url)}" alt="Rescue proof" loading="lazy"></a>`
+              `<a class="cd-file" href="${esc(p)}" target="_blank" rel="noopener"><img src="${esc(p)}" alt="Rescue proof" loading="lazy"></a>`
           )
           .join("")}</div>`
     : `<div class="empty-state"><i data-lucide="image-off"></i><span>No rescue proof uploaded.</span></div>`;

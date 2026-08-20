@@ -9,7 +9,7 @@ const NAV_GROUPS = [
     items: [
       { icon: "map-pin", label: "Reports", badgeKey: "reports", badge: "14", badgeCls: "stamp--accent" },
       { icon: "clipboard-list", label: "Cases", badgeKey: "cases" },
-      { icon: "siren", label: "Rescuers" },
+      { icon: "siren", label: "Rescuers", badgeKey: "rescuers" },
     ],
   },
   {

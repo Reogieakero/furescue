@@ -25,6 +25,12 @@ export const fetchAdoptions = (status = "pending") =>
 
 export const fetchCases = () => list("/cases");
 
+export const fetchCase = (id) =>
+  raw(`/cases/${id}`).then((d) => (d && d.case) || null);
+
+export const fetchReport = (id) =>
+  raw(`/reports/${id}`).then((d) => (d && d.report) || null);
+
 export const fetchNotifications = () =>
   list("/notifications?is_read=false");
 
@@ -57,6 +63,20 @@ async function patch(path, body = {}) {
 export const fetchRescuers = () =>
   list("/users?role=rescuer&account_status=active");
 
+export const fetchRescuerApplicants = () =>
+  list("/users?role=rescuer&account_status=pending");
+
+export const fetchPendingRescuers = () =>
+  list("/users?role=rescuer&account_status=pending");
+
+export const fetchSuspendedRescuers = () =>
+  list("/users?role=rescuer&account_status=suspended");
+
+export const fetchUser = (id) => raw(`/users/${id}`);
+
+export const setUserStatus = (id, status) =>
+  patch(`/users/${id}`, { account_status: status });
+
 export const assignRescuer = (caseId, rescuerId) =>
   post(`/cases/${caseId}/assign`, { rescuer_id: rescuerId });
 
@@ -69,8 +89,10 @@ export const fetchCaseActivity = (caseId) =>
 export const verifyReport = (id) => post(`/reports/${id}/verify`);
 export const dismissReport = (id, reason) =>
   post(`/reports/${id}/dismiss`, { dismiss_reason: reason });
-export const approveRescuer = (id) => post(`/admin/rescuers/${id}/approve`);
-export const rejectRescuer = (id) => post(`/admin/rescuers/${id}/reject`);
+export const approveRescuer = (id, remarks = null) =>
+  post(`/admin/rescuers/${id}/approve`, remarks ? { remarks } : {});
+export const rejectRescuer = (id, remarks = null) =>
+  post(`/admin/rescuers/${id}/reject`, remarks ? { remarks } : {});
 export const approveAdoption = (id) => post(`/adoptions/${id}/approve`);
 export const rejectAdoption = (id, reason) =>
   post(`/adoptions/${id}/reject`, { rejection_reason: reason });
