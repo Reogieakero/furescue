@@ -36,6 +36,31 @@ class VitalsController extends AbstractController
         Response::success(['vital' => $this->repo('vitals_log')->find($id)], 201);
     }
 
+    public function create(Request $req): void
+    {
+        $animal = $this->repo('animals')->find($req->params['id']);
+        if (!$animal) {
+            Response::error('NOT_FOUND', 'Animal not found', 404);
+            return;
+        }
+        $v = new \App\Validation\Validator($req->body);
+        $v->required('heart_rate_bpm')->numeric('heart_rate_bpm');
+        if (!$v->passes()) {
+            Response::error('VALIDATION_ERROR', $v->firstError(), 400);
+            return;
+        }
+        $data = [
+            'animal_id' => $req->params['id'],
+            'heart_rate_bpm' => (int) $req->body['heart_rate_bpm'],
+            'source' => 'manual',
+        ];
+        if (array_key_exists('respiratory_rate_bpm', $req->body) && $req->body['respiratory_rate_bpm'] !== null && $req->body['respiratory_rate_bpm'] !== '') {
+            $data['respiratory_rate_bpm'] = (int) $req->body['respiratory_rate_bpm'];
+        }
+        $id = $this->repo('vitals_log')->create($data);
+        Response::success(['vital' => $this->repo('vitals_log')->find($id)], 201);
+    }
+
     public function list(Request $req): void
     {
         $animal = $this->repo('animals')->find($req->params['id']);

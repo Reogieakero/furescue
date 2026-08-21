@@ -166,6 +166,13 @@ function mount() {
   const overlay = document.querySelector("[data-animals-flyout-overlay]");
 
   document.addEventListener("click", (e) => {
+    const card = e.target.closest("[data-animal]");
+    if (card) {
+      const id = card.dataset.animal;
+      close();
+      window.location.href = `health-record.html?id=${encodeURIComponent(id)}`;
+      return;
+    }
     if (e.target.closest("[data-animals-open]")) {
       open();
       return;

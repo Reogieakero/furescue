@@ -26,17 +26,25 @@ class AnimalMedicalController extends AbstractController
             Response::error('NOT_FOUND', 'Animal not found', 404);
             return;
         }
-        $allowed = ['medical_history_notes','vaccination_status','vaccination_details','last_checkup_date'];
+        $allowed = [
+            'medical_history_notes', 'vaccination_status', 'vaccination_details',
+            'vaccination_records', 'vaccine_protocols', 'last_checkup_date',
+            'deworming_status', 'neutered', 'weight_kg', 'temperature_c',
+        ];
         $data = [];
         foreach ($allowed as $f) {
             if (array_key_exists($f, $req->body)) {
                 $val = $req->body[$f];
-                if ($f === 'vaccination_details' && is_array($val)) {
+                if (in_array($f, ['vaccination_details', 'vaccination_records', 'vaccine_protocols'], true) && is_array($val)) {
                     $val = json_encode($val);
                 }
                 $data[$f] = $val;
             }
         }
+
+        // Vaccination records are stored exactly as the admin entered them
+        // (type, date given, next schedule, status) — no engine recomputation.
+
         if (empty($data)) {
             Response::error('VALIDATION_ERROR', 'No fields provided', 400);
             return;

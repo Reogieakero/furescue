@@ -34,7 +34,7 @@ class AnimalController extends AbstractController
         $total = (int) $countStmt->fetchColumn();
         $offset = ($page - 1) * $perPage;
         $stmt = $this->pdo->prepare(
-            "SELECT id,name,species,breed_type,sex,age_estimate,color_markings,photo_urls,adoption_status,source,created_at
+            "SELECT id,name,species,breed_type,sex,age_estimate,birth_date,color_markings,photo_urls,adoption_status,source,created_at
              FROM animals {$where} ORDER BY created_at DESC LIMIT " . (int) $perPage . " OFFSET " . (int) $offset
         );
         $stmt->execute($params);
@@ -76,6 +76,7 @@ class AnimalController extends AbstractController
             'sex' => $req->body['sex'],
             'name' => $req->body['name'] ?? null,
             'age_estimate' => $req->body['age_estimate'] ?? null,
+            'birth_date' => $req->body['birth_date'] ?? null,
             'color_markings' => $req->body['color_markings'] ?? null,
             'description' => $req->body['description'] ?? null,
             'photo_urls' => isset($req->body['photo_urls']) ? json_encode($req->body['photo_urls']) : null,
@@ -96,7 +97,7 @@ class AnimalController extends AbstractController
             Response::error('NOT_FOUND', 'Animal not found', 404);
             return;
         }
-        $allowed = ['name', 'age_estimate', 'color_markings', 'description', 'photo_urls', 'model_3d_url', 'photo_360_set', 'adoption_status'];
+        $allowed = ['name', 'age_estimate', 'birth_date', 'color_markings', 'description', 'photo_urls', 'model_3d_url', 'photo_360_set', 'adoption_status'];
         $data = [];
         foreach ($allowed as $f) {
             if (array_key_exists($f, $req->body)) {

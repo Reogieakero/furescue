@@ -17,6 +17,7 @@ use App\Controllers\NotificationController;
 use App\Controllers\ReportController;
 use App\Controllers\UserController;
 use App\Controllers\VitalsController;
+use App\Controllers\DocumentsController;
 use App\Database;
 use App\Http\Request;
 use App\Http\Response;
@@ -35,6 +36,9 @@ $dotenv->safeLoad();
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 if (is_string($uri) && str_starts_with($uri, '/uploads/')) {
     $file = __DIR__ . $uri;
+    if (!is_file($file)) {
+        $file = __DIR__ . '/../../public' . $uri;
+    }
     if (is_file($file)) {
         $types = ['svg' => 'image/svg+xml', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'gif' => 'image/gif', 'webp' => 'image/webp'];
         $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
@@ -105,9 +109,15 @@ $router->add('GET', '/api/v1/animals/{id}/field-status', fn(Request $r) => (new 
 
 $router->add('GET', '/api/v1/animals/{id}/medical', fn(Request $r) => (new AnimalMedicalController($pdo))->show($r), [$authMw, $adminMw]);
 $router->add('PUT', '/api/v1/animals/{id}/medical', fn(Request $r) => (new AnimalMedicalController($pdo))->upsert($r), [$authMw, $adminMw]);
+$router->add('GET', '/api/v1/animals/{id}/health-record', fn(Request $r) => (new HealthController($pdo))->record($r), [$authMw, $adminMw]);
 
 $router->add('POST', '/api/v1/vitals', fn(Request $r) => (new VitalsController($pdo))->ingest($r));
 $router->add('GET', '/api/v1/animals/{id}/vitals', fn(Request $r) => (new VitalsController($pdo))->list($r), [$authMw, $staffMw]);
+$router->add('POST', '/api/v1/animals/{id}/vitals', fn(Request $r) => (new VitalsController($pdo))->create($r), [$authMw, $adminMw]);
+
+$router->add('POST', '/api/v1/animals/{id}/documents', fn(Request $r) => (new DocumentsController($pdo))->create($r), [$authMw, $adminMw]);
+$router->add('PATCH', '/api/v1/documents/{id}', fn(Request $r) => (new DocumentsController($pdo))->update($r), [$authMw, $adminMw]);
+$router->add('DELETE', '/api/v1/documents/{id}', fn(Request $r) => (new DocumentsController($pdo))->delete($r), [$authMw, $adminMw]);
 
 $router->add('POST', '/api/v1/adoption-listings', fn(Request $r) => (new AdoptionListingController($pdo))->create($r), [$authMw]);
 $router->add('GET', '/api/v1/adoption-listings', fn(Request $r) => (new AdoptionListingController($pdo))->index($r), [$authMw]);

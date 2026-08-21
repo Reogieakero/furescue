@@ -113,6 +113,9 @@ export function openAddAnimalDialog() {
               </div>
             </div>
 
+            <label class="dialog-label" for="aa-birth">Date of birth <span class="dialog-hint">auto-computes age</span></label>
+            <input class="dialog-input" id="aa-birth" type="date" max="${new Date().toISOString().slice(0, 10)}" autocomplete="off" />
+
             <label class="dialog-label">Sex</label>
             <div class="q-tabs" id="aa-sex-tabs">${tabsHtml("sex", sexTabs, form.sex)}</div>
 
@@ -143,6 +146,7 @@ export function openAddAnimalDialog() {
     const nameEl = overlay.querySelector("#aa-name");
     const ageEl = overlay.querySelector("#aa-age");
     const ageErrorEl = overlay.querySelector("#aa-age-error");
+    const birthEl = overlay.querySelector("#aa-birth");
     const colorEl = overlay.querySelector("#aa-color");
     const speciesTabsEl = overlay.querySelector("#aa-species-tabs");
     const breedTabsEl = overlay.querySelector("#aa-breed-tabs");
@@ -229,6 +233,7 @@ export function openAddAnimalDialog() {
       }
       errorEl.hidden = true;
       const age = ageEl && ageEl.value.trim() ? `${ageEl.value.trim()} ${form.ageUnit}` : null;
+      const birthDate = birthEl && birthEl.value.trim() ? birthEl.value.trim() : null;
       const okBtn = overlay.querySelector('[data-act="ok"]');
       okBtn.disabled = true;
       okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Adding…</span>`;
@@ -238,6 +243,7 @@ export function openAddAnimalDialog() {
           species: form.species,
           breed: form.breed,
           age,
+          birthDate,
           sex: form.sex,
           status: form.status,
           color: colorEl ? colorEl.value.trim() : null,

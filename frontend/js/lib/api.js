@@ -56,6 +56,37 @@ export async function apiFetchFull(path, opts = {}) {
   return request(path, opts);
 }
 
+export async function apiUpload(path, formData) {
+  const headers = {};
+  const token = getAccessToken();
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  let res;
+  try {
+    res = await fetch(`${API_BASE_URL}${path}`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+  } catch {
+    throw new Error("Cannot reach the server. Make sure the backend is running.");
+  }
+  let payload = null;
+  try {
+    payload = await res.json();
+  } catch {
+    /* ignore */
+  }
+  if (!res.ok) {
+    const err = new Error(
+      (payload && payload.error && payload.error.message) || `Request failed (${res.status})`
+    );
+    err.code = payload && payload.error && payload.error.code;
+    err.status = res.status;
+    throw err;
+  }
+  return payload;
+}
+
 async function request(path, { method = "GET", body, auth = true } = {}) {
   const headers = { "Content-Type": "application/json" };
   if (auth) {

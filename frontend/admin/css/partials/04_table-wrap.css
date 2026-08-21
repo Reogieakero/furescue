@@ -21,6 +21,12 @@
 .table-head th:last-child {
   text-align: right;
 }
+.table-head th.table-cell--right {
+  text-align: right;
+}
+.table-head th.table-cell--center {
+  text-align: center;
+}
 .table tbody tr {
   border-bottom: 2px dashed rgba(11, 37, 69, 0.12);
   cursor: pointer;

@@ -1,4 +1,4 @@
-import { apiFetchFull } from "../../../js/lib/api.js";
+import { apiFetchFull, apiUpload } from "../../../js/lib/api.js";
 
 async function list(path, perPage = 100) {
   const sep = path.includes("?") ? "&" : "?";
@@ -60,6 +60,9 @@ export const fetchHealthUpdates = () =>
 export const fetchHealthRecords = () =>
   raw("/health/records").then((d) => (d && d.records) || []);
 
+export const fetchAnimalHealthRecord = (id) =>
+  raw(`/animals/${encodeURIComponent(id)}/health-record`).then((d) => (d && d.record) || null);
+
 export const fetchMedicalAnimalIds = () =>
   fetchHealthRecords()
     .then((records) => {
@@ -101,6 +104,23 @@ async function put(path, body = {}) {
 export const upsertAnimalMedical = (id, body) =>
   put(`/animals/${id}/medical`, body).then((p) => (p && p.data ? p.data.medical : null));
 
+export const upsertAnimalVaccinations = (id, vaccinationRecords, vaccinationDetails) =>
+  put(`/animals/${id}/medical`, {
+    vaccination_records: vaccinationRecords,
+    ...(vaccinationDetails !== undefined ? { vaccination_details: vaccinationDetails } : {}),
+  }).then((p) => (p && p.data ? p.data.medical : null));
+
+export const addAnimalVital = (id, body) =>
+  post(`/animals/${id}/vitals`, body).then((p) => (p && p.data ? p.data.vital : null));
+
+export const uploadAnimalDocument = (id, formData) =>
+  apiUpload(`/animals/${encodeURIComponent(id)}/documents`, formData).then((p) => (p && p.data ? p.data.document : null));
+
+export const updateAnimalDocument = (id, body) =>
+  patch(`/documents/${id}`, body).then((p) => (p && p.data ? p.data.document : null));
+
+export const deleteAnimalDocument = (id) => del(`/documents/${id}`);
+
 export const fetchRescuers = () =>
   list("/users?role=rescuer&account_status=active");
 
@@ -137,3 +157,6 @@ export const rejectRescuer = (id, remarks = null) =>
 export const approveAdoption = (id) => post(`/adoptions/${id}/approve`);
 export const rejectAdoption = (id, reason) =>
   post(`/adoptions/${id}/reject`, { rejection_reason: reason });
+
+export const createAdoptionListing = (animalId) =>
+  post(`/adoption-listings`, { animal_id: animalId });

@@ -121,6 +121,7 @@ export async function addAnimal(data) {
     breed_type: data.breed,
     sex: data.sex,
     age_estimate: data.age || null,
+    birth_date: data.birthDate || null,
     color_markings: data.color || null,
     adoption_status: data.status,
     description: data.description || null,
