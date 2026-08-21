@@ -1,5 +1,5 @@
 import { createIcons, icons } from "lucide";
-import { state, getAnimal } from "./state.js";
+import { state, getAnimal, setSelectedId } from "./state.js";
 import { renderAnimalGrid, renderSelection, FilterTabs } from "./components/grid.js";
 import { renderDetail, renderSideStats } from "./components/side.js";
 import { openAddAnimalDialog } from "./components/modal.js";
@@ -20,7 +20,7 @@ export function initAnimalsEvents() {
     if (openBtn) {
       const animal = await openAddAnimalDialog();
       if (animal) {
-        state.selectedId = animal.id;
+        setSelectedId(animal.id);
         renderAnimalGrid();
         renderSideStats();
         renderSelection();
@@ -65,7 +65,7 @@ export function initAnimalsEvents() {
         if (ok) {
           await deleteAnimal(animal.id);
           state.animals = state.animals.filter((a) => a.id !== animal.id);
-          state.selectedId = null;
+          setSelectedId(null);
           renderAnimalGrid();
           renderSideStats();
         }
@@ -75,7 +75,7 @@ export function initAnimalsEvents() {
 
     const card = e.target.closest(".animal-card");
     if (card) {
-      state.selectedId = card.dataset.animal;
+      setSelectedId(card.dataset.animal);
       renderSelection();
       renderDetail();
       return;

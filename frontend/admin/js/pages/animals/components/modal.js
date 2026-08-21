@@ -63,8 +63,6 @@ export function openAddAnimalDialog() {
       { value: "puspin", label: "Puspin" },
     ];
     const statusTabs = [
-      { value: "not_listed", label: "Just listed" },
-      { value: "available", label: "Ready for adoption" },
       { value: "pending", label: "Pending" },
       { value: "adopted", label: "Adopted" },
     ];
@@ -78,7 +76,7 @@ export function openAddAnimalDialog() {
       species: "dog",
       breed: "aspin",
       sex: "male",
-      status: "not_listed",
+      status: "pending",
       ageUnit: "yr",
       photo: null,
     };

@@ -65,10 +65,13 @@ export function DetailPanel() {
     </div>
     <div class="dialog-info">${rows}</div>
     <div class="animal-detail-actions">
-      ${Button({ text: "Add health record", variant: "default", icon: "heart-pulse", attrs: 'data-act="add-health"' })}
       <div class="animal-detail-actions-row">
-        ${Button({ text: "Edit", variant: "outline", icon: "pencil", attrs: 'data-act="edit-animal"' })}
-        ${Button({ text: "Delete", variant: "destructive", icon: "trash-2", attrs: 'data-act="delete-animal"' })}
+        ${Button({
+          text: a.hasMedical ? "View medical records" : "Add medical records",
+          variant: "default",
+          attrs: 'data-act="add-health"',
+        })}
+        ${Button({ text: "Delete", variant: "destructive", attrs: 'data-act="delete-animal"' })}
       </div>
     </div>
   </div>`;

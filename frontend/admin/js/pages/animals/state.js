@@ -73,6 +73,32 @@ export const state = {
   selectedId: null,
 };
 
+const SELECTED_ID_KEY = "furescue.animals.selectedId";
+
+export function setSelectedId(id) {
+  state.selectedId = id || null;
+  try {
+    if (state.selectedId) localStorage.setItem(SELECTED_ID_KEY, state.selectedId);
+    else localStorage.removeItem(SELECTED_ID_KEY);
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+export function restoreSelectedId() {
+  try {
+    const id = localStorage.getItem(SELECTED_ID_KEY);
+    if (id && state.animals.some((a) => a.id === id)) {
+      state.selectedId = id;
+    } else if (id) {
+      localStorage.removeItem(SELECTED_ID_KEY);
+      state.selectedId = null;
+    }
+  } catch {
+    /* storage unavailable */
+  }
+}
+
 export async function loadAnimals() {
   const res = await safe(api.fetchAnimals(), { items: [], total: 0 });
   state.animals = (res.items || []).map(normalize);
@@ -80,6 +106,7 @@ export async function loadAnimals() {
   state.animals.forEach((a) => {
     a.hasMedical = medSet.has(a.id);
   });
+  restoreSelectedId();
   return state.animals;
 }
 
