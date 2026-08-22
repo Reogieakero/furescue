@@ -8,12 +8,17 @@ tmp/
 .idea/
 .vscode/
 *.log
+.opencode
 skills-lock.json
 
 # PHP
-backend/vendor/
-backend/.phpunit.result.cache
+/vendor/
+.phpunit.result.cache
 
 # Node
-frontend/node_modules/
+/node_modules/
 node_modules/
+
+
+# Stray PHP session files
+sess_*
