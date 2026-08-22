@@ -17,7 +17,7 @@ export function AppShell({ user, badges = {}, notifications = 3, activeNav, chil
 }
 
 const NAV_TARGETS = {
-  dashboard: "index.php",
+  dashboard: "/admin/index.php",
   reports: "reports.html",
   cases: "cases.html",
   rescuers: "rescuers.html",

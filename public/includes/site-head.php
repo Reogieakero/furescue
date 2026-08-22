@@ -3,6 +3,7 @@
 $pageTitle = $pageTitle ?? 'FurEscue';
 $pageDescription = $pageDescription ?? '';
 $pageCss = $pageCss ?? [];
+$fontsHref = $fontsHref ?? null;
 ?><!DOCTYPE html>
 <html lang="en">
   <head>
@@ -21,10 +22,17 @@ $pageCss = $pageCss ?? [];
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<?php if ($fontsHref !== null): ?>
+    <link
+      href="<?= htmlspecialchars($fontsHref, ENT_QUOTES, 'UTF-8') ?>"
+      rel="stylesheet"
+    />
+<?php else: ?>
     <link
       href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+<?php endif; ?>
 
     <link rel="stylesheet" href="/css/style.css" />
 <?php foreach ($pageCss as $pageCssHref): ?>
