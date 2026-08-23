@@ -2,6 +2,26 @@
 require __DIR__ . '/../vendor/autoload.php';
 $dot = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
 $dot->safeLoad();
+
+$devtoolKey = (string) \App\Database::env('DEVTOOL_KEY', '');
+$providedKey = isset($_GET['key']) && is_string($_GET['key']) ? $_GET['key'] : '';
+if ($devtoolKey === '' || !hash_equals($devtoolKey, $providedKey)) {
+    http_response_code(403);
+    echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>403 - Forbidden</title></head>'
+        . '<body style="font-family: system-ui, sans-serif; margin: 2rem;">'
+        . '<h1>403 &mdash; Forbidden</h1>';
+    if ($devtoolKey === '') {
+        echo '<p>The dev DB viewer is locked because <code>DEVTOOL_KEY</code> is not configured.</p>'
+            . '<p>Set a long random <code>DEVTOOL_KEY</code> in your <code>.env</code>, then open '
+            . '<code>/dbtool/?key=YOUR_KEY</code>.</p>';
+    } else {
+        echo '<p>A valid <code>DEVTOOL_KEY</code> is required: append <code>?key=&lt;DEVTOOL_KEY&gt;</code> to the URL.</p>';
+    }
+    echo '</body></html>';
+    exit;
+}
+$keyParam = '&key=' . urlencode($providedKey);
+
 $pdo = \App\Database::connect();
 
 $table = $_GET['table'] ?? null;
@@ -58,11 +78,12 @@ if ($sql !== '') {
   <nav class="side">
     <strong>Tables</strong>
     <?php foreach (tableList($pdo) as $t): ?>
-      <a href="?table=<?= urlencode($t) ?>" class="<?= $t === $table ? 'active' : '' ?>"><?= htmlspecialchars($t) ?></a>
+      <a href="?table=<?= urlencode($t) ?><?= $keyParam ?>" class="<?= $t === $table ? 'active' : '' ?>"><?= htmlspecialchars($t) ?></a>
     <?php endforeach; ?>
   </nav>
   <main>
     <form method="get">
+      <input type="hidden" name="key" value="<?= htmlspecialchars($providedKey) ?>">
       <strong>Run a read-only query:</strong><br>
       <textarea name="sql" placeholder="SELECT * FROM reports LIMIT 10"><?= htmlspecialchars($sql) ?></textarea><br>
       <button type="submit">Execute</button>

@@ -170,7 +170,7 @@ function mount() {
     if (card) {
       const id = card.dataset.animal;
       close();
-      window.location.href = `health-record.html?id=${encodeURIComponent(id)}`;
+      window.location.href = `/admin/health-record.php?id=${encodeURIComponent(id)}`;
       return;
     }
     if (e.target.closest("[data-animals-open]")) {

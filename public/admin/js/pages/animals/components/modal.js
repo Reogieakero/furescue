@@ -1,7 +1,7 @@
 import { createIcons, icons } from "lucide";
 import { Button } from "../../../../../js/components/ui/button.js";
 import { Spinner } from "../../../../../js/components/ui/spinner.js";
-import { addAnimal } from "../state.js";
+import { addAnimal, parsePhoto360 } from "../state.js";
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({
@@ -131,6 +131,12 @@ export function openAddAnimalDialog() {
               <input type="file" id="aa-photo" accept="image/*" class="aa-photo-input" />
             </div>
 
+            <label class="dialog-label" for="aa-model3d">3D model URL <span class="dialog-hint">optional — .glb/.gltf/.obj</span></label>
+            <input class="dialog-input" id="aa-model3d" placeholder="https://…" autocomplete="off" />
+
+            <label class="dialog-label" for="aa-photo360">360° photo set <span class="dialog-hint">optional — JSON array of image URLs</span></label>
+            <textarea class="dialog-input aa-textarea" id="aa-photo360" rows="3" placeholder='["https://…/view-01.jpg", "https://…/view-02.jpg"]'></textarea>
+
             <p class="dialog-error" id="aa-error" hidden>Please provide a name.</p>
           </div>
         </div>
@@ -234,6 +240,18 @@ export function openAddAnimalDialog() {
       errorEl.hidden = true;
       const age = ageEl && ageEl.value.trim() ? `${ageEl.value.trim()} ${form.ageUnit}` : null;
       const birthDate = birthEl && birthEl.value.trim() ? birthEl.value.trim() : null;
+      const model3d = overlay.querySelector("#aa-model3d").value.trim();
+      let photo360Urls = null;
+      const photo360Text = overlay.querySelector("#aa-photo360").value;
+      if (photo360Text.trim()) {
+        try {
+          photo360Urls = parsePhoto360(photo360Text);
+        } catch (err) {
+          errorEl.textContent = err.message;
+          errorEl.hidden = false;
+          return;
+        }
+      }
       const okBtn = overlay.querySelector('[data-act="ok"]');
       okBtn.disabled = true;
       okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Adding…</span>`;
@@ -248,6 +266,8 @@ export function openAddAnimalDialog() {
           status: form.status,
           color: colorEl ? colorEl.value.trim() : null,
           photo: form.photo,
+          model3d,
+          photo360Urls,
         });
         overlay.remove();
         resolve(animal);

@@ -1,7 +1,7 @@
 import { createIcons, icons } from "lucide";
 import { state, loadRescuers, persistSelection } from "../state.js";
 import { RescuerTable, rerenderAll, selectRescuer, toggleCaseNode, openRescuerModal, renderRescuerDetail } from "../components.js";
-import { runApprove, runReject, runSuspend, runActivate } from "./actions.js";
+import { runApprove, runReject, runSuspend, runActivate, runToggleDuty } from "./actions.js";
 
 export function initRescuerEvents() {
   const main = document.getElementById("app");
@@ -54,6 +54,7 @@ export function initRescuerEvents() {
       if (action === "reject") return runReject(id);
       if (action === "suspend") return runSuspend(id);
       if (action === "activate") return runActivate(id);
+      if (action === "duty") return runToggleDuty(id, actionEl.dataset.status);
       return;
     }
 

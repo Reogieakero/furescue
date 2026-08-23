@@ -18,11 +18,16 @@ export function AppShell({ user, badges = {}, notifications = 3, activeNav, chil
 
 const NAV_TARGETS = {
   dashboard: "/admin/index.php",
-  reports: "reports.html",
-  cases: "cases.html",
-  rescuers: "rescuers.html",
-  animals: "animals.html",
-  "health records": "health-records.html",
+  reports: "/admin/reports.php",
+  cases: "/admin/cases.php",
+  rescuers: "/admin/rescuers.php",
+  animals: "/admin/animals.php",
+  "health records": "/admin/health-records.php",
+  listings: "/admin/listings/",
+  applications: "/admin/applications/",
+  "e-learning": "/admin/elearning/",
+  messages: "/admin/messages/",
+  notifications: "/admin/notifications/",
 };
 
 export function initShell() {
@@ -53,4 +58,21 @@ export function initShell() {
       if (target) window.location.href = target;
     });
   });
+
+  const searchInput = document.querySelector(".topbar-search input");
+  if (searchInput) {
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      const q = searchInput.value.trim();
+      if (!q) return;
+      window.location.href = `/admin/cases.php?q=${encodeURIComponent(q)}`;
+    });
+  }
+
+  const bell = document.querySelector(".topbar-bell");
+  if (bell) {
+    bell.addEventListener("click", () => {
+      window.location.href = "/admin/notifications/";
+    });
+  }
 }

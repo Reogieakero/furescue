@@ -1,0 +1,191 @@
+/* Notifications inbox styles (shared shell + primitives live in /css/style.css) */
+
+.notif-tabs-wrap {
+  flex-wrap: wrap;
+}
+
+.notif-tabs {
+  display: inline-flex;
+  gap: 4px;
+  background: hsl(var(--surface-soft));
+  border-radius: calc(var(--radius) + 2px);
+  padding: 4px;
+}
+
+.notif-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius);
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.notif-tab:hover {
+  color: hsl(var(--foreground));
+}
+
+.notif-tab.is-active {
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  box-shadow: var(--shadow-sm);
+}
+
+.notif-unread-chip {
+  font-size: 0.64rem;
+  padding: 0.1rem 0.45rem;
+}
+
+.notif-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notif-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid hsl(var(--border));
+  transition: background-color 0.15s ease;
+}
+
+.notif-list > .notif-item:last-child {
+  border-bottom: none;
+}
+
+.notif-item.is-clickable {
+  cursor: pointer;
+}
+
+.notif-item.is-unread {
+  background: hsl(var(--primary) / 0.045);
+}
+
+.notif-item.is-clickable.is-unread:hover,
+.notif-item.is-clickable.is-unread:focus-visible {
+  background: hsl(var(--primary) / 0.08);
+}
+
+.notif-item.is-clickable:hover,
+.notif-item.is-clickable:focus-visible {
+  background: hsl(var(--surface-soft) / 0.7);
+  outline: none;
+}
+
+li.notif-item {
+  list-style: none;
+}
+
+.notif-icon {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: calc(var(--radius) + 2px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: hsl(var(--secondary));
+  color: hsl(var(--primary));
+  flex-shrink: 0;
+}
+
+.notif-icon .lucide {
+  width: 18px;
+  height: 18px;
+}
+
+.notif-icon--alert {
+  background: hsl(var(--destructive) / 0.09);
+  color: hsl(var(--destructive));
+}
+
+.notif-icon--success {
+  background: hsl(150 70% 32% / 0.11);
+  color: hsl(150 70% 26%);
+}
+
+.notif-icon .notif-dot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: hsl(var(--destructive));
+  box-shadow: 0 0 0 2px hsl(var(--card));
+}
+
+.notif-body {
+  min-width: 0;
+}
+
+.notif-msg {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.is-unread .notif-msg {
+  font-weight: 800;
+}
+
+.notif-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.notif-time {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.notif-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: hsl(var(--primary));
+}
+
+.notif-link .lucide {
+  width: 12px;
+  height: 12px;
+}
+
+.notif-mark-btn {
+  border: none;
+  background: none;
+  padding: 2px 4px;
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  border-radius: 6px;
+  display: inline-flex;
+  align-self: center;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.notif-mark-btn:hover {
+  color: hsl(150 70% 30%);
+  background: hsl(150 70% 32% / 0.12);
+}
+
+.notif-mark-btn .lucide {
+  width: 15px;
+  height: 15px;
+}

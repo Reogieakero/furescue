@@ -142,6 +142,30 @@ class CaseController extends AbstractController
         Response::success(['case' => $this->cases->find($case->id())->toArray()]);
     }
 
+    public function proof(Request $req): void
+    {
+        $v = new \App\Validation\Validator($req->body);
+        $v->required('url')->string('url', 2000);
+        if (!$v->passes()) {
+            Response::error('VALIDATION_ERROR', $v->firstError(), 400);
+            return;
+        }
+        $case = $this->cases->find($req->params['id']);
+        if (!$case) {
+            Response::error('NOT_FOUND', 'Case not found', 404);
+            return;
+        }
+        $existing = json_decode((string) $case->resolutionPhotos(), true);
+        if (!is_array($existing)) {
+            $existing = [];
+        }
+        $existing[] = $req->body['url'];
+        $photos = array_values(array_unique($existing));
+        $this->cases->update($case->id(), ['resolution_photos' => json_encode($photos)]);
+        $this->logActivity($case->id(), 'proof_added', 'Resolution proof photo added', $req->user['id'], $req->user['role']);
+        Response::success(['proof' => $photos]);
+    }
+
     public function activity(Request $req): void
     {
         $logRepo = $this->repo('case_activity_log', ['id','case_id','actor_id','actor_role','action','notes','created_at']);

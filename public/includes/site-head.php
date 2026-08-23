@@ -4,6 +4,7 @@ $pageTitle = $pageTitle ?? 'FurEscue';
 $pageDescription = $pageDescription ?? '';
 $pageCss = $pageCss ?? [];
 $fontsHref = $fontsHref ?? null;
+$importMapExtras = $importMapExtras ?? [];
 ?><!DOCTYPE html>
 <html lang="en">
   <head>
@@ -45,7 +46,8 @@ $fontsHref = $fontsHref ?? null;
           "clsx": "https://esm.sh/clsx@2.1.1",
           "tailwind-merge": "https://esm.sh/tailwind-merge@2.5.5",
           "class-variance-authority": "https://esm.sh/class-variance-authority@0.7.1",
-          "lucide": "https://esm.sh/lucide@0.469.0"
+          "lucide": "https://esm.sh/lucide@0.469.0"<?php foreach ($importMapExtras as $importMapName => $importMapUrl): ?>,
+          <?= json_encode((string) $importMapName, JSON_UNESCAPED_SLASHES) ?>: <?= json_encode((string) $importMapUrl, JSON_UNESCAPED_SLASHES) ?><?php endforeach; ?>
         }
       }
     </script>

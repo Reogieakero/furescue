@@ -1,6 +1,7 @@
 import * as api from "../../lib/admin-data.js";
 import { safe, buildWeekChart } from "./helpers.js";
 import { readCache, writeCache, setNavBadge } from "../../../../js/lib/swr.js";
+import { toast } from "../../../../js/components/ui/toast.js";
 
 const CACHE_KEY = "page:dashboard";
 
@@ -31,6 +32,7 @@ export const state = {
   growth: null,
   elearning: { published: 0, drafts: 0, items: [] },
   notifications: { items: [], total: 0 },
+  unreadCount: 0,
   heatmap: [],
   decisionCount: 0,
   activityPage: 1,
@@ -39,7 +41,7 @@ export const state = {
 export const queueState = { reports: 1, rescuers: 1, health: 1, adopt: 1 };
 
 export async function loadDashboard() {
-  const [overview, reports, allReports, rescuersPending, rescuers, adoptions, cases, notifications, elearning, trends, heatmap, healthUpdates] =
+  const [overview, reports, allReports, rescuersPending, rescuers, adoptions, cases, notifications, unreadCount, elearning, trends, heatmap, healthUpdates] =
     await Promise.all([
       safe(api.fetchOverview(), null),
       safe(api.fetchReports("pending_verification"), { items: [], total: 0 }),
@@ -49,6 +51,7 @@ export async function loadDashboard() {
       safe(api.fetchAdoptions("pending"), { items: [], total: 0 }),
       safe(api.fetchCases(), { items: [] }),
       safe(api.fetchNotifications(), { items: [] }),
+      safe(api.fetchUnreadCount(), 0),
       safe(api.fetchElearning(), null),
       safe(api.fetchAdoptionTrends(), []),
       safe(api.fetchHeatmap(), []),
@@ -71,6 +74,7 @@ export async function loadDashboard() {
   state.activity = caseList;
   state.elearning = elearning || { published: 0, drafts: 0, items: [] };
   state.notifications = { items: notifications.items || [], total: notifications.total || 0 };
+  state.unreadCount = unreadCount || 0;
   state.heatmap = heatmap || [];
   state.chart = chart.bars;
   state.growth = chart.growth;
@@ -107,7 +111,7 @@ export function persistCache() {
   setNavBadge("reports", state.reportsTotal);
   setNavBadge("health", state.healthUpdates.total);
   setNavBadge("applications", state.adoptionsPending.total);
-  setNavBadge("notifications", state.notifications.total);
+  setNavBadge("notifications", state.unreadCount);
 }
 
 export async function refreshQueue(key) {
@@ -125,4 +129,37 @@ export async function refreshQueue(key) {
   if (overview) state.overview = overview;
   state.decisionCount =
     state.reportsPending.total + state.rescuersPending.total + state.healthUpdates.total + state.adoptionsPending.total;
+}
+
+let notificationStream = null;
+
+function applyLiveNotification(payload) {
+  const note = payload && payload.notification;
+  if (payload && typeof payload.unread_count === "number") {
+    state.unreadCount = payload.unread_count;
+  } else if (note) {
+    state.unreadCount += 1;
+  }
+  if (note) {
+    state.notifications.items = [note, ...(state.notifications.items || [])].slice(0, 100);
+    state.notifications.total = (state.notifications.total || 0) + 1;
+    toast(note.message || "New notification", { type: "info" });
+  }
+  setNavBadge("notifications", state.unreadCount);
+}
+
+export function startNotificationStream() {
+  if (notificationStream) return;
+  notificationStream = api.subscribeToNotifications(applyLiveNotification);
+}
+
+export function stopNotificationStream() {
+  if (!notificationStream) return;
+  notificationStream.close();
+  notificationStream = null;
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("beforeunload", stopNotificationStream);
+  startNotificationStream();
 }

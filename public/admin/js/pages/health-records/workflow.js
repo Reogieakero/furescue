@@ -4,7 +4,7 @@ import { rerenderAll } from "./components.js";
 import { RecordsPanel, FilterTabs } from "./components/table.js";
 import { AttentionPanel } from "./components/queue.js";
 import { StackedPanel, destroyCharts, mountCharts } from "./components/charts.js";
-import { initSelect } from "../../../../../js/components/ui/select.js";
+import { initSelect } from "../../../../js/components/ui/select.js";
 
 let eventsReady = false;
 

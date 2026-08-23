@@ -10,14 +10,13 @@ export function Topbar({ user } = {}) {
     </button>`,
     items: [
       { type: "label", text: "Insights" },
-      { type: "item", icon: "bar-chart-3", label: "Analytics", href: "#" },
-      { type: "item", icon: "file-down", label: "Reports & Exports", href: "#" },
+      { type: "item", icon: "bar-chart-3", label: "Analytics", href: "/admin/analytics/" },
+      { type: "item", icon: "file-down", label: "Reports & Exports", href: "/admin/reports.php" },
       { type: "separator" },
       { type: "label", text: "System" },
-      { type: "item", icon: "users", label: "Users", href: "#" },
-      { type: "item", icon: "settings", label: "Settings", href: "#" },
+      { type: "item", icon: "users", label: "Users", href: "/admin/rescuers.php" },
       { type: "separator" },
-      { type: "item", icon: "log-out", label: "Log Out", href: "#", danger: true },
+      { type: "item", icon: "log-out", label: "Log Out", href: "/auth/logout.php", danger: true },
     ],
   });
 

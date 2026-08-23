@@ -381,6 +381,12 @@
 .aa-photo-input {
   font-size: 12px;
 }
+.aa-textarea {
+  min-height: 64px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+}
 .add-animal-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

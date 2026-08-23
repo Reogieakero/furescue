@@ -35,7 +35,7 @@ function renderHeader(caseData) {
   return `
     <div class="page-head">
       <div>
-        <a href="cases.html" class="cd-back"><i data-lucide="chevron-left"></i> Back to cases</a>
+        <a href="/admin/cases.php" class="cd-back"><i data-lucide="chevron-left"></i> Back to cases</a>
       </div>
       ${renderActions(caseData)}
     </div>`;

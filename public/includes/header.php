@@ -16,10 +16,6 @@ $navLinkItems = static function (array $links): string {
 };
 
 $navLinkMarkup = $navLinkItems($navLinks);
-
-$btnGhostSm = 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-7 px-3';
-$btnDefaultSm = 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-7 px-3';
-$btnOutlineSm = 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-7 px-3';
 ?>
 <header id="navbar" class="nav">
   <div class="container nav-inner">
@@ -33,8 +29,8 @@ $btnOutlineSm = 'inline-flex items-center justify-center gap-2 whitespace-nowrap
     </nav>
 
 <div class="nav-actions">
-      <a href="/auth/login.php" class="<?= $btnGhostSm ?>"><span>Log in</span></a>
-      <a href="/auth/login.php" class="<?= $btnDefaultSm ?>"><span>Get Started</span></a>
+      <a href="/auth/login.php" class="btn btn--ghost btn--sm"><span>Log in</span></a>
+      <a href="/auth/login.php" class="btn btn--solid btn--sm"><span>Get Started</span></a>
     </div>
 
     <button id="menu-toggle" class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
@@ -49,8 +45,8 @@ $btnOutlineSm = 'inline-flex items-center justify-center gap-2 whitespace-nowrap
       <?= $navLinkMarkup ?>
     </nav>
 <div class="container mobile-menu-actions">
-      <a href="/auth/login.php" class="<?= $btnOutlineSm ?>"><span>Log in</span></a>
-      <a href="/auth/login.php" class="<?= $btnDefaultSm ?>"><span>Get Started</span></a>
+      <a href="/auth/login.php" class="btn btn--ghost btn--sm"><span>Log in</span></a>
+      <a href="/auth/login.php" class="btn btn--solid btn--sm"><span>Get Started</span></a>
     </div>
   </div>
 </header>

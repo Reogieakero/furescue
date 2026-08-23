@@ -21,7 +21,7 @@ function renderNotFound() {
         <div class="empty-state" style="margin-top:48px">
           <i data-lucide="alert-circle"></i>
           <span>${""}</span>
-          <a href="cases.html" class="cd-back"><i data-lucide="arrow-left"></i> Back to cases</a>
+          <a href="/admin/cases.php" class="cd-back"><i data-lucide="arrow-left"></i> Back to cases</a>
         </div>
       </main>
     </div>`;
@@ -69,4 +69,19 @@ async function bootstrap() {
   render(state.caseData, { loading: false });
 }
 
-document.addEventListener("DOMContentLoaded", bootstrap);
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.__PAGE_STATE__) {
+    Object.assign(state, window.__PAGE_STATE__);
+    const app = document.getElementById("app");
+    if (!app || !app.childElementCount) {
+      render(state.caseData, { loading: false });
+      return;
+    }
+    createIcons({ icons });
+    initShell();
+    initDropdownMenu(document);
+    initCaseDetailEvents();
+    return;
+  }
+  bootstrap();
+});

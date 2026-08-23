@@ -21,6 +21,7 @@ class ReportRoutes
         $router->add('GET', '/api/v1/reports/map/heatmap', fn(Request $r) => (new ReportController($pdo, $dedup, $geo))->heatmap($r), [$authMw]);
         $router->add('GET', '/api/v1/reports', fn(Request $r) => (new ReportController($pdo, $dedup, $geo))->index($r), [$authMw]);
         $router->add('GET', '/api/v1/reports/{id}', fn(Request $r) => (new ReportController($pdo, $dedup, $geo))->show($r), [$authMw]);
+        $router->add('POST', '/api/v1/reports/{id}/media', fn(Request $r) => (new ReportController($pdo, $dedup, $geo))->uploadMedia($r), [$authMw]);
         $router->add('POST', '/api/v1/reports/{id}/verify', fn(Request $r) => (new ReportController($pdo, $dedup, $geo))->verify($r), [$authMw, $adminMw]);
         $router->add('POST', '/api/v1/reports/{id}/dismiss', fn(Request $r) => (new ReportController($pdo, $dedup, $geo))->dismiss($r), [$authMw, $adminMw]);
     }

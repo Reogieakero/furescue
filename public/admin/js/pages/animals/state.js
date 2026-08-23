@@ -63,6 +63,8 @@ export function normalize(raw) {
     barangay: location,
     intake: (raw.created_at || "").slice(0, 10),
     photo: firstPhoto(raw.photo_urls),
+    model3d: raw.model_3d_url || "",
+    photo360: typeof raw.photo_360_set === "string" ? raw.photo_360_set : raw.photo_360_set ? JSON.stringify(raw.photo_360_set) : "",
   };
 }
 
@@ -114,6 +116,21 @@ export function getAnimal(id) {
   return state.animals.find((a) => a.id === id) || null;
 }
 
+export function parsePhoto360(text) {
+  const raw = (text || "").trim();
+  if (!raw) return null;
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("360° photo set must be valid JSON, e.g. [\"https://…/1.jpg\"]");
+  }
+  if (!Array.isArray(parsed) || parsed.length === 0 || !parsed.every((u) => typeof u === "string" && u.trim() !== "")) {
+    throw new Error("360° photo set must be a JSON array of image URLs.");
+  }
+  return parsed;
+}
+
 export async function addAnimal(data) {
   const created = await api.createAnimal({
     name: data.name || null,
@@ -126,6 +143,8 @@ export async function addAnimal(data) {
     adoption_status: data.status,
     description: data.description || null,
     photo_urls: data.photo ? [data.photo] : null,
+    model_3d_url: data.model3d ? data.model3d : null,
+    photo_360_set: data.photo360Urls || null,
   });
   const animal = normalize(created);
   animal.isNew = true;

@@ -16,7 +16,6 @@ $requiredRole = 'admin';
 require __DIR__ . '/../includes/guard.php';
 
 require __DIR__ . '/includes/ui-helpers.php';
-require __DIR__ . '/includes/shell.php';
 
 $pdo = Database::connect();
 $uid = (string) $_SESSION['user']['id'];
@@ -538,7 +537,7 @@ $rescuersCard = '
       <div class="panel-title-wrap"><i data-lucide="siren"></i><h2 class="panel-title panel-title--sm">Rescuers on duty</h2></div>
       <div class="rescuer-head-tools">
         <span class="stamp stamp--sm stamp--accent">' . e($overview['rescuers_on_duty']) . ' On duty</span>
-        <a href="rescuers.html" class="btn-link">View all ' . chevron_right() . '</a>
+        <a href="/admin/rescuers.php" class="btn-link">View all ' . chevron_right() . '</a>
       </div>
     </div>
     ' . ($rescuerCardRows !== '' ? "<div class=\"rescuer-list\">{$rescuerCardRows}</div>" : empty_state('siren', 'No rescuers on duty.')) . '
@@ -714,19 +713,32 @@ $dashboardSections = "
 
 $children = $greeting . "\n" . $kpiGrid . "\n" . $attentionRow . "\n" . $dashboardSections;
 
-$pageHtml = admin_app_shell($children, [
+$currentUserData = $currentUser ? $currentUser->toArray() : [];
+$adminUser = [
+    'id' => $uid,
+    'full_name' => (string) ($currentUserData['full_name'] ?? ($_SESSION['user']['full_name'] ?? '')),
+    'email' => (string) ($_SESSION['user']['email'] ?? ''),
+    'role' => (string) ($_SESSION['user']['role'] ?? ''),
+    'profile_photo_url' => (string) ($currentUserData['profile_photo_url'] ?? ''),
+];
+$activeNav = 'dashboard';
+$navBadges = [
     'reports' => $reportsTotal,
     'health' => $healthUpdatesState['total'],
     'applications' => $adoptionsPending['total'],
-], $notificationsState['total'], 'dashboard');
+];
+$adminChildren = $children;
+ob_start();
+require __DIR__ . '/../includes/admin-shell.php';
+$pageHtml = (string) ob_get_clean();
 
 $pageTitle = 'FurEscue — Admin Command Center';
 $pageDescription = 'FurEscue admin command center — reports, cases, rescuers, health records, and adoptions for City of Mati.';
 $pageCss = [
     '/admin/css/admin.css',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-    'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap',
 ];
+$fontsHref = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
 require __DIR__ . '/../includes/site-head.php';
 ?>
   <body>

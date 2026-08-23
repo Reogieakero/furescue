@@ -16,8 +16,11 @@ class AnalyticsRoutes
         $adminMw = $d['adminMw'];
 
         $router->add('GET', '/api/v1/analytics/overview', fn(Request $r) => (new AnalyticsController($pdo))->overview($r), [$authMw, $adminMw]);
+        $router->add('GET', '/api/v1/analytics/overview/export', fn(Request $r) => (new AnalyticsController($pdo))->exportOverview($r), [$authMw, $adminMw]);
         $router->add('GET', '/api/v1/analytics/adoption-trends', fn(Request $r) => (new AnalyticsController($pdo))->adoptionTrends($r), [$authMw, $adminMw]);
+        $router->add('GET', '/api/v1/analytics/adoption-trends/export', fn(Request $r) => (new AnalyticsController($pdo))->exportAdoptionTrends($r), [$authMw, $adminMw]);
         $router->add('GET', '/api/v1/health/updates', fn(Request $r) => (new AnalyticsController($pdo))->healthUpdates($r), [$authMw, $adminMw]);
+        $router->add('GET', '/api/v1/health/updates/export', fn(Request $r) => (new AnalyticsController($pdo))->exportHealthUpdates($r), [$authMw, $adminMw]);
         $router->add('GET', '/api/v1/health/records', fn(Request $r) => (new HealthController($pdo))->records($r), [$authMw, $adminMw]);
         $router->add('GET', '/api/v1/health/activity', fn(Request $r) => (new HealthController($pdo))->activity($r), [$authMw, $adminMw]);
     }

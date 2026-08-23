@@ -1,0 +1,103 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+  border-radius: calc(var(--radius) + 2px);
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1;
+  height: 2.75rem;
+  padding-inline: 1.4rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.35);
+}
+
+.btn .icon {
+  margin-right: 0;
+}
+
+.btn--solid {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow: var(--shadow-sm);
+}
+
+.btn--solid:hover {
+  background: hsl(var(--primary) / 0.88);
+}
+
+.btn--ghost {
+  background: hsl(var(--card));
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+.btn--ghost:hover {
+  background: hsl(var(--surface-soft));
+}
+
+.btn--sm {
+  height: 2.15rem;
+  padding-inline: 0.9rem;
+  font-size: 0.83rem;
+  border-radius: var(--radius);
+}
+
+.on-dark .btn--ghost,
+.cta-actions .btn--ghost {
+  background: transparent;
+  border-color: hsl(0 0% 100% / 0.55);
+  color: #fff;
+}
+
+.on-dark .btn--ghost:hover,
+.cta-actions .btn--ghost:hover {
+  background: hsl(0 0% 100% / 0.12);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.badge--solid {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.badge--soft {
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+
+.badge--sage {
+  background: hsl(var(--sage));
+  color: hsl(var(--foreground));
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.9rem;
+  color: hsl(var(--card-foreground));
+  box-shadow: var(--shadow-sm);
+}

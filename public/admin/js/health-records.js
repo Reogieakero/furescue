@@ -5,7 +5,9 @@ import { HealthRecordsPage, rerenderAll } from "./pages/health-records/component
 import { initHealthRecordsEvents } from "./pages/health-records/workflow.js";
 import { initDropdownMenu } from "../../js/components/ui/dropdown-menu.js";
 import { initAnimalsFlyout } from "./pages/health-records/components/animals-flyout.js";
-import { loadHealthRecords, loadHealthActivity } from "./pages/health-records/state.js";
+import { state, loadHealthRecords, loadHealthActivity, allAttentionCount } from "./pages/health-records/state.js";
+import { mountCharts } from "./pages/health-records/components/charts.js";
+import { setNavBadge } from "../../js/lib/swr.js";
 
 function initDate() {
   const el = document.getElementById("admin-date");
@@ -31,6 +33,26 @@ function render(user) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  if (window.__PAGE_STATE__) {
+    Object.assign(state, window.__PAGE_STATE__);
+    const app = document.getElementById("app");
+    if (app && !app.childElementCount) {
+      const user = requireAuth(["admin"]);
+      if (!user) return;
+      render(user);
+      return;
+    }
+    // Server-rendered shell: skip initial render, wire interactivity only.
+    setNavBadge("health", allAttentionCount());
+    createIcons({ icons });
+    initShell();
+    initDropdownMenu(document);
+    initHealthRecordsEvents();
+    initAnimalsFlyout();
+    initDate();
+    mountCharts();
+    return;
+  }
   const user = requireAuth(["admin"]);
   if (!user) return;
   render(user);

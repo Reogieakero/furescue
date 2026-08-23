@@ -9,7 +9,7 @@ const NAV_GROUPS = [
   {
     label: "Rescue Management",
     items: [
-      { icon: "map-pin", label: "Reports", badgeKey: "reports", badge: "14", badgeCls: "stamp--accent" },
+      { icon: "map-pin", label: "Reports", badgeKey: "reports", badgeCls: "stamp--accent" },
       { icon: "clipboard-list", label: "Cases", badgeKey: "cases" },
       { icon: "siren", label: "Rescuers", badgeKey: "rescuers" },
     ],
@@ -18,14 +18,14 @@ const NAV_GROUPS = [
     label: "Animal Management",
     items: [
       { icon: "paw-print", label: "Animals" },
-      { icon: "heart-pulse", label: "Health Records", badgeKey: "health", badge: "6", badgeCls: "stamp--muted" },
+      { icon: "heart-pulse", label: "Health Records", badgeKey: "health", badgeCls: "stamp--muted" },
     ],
   },
   {
     label: "Adoption",
     items: [
       { icon: "home", label: "Listings" },
-      { icon: "file-check", label: "Applications", badgeKey: "applications", badge: "9", badgeCls: "stamp--accent" },
+      { icon: "file-check", label: "Applications", badgeKey: "applications", badgeCls: "stamp--accent" },
     ],
   },
   {
@@ -36,7 +36,7 @@ const NAV_GROUPS = [
     label: "Communication",
     items: [
       { icon: "message-square", label: "Messages" },
-      { icon: "bell", label: "Notifications", badgeKey: "notifications", badge: "3", badgeCls: "stamp--coral" },
+      { icon: "bell", label: "Notifications", badgeKey: "notifications", badgeCls: "stamp--coral" },
     ],
   },
 ];

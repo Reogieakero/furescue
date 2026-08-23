@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Routes\AdoptionListingRoutes;
 use App\Http\Routes\AdoptionRoutes;
 use App\Http\Routes\AnalyticsRoutes;
 use App\Http\Routes\AnimalRoutes;
@@ -24,6 +25,7 @@ class RouteLoader
         CaseRoutes::register($router, $d);
         AnimalRoutes::register($router, $d);
         AdoptionRoutes::register($router, $d);
+        AdoptionListingRoutes::register($router, $d);
         MessageRoutes::register($router, $d);
         NotificationRoutes::register($router, $d);
         ElearningRoutes::register($router, $d);

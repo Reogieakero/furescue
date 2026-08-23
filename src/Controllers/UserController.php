@@ -45,7 +45,7 @@ class UserController extends AbstractController
 
     private function indexRescuers(Request $req): void
     {
-        $where = [];
+        $where = ["u.role = 'rescuer'"];
         $params = [];
         if (!empty($req->query['account_status'])) {
             $where[] = 'u.account_status = ?';
@@ -130,6 +130,28 @@ class UserController extends AbstractController
     public function approveRescuer(Request $req): void
     {
         $this->resolveRescuer($req, 'approved');
+    }
+
+    public function toggleDuty(Request $req): void
+    {
+        $v = new \App\Validation\Validator($req->body);
+        $v->required('status')->in('status', ['on_duty', 'off_duty']);
+        if (!$v->passes()) {
+            Response::error('VALIDATION_ERROR', $v->firstError(), 400);
+            return;
+        }
+        $user = $this->users->find($req->params['id']);
+        if (!$user || $user->role() !== 'rescuer') {
+            Response::error('NOT_FOUND', 'Rescuer not found', 404);
+            return;
+        }
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO rescuer_duty_status (id, user_id, status)
+             VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE status = VALUES(status)"
+        );
+        $stmt->execute([Database::uuidV4(), $user->id(), $req->body['status']]);
+        Response::success(['duty_status' => $req->body['status']]);
     }
 
     public function rejectRescuer(Request $req): void

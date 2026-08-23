@@ -42,7 +42,7 @@ function time_ago(mixed $value): string
     $day = mktime(0, 0, 0, (int) date('n', $ts), (int) date('j', $ts), (int) date('Y', $ts));
     $diff = js_round(($today - $day) / 86400);
     if ($diff === 0) {
-        return date('g:i A', $ts);
+        return date('h:i A', $ts);
     }
     if ($diff === 1) {
         return 'Yesterday';

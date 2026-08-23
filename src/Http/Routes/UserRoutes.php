@@ -20,5 +20,6 @@ class UserRoutes
         $router->add('PATCH', '/api/v1/users/{id}', fn(Request $r) => (new UserController($pdo))->update($r), [$authMw]);
         $router->add('POST', '/api/v1/admin/rescuers/{id}/approve', fn(Request $r) => (new UserController($pdo))->approveRescuer($r), [$authMw, $adminMw]);
         $router->add('POST', '/api/v1/admin/rescuers/{id}/reject', fn(Request $r) => (new UserController($pdo))->rejectRescuer($r), [$authMw, $adminMw]);
+        $router->add('PATCH', '/api/v1/rescuers/{id}/duty', fn(Request $r) => (new UserController($pdo))->toggleDuty($r), [$authMw, $adminMw]);
     }
 }

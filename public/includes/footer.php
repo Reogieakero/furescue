@@ -41,7 +41,7 @@ $footerColMarkup = static function (array $cols): string {
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; <?= (int) date('Y') ?> Fur<span class="font-semibold">escue</span>. All rights reserved.</p>
+      <p>&copy; <?= (int) date('Y') ?> Fur<strong>escue</strong>. All rights reserved.</p>
       <p class="footer-muted">Made with care for every stray that needs a home.</p>
     </div>
   </div>

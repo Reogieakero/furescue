@@ -14,6 +14,18 @@ use PDO;
 
 class ReportController extends AbstractController
 {
+    private const MEDIA_EXT = [
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'gif' => 'image/gif',
+        'webp' => 'image/webp',
+        'mp4' => 'video/mp4',
+        'webm' => 'video/webm',
+    ];
+    private const MAX_MEDIA_BYTES = 10 * 1024 * 1024;
+    private const MAX_MEDIA_FILES = 8;
+
     private DedupService $dedup;
     private GeoService $geo;
     private ReportRepository $reports;
@@ -75,7 +87,7 @@ class ReportController extends AbstractController
         $this->notifyRole('admin', 'report_submitted', 'A new animal report was submitted.', 'report', $id);
 
         $report = $this->reports->find($id);
-        Response::success(['report' => $report->toArray()], $duplicateId ? 409 : 201);
+        Response::success(['report' => $report->toArray()], 201);
     }
 
     public function index(Request $req): void
@@ -180,6 +192,111 @@ class ReportController extends AbstractController
         $notif = new NotificationService($this->pdo);
         $notif->notify($report->residentId(), 'report_verified', 'Your report was verified.', 'report', $report->id());
         Response::success(['report' => $this->reports->find($report->id())->toArray(), 'case_id' => $caseId]);
+    }
+
+    public function uploadMedia(Request $req): void
+    {
+        $report = $this->reports->find($req->params['id']);
+        if (!$report) {
+            Response::error('NOT_FOUND', 'Report not found', 404);
+            return;
+        }
+        if ($req->user['role'] === 'resident' && $report->residentId() !== $req->user['id']) {
+            Response::error('FORBIDDEN', 'Not your report', 403);
+            return;
+        }
+
+        $files = $this->normalizeUploadedFiles($_FILES['photos'] ?? null);
+        if (!$files) {
+            Response::error('VALIDATION_ERROR', 'At least one photo or video file is required.', 400);
+            return;
+        }
+        if (count($files) > self::MAX_MEDIA_FILES) {
+            Response::error('VALIDATION_ERROR', 'Up to ' . self::MAX_MEDIA_FILES . ' files can be attached at once.', 400);
+            return;
+        }
+
+        foreach ($files as $file) {
+            if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+                Response::error('VALIDATION_ERROR', "Upload failed for '{$file['name']}'.", 400);
+                return;
+            }
+            if (!is_uploaded_file($file['tmp_name'])) {
+                Response::error('VALIDATION_ERROR', 'Invalid upload.', 400);
+                return;
+            }
+            if ($file['size'] > self::MAX_MEDIA_BYTES) {
+                Response::error('VALIDATION_ERROR', "'{$file['name']}' exceeds the 10 MB size limit.", 400);
+                return;
+            }
+            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            if (!array_key_exists($ext, self::MEDIA_EXT)) {
+                Response::error('VALIDATION_ERROR', 'Unsupported file type. Allowed: JPG, PNG, GIF, WEBP, MP4, WEBM.', 400);
+                return;
+            }
+        }
+
+        $dir = dirname(__DIR__, 2) . '/public/uploads/reports/' . date('Y') . '/' . date('m');
+        if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
+            Response::error('SERVER_ERROR', 'Could not create the upload directory.', 500);
+            return;
+        }
+
+        $urls = [];
+        foreach ($files as $file) {
+            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            $stored = Database::uuidV4() . '.' . $ext;
+            if (!move_uploaded_file($file['tmp_name'], $dir . '/' . $stored)) {
+                Response::error('SERVER_ERROR', "Could not save '{$file['name']}'.", 500);
+                return;
+            }
+            $urls[] = '/uploads/reports/' . date('Y') . '/' . date('m') . '/' . $stored;
+        }
+
+        $existing = $report->photoUrls();
+        $existingUrls = [];
+        if (is_string($existing) && trim($existing) !== '') {
+            $decoded = json_decode($existing, true);
+            if (is_array($decoded)) {
+                $existingUrls = array_values(array_filter($decoded, static fn($u) => is_string($u) && $u !== ''));
+            }
+        }
+        $merged = array_values(array_unique(array_merge($existingUrls, $urls)));
+        $encoded = json_encode($merged, JSON_UNESCAPED_SLASHES);
+        if ($encoded === false || strlen($encoded) > 8000) {
+            foreach ($urls as $url) {
+                @unlink(dirname(__DIR__, 2) . '/public' . $url);
+            }
+            Response::error('VALIDATION_ERROR', 'Too many files attached to this report.', 400);
+            return;
+        }
+
+        $this->reports->update($report->id(), ['photo_urls' => $encoded]);
+        Response::success(['photo_urls' => $merged, 'report' => $this->reports->find($report->id())->toArray()], 201);
+    }
+
+    private function normalizeUploadedFiles(mixed $entry): array
+    {
+        if (!$entry || !is_array($entry) || !isset($entry['name'])) {
+            return [];
+        }
+        if (!is_array($entry['name'])) {
+            return [$entry];
+        }
+        $out = [];
+        foreach (array_keys($entry['name']) as $i) {
+            if (($entry['error'][$i] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+            $out[] = [
+                'name' => (string) ($entry['name'][$i] ?? ''),
+                'type' => (string) ($entry['type'][$i] ?? ''),
+                'tmp_name' => (string) ($entry['tmp_name'][$i] ?? ''),
+                'error' => (int) ($entry['error'][$i] ?? UPLOAD_ERR_NO_FILE),
+                'size' => (int) ($entry['size'][$i] ?? 0),
+            ];
+        }
+        return $out;
     }
 
     public function heatmap(Request $req): void

@@ -72,6 +72,21 @@ async function runActivate(id) {
   await refresh();
 }
 
+async function runToggleDuty(id, status) {
+  try {
+    await api.toggleRescuerDuty(id, status);
+    toast(
+      status === "on_duty"
+        ? `${shortId(id)} is now on duty.`
+        : `${shortId(id)} is now off duty.`,
+      { type: "success" }
+    );
+    await refresh();
+  } catch (e) {
+    toast(e.message || "Failed to update duty status.", { type: "error" });
+  }
+}
+
 async function openRescuer(id) {
   const base = [...state.rescuers, ...state.pending].find((x) => x.id === id) || {};
   let detail = {};
@@ -99,4 +114,4 @@ async function openRescuer(id) {
   });
 }
 
-export { runApprove, runReject, runSuspend, runActivate, openRescuer };
+export { runApprove, runReject, runSuspend, runActivate, runToggleDuty, openRescuer };

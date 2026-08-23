@@ -2,6 +2,7 @@ import { createIcons, icons } from "lucide";
 import { Button } from "../../../../../js/components/ui/button.js";
 import { Spinner } from "../../../../../js/components/ui/spinner.js";
 import { updateAnimal } from "../../../lib/admin-data.js";
+import { parsePhoto360 } from "../state.js";
 import { resizeImage } from "./modal.js";
 
 function esc(value) {
@@ -110,6 +111,12 @@ export function openEditAnimalDialog(animal) {
               <input type="file" id="ea-photo" accept="image/*" class="aa-photo-input" />
             </div>
 
+            <label class="dialog-label" for="ea-model3d">3D model URL <span class="dialog-hint">optional — .glb/.gltf/.obj</span></label>
+            <input class="dialog-input" id="ea-model3d" value="${esc(animal.model3d || "")}" autocomplete="off" />
+
+            <label class="dialog-label" for="ea-photo360">360° photo set <span class="dialog-hint">optional — JSON array of image URLs</span></label>
+            <textarea class="dialog-input aa-textarea" id="ea-photo360" rows="3">${esc(animal.photo360 || "")}</textarea>
+
             <p class="dialog-error" id="ea-error" hidden></p>
           </div>
         </div>
@@ -187,7 +194,16 @@ export function openEditAnimalDialog(animal) {
         age_estimate: age,
         color_markings: colorEl ? colorEl.value.trim() : null,
         adoption_status: form.status,
+        model_3d_url: overlay.querySelector("#ea-model3d").value.trim() || null,
       };
+      const photo360Text = overlay.querySelector("#ea-photo360").value;
+      try {
+        body.photo_360_set = parsePhoto360(photo360Text);
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.hidden = false;
+        return;
+      }
       if (form.photo && form.photo !== animal.photo) body.photo_urls = [form.photo];
       const okBtn = overlay.querySelector('[data-act="ok"]');
       okBtn.disabled = true;

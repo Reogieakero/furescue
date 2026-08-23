@@ -30,12 +30,12 @@ class AuthController extends AbstractController
     public function register(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('full_name')->string(150)
+        $v->required('full_name')->string('full_name', 150)
             ->required('email')->email()
-            ->required('password')->minLen(8)
+            ->required('password')->minLen('password', 8)
             ->optional('role')->in('role', ['resident', 'rescuer'])
-            ->optional('phone_number')->string(20)
-            ->optional('address')->string(1000);
+            ->optional('phone_number')->string('phone_number', 20)
+            ->optional('address')->string('address', 1000);
 
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);

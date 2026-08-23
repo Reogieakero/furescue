@@ -1,27 +1,17 @@
 <?php
 
-$badgeBase = 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2';
-$badgeVariants = [
-    'default' => ' border-transparent bg-primary text-primary-foreground',
-    'secondary' => ' border-transparent bg-secondary text-secondary-foreground',
-    'accent' => ' border-transparent bg-accent text-accent-foreground',
-];
-$btnLgBase = 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50';
-$btnDefaultLg = $btnLgBase . ' bg-primary text-primary-foreground shadow hover:bg-primary/90 h-10 px-6 text-sm';
-$btnOutlineLg = $btnLgBase . ' border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-6 text-sm';
-
-$cardBase = 'rounded-xl border bg-card text-card-foreground shadow';
-$headerBase = 'flex flex-col space-y-1.5 p-6 ';
-$titleBase = 'font-semibold leading-none tracking-tight ';
-$descClass = 'text-sm text-muted-foreground';
-$contentBase = 'p-6 pt-0 ';
-$cardFooterBase = 'flex items-center p-6 pt-0 ';
-
 $pageTitle = 'FurEscue — Centralized Rescue Platform for Puspin & Aspin';
 $pageDescription = 'FurEscue connects animal rescuers, city veterinarians, and the community on one map-driven platform for stray, injured, and abandoned Puspin and Aspin welfare.';
+$fontsHref = 'https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap';
 $pageCss = ['/landing/css/landing.css'];
 require __DIR__ . '/site-head.php';
 require __DIR__ . '/header.php';
+
+$badgeClassMap = [
+    'default' => 'badge badge--solid',
+    'secondary' => 'badge badge--soft',
+    'accent' => 'badge badge--sage',
+];
 
 $audiences = [
     [
@@ -81,10 +71,17 @@ $steps = [
 ];
 
 $stats = [
-    ['value' => '1', 'label' => 'Centralized platform', 'sub' => 'for reports, maps & adoption'],
-    ['value' => '24/7', 'label' => 'Community reporting', 'sub' => 'anytime, from anywhere'],
-    ['value' => '3', 'label' => 'Connected roles', 'sub' => 'rescuers · vets · community'],
-    ['value' => '100%', 'label' => 'Puspin & Aspin focus', 'sub' => 'native cats & dogs first'],
+    ['value' => '190+', 'label' => 'Rescued Animals', 'sub' => 'puspin & aspin given a second chance'],
+    ['value' => '64', 'label' => 'Adoptions', 'sub' => 'matched with forever homes'],
+    ['value' => '350+', 'label' => 'Reports Handled', 'sub' => 'from sighting to safe rescue'],
+    ['value' => '48', 'label' => 'Active Volunteers', 'sub' => 'rescuers on the ground daily'],
+];
+
+$whatWeDo = [
+    ['icon' => 'megaphone', 'title' => 'Report', 'desc' => 'Spotted a stray, injured, or abandoned animal? Send a quick report with a photo and location in under a minute.'],
+    ['icon' => 'map-pin', 'title' => 'Locate', 'desc' => 'Every case is pinned to a shared live map, so responders see exactly where help is needed.'],
+    ['icon' => 'ambulance', 'title' => 'Rescue', 'desc' => 'Urgent cases are prioritized so rescuers and city vets can act fast where it matters most.'],
+    ['icon' => 'heart', 'title' => 'Adopt', 'desc' => 'Recovered Puspin & Aspin find permanent homes through the adoption marketplace.'],
 ];
 ?>
   <body>
@@ -93,20 +90,20 @@ $stats = [
         <div class="hero-glow" aria-hidden="true"></div>
         <div class="container hero-split">
           <div class="hero-copy">
-            <span class="<?= htmlspecialchars($badgeBase . $badgeVariants['secondary'] . ' hero-badge', ENT_QUOTES, 'UTF-8') ?>"><i data-lucide="paw-print" class="badge-icon"></i>For Puspin &amp; Aspin welfare</span>
+            <span class="badge badge--soft hero-badge"><i data-lucide="paw-print" class="badge-icon"></i>For Puspin &amp; Aspin welfare</span>
 
             <h1 class="hero-title">
               The centralized rescue platform for every <span class="text-primary">stray, injured &amp; abandoned</span> animal
             </h1>
 
             <p class="hero-subtitle">
-              Fur<span class="font-semibold text-foreground">escue</span> connects rescuers, city veterinarians, and the
+              Fur<strong>escue</strong> connects rescuers, city veterinarians, and the
               community on one map-driven platform &mdash; so urgent cases get found faster and more animals find safe homes.
             </p>
 
             <div class="hero-actions">
-              <a href="#report" class="<?= htmlspecialchars($btnDefaultLg, ENT_QUOTES, 'UTF-8') ?>"><i data-lucide="map-pin" class="icon"></i><span>Report an Animal</span></a>
-              <a href="#adopt" class="<?= htmlspecialchars($btnOutlineLg, ENT_QUOTES, 'UTF-8') ?>"><i data-lucide="home" class="icon"></i><span>Browse for Adoption</span></a>
+              <a href="#adopt" class="btn btn--solid"><i data-lucide="heart" class="icon"></i><span>Adopt a Friend</span></a>
+              <a href="#report" class="btn btn--ghost"><i data-lucide="megaphone" class="icon"></i><span>Report an Activity</span></a>
             </div>
 
             <div class="hero-meta">
@@ -120,30 +117,30 @@ $stats = [
               <svg viewBox="0 0 440 380" class="hero-art" role="img" aria-label="Map locating rescued Puspin and Aspin">
                 <defs>
                   <linearGradient id="pinGrad" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stop-color="hsl(221 83% 53%)" />
-                    <stop offset="1" stop-color="hsl(217 91% 60%)" />
+                    <stop offset="0" class="hero-art-pin-stop-a" />
+                    <stop offset="1" class="hero-art-pin-stop-b" />
                   </linearGradient>
                   <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
-                    <circle cx="3" cy="3" r="2.2" fill="hsl(214 50% 82%)" />
+                    <circle cx="3" cy="3" r="2.2" class="hero-art-dot" />
                   </pattern>
                 </defs>
 
                 <rect x="0" y="0" width="440" height="380" fill="url(#dots)" opacity="0.55" />
 
                 <path d="M80 300 C 150 230 190 250 225 160 S 340 130 380 90"
-                      fill="none" stroke="hsl(221 83% 53% / 0.45)" stroke-width="3"
-                      stroke-dasharray="5 9" stroke-linecap="round" />
+                      fill="none" class="hero-art-route"
+                      stroke-width="3" stroke-dasharray="5 9" stroke-linecap="round" />
 
-                <circle cx="80" cy="300" r="10" fill="hsl(217 91% 60%)" stroke="#fff" stroke-width="3" />
-                <circle cx="380" cy="90" r="10" fill="hsl(217 91% 60%)" stroke="#fff" stroke-width="3" />
+                <circle cx="80" cy="300" r="10" class="hero-art-node" stroke-width="3" />
+                <circle cx="380" cy="90" r="10" class="hero-art-node" stroke-width="3" />
 
-                <circle cx="120" cy="110" r="40" fill="hsl(217 91% 60% / 0.10)" />
-                <circle cx="330" cy="270" r="30" fill="hsl(221 83% 53% / 0.10)" />
+                <circle cx="120" cy="110" r="40" class="hero-art-halo hero-art-halo--a" />
+                <circle cx="330" cy="270" r="30" class="hero-art-halo hero-art-halo--b" />
 
                 <g transform="translate(225 175)">
-                  <ellipse cx="0" cy="22" rx="26" ry="8" fill="hsl(221 83% 30% / 0.18)" />
+                  <ellipse cx="0" cy="22" rx="26" ry="8" class="hero-art-shadow" />
                   <path d="M0 14 C -34 -36 -34 -82 0 -82 C 34 -82 34 -36 0 14 Z" fill="url(#pinGrad)" />
-                  <g fill="#fff" transform="translate(0 -52)">
+                  <g class="hero-art-paw" transform="translate(0 -52)">
                     <ellipse cx="0" cy="8" rx="14" ry="11" />
                     <circle cx="-14" cy="-6" r="5.5" />
                     <circle cx="14" cy="-6" r="5.5" />
@@ -152,7 +149,7 @@ $stats = [
                   </g>
                 </g>
 
-                <g fill="hsl(217 91% 60% / 0.30)">
+                <g class="hero-art-heart">
                   <path transform="translate(300 150) scale(1.1)" d="M0 6 C -7 -3 -18 3 0 16 C 18 3 7 -3 0 6 Z" />
                   <path transform="translate(150 250) scale(0.9)" d="M0 6 C -7 -3 -18 3 0 16 C 18 3 7 -3 0 6 Z" />
                 </g>
@@ -178,6 +175,27 @@ $stats = [
         </div>
       </section>
 
+      <section id="what-we-do" class="section">
+        <div class="container">
+          <div class="section-head">
+            <span class="section-eyebrow"><i data-lucide="heart-handshake"></i> What we do</span>
+            <h2 class="section-title">From first report to forever home</h2>
+            <p class="section-subtitle">
+              Four simple steps that turn a sighting on the street into a safe, happy ending.
+            </p>
+          </div>
+          <div class="wwd-grid">
+<?php foreach ($whatWeDo as $step): ?>
+            <div class="card wwd-card">
+              <div class="wwd-icon"><i data-lucide="<?= htmlspecialchars($step['icon'], ENT_QUOTES, 'UTF-8') ?>"></i></div>
+              <h3 class="wwd-title"><?= htmlspecialchars($step['title'], ENT_QUOTES, 'UTF-8') ?></h3>
+              <p class="wwd-desc"><?= htmlspecialchars($step['desc'], ENT_QUOTES, 'UTF-8') ?></p>
+            </div>
+<?php endforeach; ?>
+          </div>
+        </div>
+      </section>
+
       <section id="audiences" class="section">
         <div class="container">
           <div class="section-head">
@@ -185,7 +203,7 @@ $stats = [
             <h2 class="section-title">Built for everyone in the rescue chain</h2>
             <p class="section-subtitle">
               From the neighbor who spots a stray to the city vet planning resources &mdash;
-              Fur<span class="font-semibold">escue</span> gives each role the tools they need.
+              Fur<strong>escue</strong> gives each role the tools they need.
             </p>
           </div>
           <div class="laptop">
@@ -196,23 +214,23 @@ $stats = [
               <div class="laptop-screen-inner">
                 <div class="audiences-grid">
 <?php foreach ($audiences as $audience): ?>
-                  <div class="<?= htmlspecialchars($cardBase . ' audience-card', ENT_QUOTES, 'UTF-8') ?>">
-                    <div class="<?= htmlspecialchars($headerBase . 'audience-header', ENT_QUOTES, 'UTF-8') ?>">
+                  <div class="card audience-card">
+                    <div class="audience-header">
                       <div class="audience-top">
                         <div class="audience-icon"><i data-lucide="<?= htmlspecialchars($audience['icon'], ENT_QUOTES, 'UTF-8') ?>"></i></div>
-                        <span class="<?= htmlspecialchars($badgeBase . $badgeVariants[$audience['badgeVariant']], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($audience['badge'], ENT_QUOTES, 'UTF-8') ?></span>
+                        <span class="<?= htmlspecialchars($badgeClassMap[$audience['badgeVariant']], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($audience['badge'], ENT_QUOTES, 'UTF-8') ?></span>
                       </div>
-                      <h3 class="<?= htmlspecialchars($titleBase . 'audience-title', ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($audience['title'], ENT_QUOTES, 'UTF-8') ?></h3>
-                      <p class="<?= htmlspecialchars($descClass, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($audience['desc'], ENT_QUOTES, 'UTF-8') ?></p>
+                      <h3 class="audience-title"><?= htmlspecialchars($audience['title'], ENT_QUOTES, 'UTF-8') ?></h3>
+                      <p class="audience-desc"><?= htmlspecialchars($audience['desc'], ENT_QUOTES, 'UTF-8') ?></p>
                     </div>
-                    <div class="<?= htmlspecialchars($contentBase . 'audience-body', ENT_QUOTES, 'UTF-8') ?>">
+                    <div class="audience-body">
                       <ul class="audience-list">
 <?php foreach ($audience['points'] as $point): ?>
                         <li class="audience-point"><i class="audience-check" data-lucide="check"></i><span><?= htmlspecialchars($point, ENT_QUOTES, 'UTF-8') ?></span></li>
 <?php endforeach; ?>
                       </ul>
                     </div>
-                    <div class="<?= htmlspecialchars($cardFooterBase . 'audience-footer', ENT_QUOTES, 'UTF-8') ?>"><a class="audience-link" href="#<?= htmlspecialchars($audience['id'], ENT_QUOTES, 'UTF-8') ?>">Learn more <i data-lucide="arrow-right"></i></a></div>
+                    <div class="audience-footer"><a class="audience-link" href="#<?= htmlspecialchars($audience['id'], ENT_QUOTES, 'UTF-8') ?>">Learn more <i data-lucide="arrow-right"></i></a></div>
                   </div>
 <?php endforeach; ?>
                 </div>
@@ -235,11 +253,11 @@ $stats = [
           </div>
           <div class="features-grid">
 <?php foreach ($features as $feature): ?>
-            <div class="<?= htmlspecialchars($cardBase . ' feature-card', ENT_QUOTES, 'UTF-8') ?>">
-              <div class="<?= htmlspecialchars($headerBase . 'feature-header', ENT_QUOTES, 'UTF-8') ?>">
+            <div class="card feature-card">
+              <div class="feature-header">
                 <div class="feature-icon"><i data-lucide="<?= htmlspecialchars($feature['icon'], ENT_QUOTES, 'UTF-8') ?>"></i></div>
-                <h3 class="<?= htmlspecialchars($titleBase . 'feature-title', ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($feature['title'], ENT_QUOTES, 'UTF-8') ?></h3>
-                <p class="<?= htmlspecialchars($descClass, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($feature['desc'], ENT_QUOTES, 'UTF-8') ?></p>
+                <h3 class="feature-title"><?= htmlspecialchars($feature['title'], ENT_QUOTES, 'UTF-8') ?></h3>
+                <p class="feature-desc"><?= htmlspecialchars($feature['desc'], ENT_QUOTES, 'UTF-8') ?></p>
               </div>
             </div>
 <?php endforeach; ?>
@@ -256,7 +274,7 @@ $stats = [
               A simple loop that keeps the whole community moving in the same direction.
             </p>
           </div>
-          <ol class="stepper ">
+          <ol class="stepper">
 <?php foreach ($steps as $index => $step): ?>
             <li class="stepper-step">
               <div class="stepper-marker-wrap">
@@ -268,7 +286,7 @@ $stats = [
               <div class="stepper-content">
                 <h3 class="stepper-title"><?= htmlspecialchars($step['title'], ENT_QUOTES, 'UTF-8') ?></h3>
                 <p class="stepper-desc"><?= htmlspecialchars($step['desc'], ENT_QUOTES, 'UTF-8') ?></p>
-                <div class="stepper-status"><i data-lucide="loader-circle" class="animate-spin" style="width:14px;height:14px"></i><span><?= htmlspecialchars($step['status'], ENT_QUOTES, 'UTF-8') ?></span></div>
+                <div class="stepper-status"><i data-lucide="loader-circle" style="width:14px;height:14px"></i><span><?= htmlspecialchars($step['status'], ENT_QUOTES, 'UTF-8') ?></span></div>
               </div>
             </li>
 <?php endforeach; ?>
@@ -292,7 +310,7 @@ $stats = [
 
       <section id="signup" class="section">
         <div class="container">
-          <div class="cta-card">
+          <div class="cta-card on-dark">
             <div class="cta-glow" aria-hidden="true"></div>
             <div class="cta-inner">
               <h2 class="cta-title">Ready to make rescues faster &amp; smarter?</h2>
@@ -301,8 +319,8 @@ $stats = [
                 together for Puspin and Aspin welfare.
               </p>
               <div class="cta-actions">
-                <a href="#report" class="<?= htmlspecialchars($btnDefaultLg, ENT_QUOTES, 'UTF-8') ?>"><i data-lucide="paw-print" class="icon"></i><span>Get Started</span></a>
-                <a href="#report" class="<?= htmlspecialchars($btnOutlineLg, ENT_QUOTES, 'UTF-8') ?>"><i data-lucide="map-pin" class="icon"></i><span>Report an Animal</span></a>
+                <a href="#adopt" class="btn btn--solid"><i data-lucide="heart" class="icon"></i><span>Adopt a Friend</span></a>
+                <a href="#report" class="btn btn--ghost"><i data-lucide="megaphone" class="icon"></i><span>Report an Activity</span></a>
               </div>
             </div>
           </div>

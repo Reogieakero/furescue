@@ -97,6 +97,13 @@ FLUSH PRIVILEGES;
    APP_SECRET=change_me_app_secret
    JWT_SECRET=change_me_jwt_secret
    JWT_REFRESH_SECRET=change_me_refresh_secret
+
+   # Comma-separated origins allowed to call the API cross-origin.
+   # Leave empty to fall back to Access-Control-Allow-Origin: * (a warning is logged).
+   CORS_ALLOWED_ORIGINS=http://127.0.0.1:8000
+
+   # Required key to open the dev DB viewer at /dbtool/?key=...
+   DEVTOOL_KEY=change_me_devtool_key
    ```
    *The Mati City geovalidation bounds and Google client ID are pre-filled and fine to keep.*
 
@@ -132,6 +139,13 @@ curl -X POST http://127.0.0.1:8000/api/v1/auth/login ^
 ```
 A successful response returns `{"success":true,"data":{...,"tokens":{"access_token":"...","refresh_token":"..."}}}` — the browser app stores `data.tokens.access_token`.
 
+To call an authenticated endpoint from the command line, copy the `access_token` value into a Bearer header:
+
+```bat
+curl http://127.0.0.1:8000/api/v1/users/me ^
+  -H "Authorization: Bearer <tokens.access_token>"
+```
+
 ### Step 12 — Build the CSS
 In a **second** terminal, from the repo root:
 ```bat
@@ -145,9 +159,9 @@ With the server from Step 11 running, open in your browser:
 
 | Page | URL |
 |------|-----|
-| Landing page | http://127.0.0.1:8000/landing/index.html |
-| Login / Register | http://127.0.0.1:8000/auth/login.html |
-| **Admin dashboard** | http://127.0.0.1:8000/admin/index.html |
+| Landing page | http://127.0.0.1:8000/ |
+| Login / Register | http://127.0.0.1:8000/auth/login.php |
+| **Admin dashboard** | http://127.0.0.1:8000/admin/ |
 
 The pages call the API same-origin at `/api/v1`, so there is no second port or separate frontend server to start.
 

@@ -149,6 +149,32 @@ img {
   cursor: not-allowed;
 }
 
+.input--area {
+  height: auto;
+  min-height: 6.5rem;
+  padding: 0.625rem 0.75rem;
+  resize: vertical;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin-bottom: 0.375rem;
+}
+
+.field-hint {
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
 .separator {
   display: flex;
   align-items: center;
@@ -329,4 +355,1023 @@ img {
     transition: none !important;
     animation: none !important;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Resident app shell + shared page primitives (used by /learning /messages
+   /notifications and future resident pages). Scoped under .resident-shell so
+   it never leaks into admin/landing markup. Token-driven; mobile-first.
+--------------------------------------------------------------------------- */
+
+.is-hidden {
+  display: none !important;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.resident-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.roverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: hsl(var(--ink) / 0.4);
+  z-index: 50;
+}
+
+.roverlay.is-visible {
+  display: block;
+}
+
+.rmain-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.resident-main {
+  flex: 1;
+  min-width: 0;
+  padding: 16px;
+}
+
+/* --- Sidebar (off-canvas < 1024px, fixed rail >= 1024px) --- */
+.rside {
+  width: min(240px, 84vw);
+  flex-shrink: 0;
+  background: hsl(var(--jungle));
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  z-index: 60;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+}
+.rside.is-open {
+  transform: translateX(0);
+}
+@media (min-width: 1024px) {
+  .rside {
+    position: sticky;
+    transform: none;
+    height: 100vh;
+  }
+  .resident-shell {
+    align-items: stretch;
+  }
+  .roverlay {
+    display: none !important;
+  }
+}
+
+.rside-head {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgb(255 255 255 / 0.12);
+}
+.rside-logo {
+  width: 28px;
+  height: 28px;
+  background: hsl(var(--jungle2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%);
+  flex-shrink: 0;
+}
+.rside-logo .lucide {
+  width: 16px;
+  height: 16px;
+}
+.rside-brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+}
+.rside-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgb(255 255 255 / 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.rside-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 8px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.rside-label {
+  padding: 0 12px;
+  margin-bottom: 6px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: rgb(255 255 255 / 0.38);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.rside-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.rside-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgb(255 255 255 / 0.72);
+  border-radius: calc(var(--radius) - 2px);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.rside-link .lucide {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.rside-link:hover {
+  background: rgb(255 255 255 / 0.07);
+  color: #fff;
+}
+.rside-link--active {
+  background: rgb(255 255 255 / 0.1);
+  color: #fff;
+}
+.rside-link--active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 999px;
+  background: hsl(var(--jungle2));
+}
+.rside-badge {
+  margin-left: auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: hsl(var(--coral));
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* --- Topbar --- */
+.rtop {
+  min-height: 56px;
+  background: hsl(var(--card));
+  border-bottom: 2px dashed hsl(var(--border));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+.rtop-menu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  border-radius: var(--radius);
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.rtop-menu:hover {
+  background: hsl(var(--surface-soft));
+  color: hsl(var(--foreground));
+}
+.rtop-menu .lucide {
+  width: 20px;
+  height: 20px;
+}
+@media (min-width: 1024px) {
+  .rtop-menu {
+    display: none;
+  }
+}
+.rtop-title {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.rtop-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+@media (min-width: 768px) {
+  .rtop-actions {
+    gap: 12px;
+  }
+}
+.rtop-meta {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: hsl(var(--muted-foreground));
+}
+.rtop-meta .lucide {
+  width: 14px;
+  height: 14px;
+}
+@media (min-width: 768px) {
+  .rtop-meta {
+    display: inline-flex;
+  }
+}
+.rtop-bell {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  color: hsl(var(--muted-foreground));
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.rtop-bell:hover {
+  color: hsl(var(--primary));
+  background: hsl(var(--surface-soft));
+}
+.rtop-bell .lucide {
+  width: 17px;
+  height: 17px;
+}
+.rtop-bell-count {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: hsl(var(--destructive));
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px hsl(var(--card));
+}
+.rtop-bell-count[hidden] {
+  display: none;
+}
+.rtop-divider {
+  width: 1px;
+  height: 24px;
+  background: hsl(var(--border));
+}
+.rtop-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+.rtop-user img {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 999px;
+  border: 2px solid hsl(var(--border));
+  display: block;
+}
+
+/* --- Shared page primitives (scoped) --- */
+.resident-shell .rpage-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+@media (min-width: 640px) {
+  .resident-shell .rpage-head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+}
+.resident-shell .rpage-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 3vw, 1.85rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.resident-shell .rpage-sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: hsl(var(--muted-foreground));
+}
+.resident-shell .rpage-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.resident-shell .rcard {
+  display: flex;
+  flex-direction: column;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.9rem;
+  box-shadow: var(--shadow-sm);
+}
+.resident-shell .rcard-pad {
+  padding: 18px;
+}
+.resident-shell .rcard-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid hsl(var(--border));
+}
+.resident-shell .rcard-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resident-shell .rbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+  border-radius: calc(var(--radius) + 2px);
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1;
+  min-height: 2.5rem;
+  padding-inline: 1.15rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease, box-shadow 0.15s ease;
+}
+.resident-shell .rbtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.35);
+}
+.resident-shell .rbtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.resident-shell .rbtn .lucide {
+  width: 15px;
+  height: 15px;
+}
+.resident-shell .rbtn--solid {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow: var(--shadow-sm);
+}
+.resident-shell .rbtn--solid:hover:not(:disabled) {
+  background: hsl(var(--primary) / 0.88);
+}
+.resident-shell .rbtn--ghost {
+  background: hsl(var(--card));
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+.resident-shell .rbtn--ghost:hover:not(:disabled) {
+  background: hsl(var(--surface-soft));
+}
+.resident-shell .rbtn--danger-ghost {
+  background: transparent;
+  color: hsl(var(--destructive));
+}
+.resident-shell .rbtn--sm {
+  min-height: 2.1rem;
+  padding-inline: 0.85rem;
+  font-size: 0.82rem;
+  border-radius: var(--radius);
+}
+
+.resident-shell .rchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  padding: 0.22rem 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+.resident-shell .rchip--brand {
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+}
+.resident-shell .rchip--sky {
+  background: hsl(var(--jungle2) / 0.15);
+  color: hsl(var(--teal));
+}
+.resident-shell .rchip--success {
+  background: hsl(150 70% 32% / 0.12);
+  color: hsl(150 70% 26%);
+}
+.resident-shell .rchip--alert {
+  background: hsl(var(--destructive) / 0.1);
+  color: hsl(var(--destructive));
+}
+
+.resident-shell .rempty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+}
+.resident-shell .rempty .lucide,
+.resident-shell .rempty-icon {
+  width: 34px;
+  height: 34px;
+  color: hsl(var(--border));
+}
+.resident-shell .rempty-title {
+  margin: 0;
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: hsl(var(--foreground));
+}
+.resident-shell .rempty-text {
+  margin: 0;
+  font-size: 0.82rem;
+  max-width: 34ch;
+}
+
+/* ---------------------------------------------------------------------------
+   Adoption section primitives (gallery, animal cards, detail, lists, modals).
+   Scoped under .resident-shell; token-driven; mobile-first.
+--------------------------------------------------------------------------- */
+
+/* --- Filter / toolbar --- */
+.resident-shell .rfilterbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.resident-shell .rfilter-field {
+  position: relative;
+  flex: 2 1 170px;
+  min-width: 0;
+}
+.resident-shell .rfilter-field .lucide {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 15px;
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+}
+.resident-shell .rfilter-field .input {
+  padding-left: 32px;
+}
+.resident-shell .rfilterbar .input {
+  flex: 1 1 120px;
+  min-width: 0;
+  width: auto;
+  height: 2.35rem;
+  font-size: 0.85rem;
+}
+
+/* --- Animal card grid --- */
+.resident-shell .rgrid-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 640px) {
+  .resident-shell .rgrid-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .resident-shell .rgrid-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1280px) {
+  .resident-shell .rgrid-cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.resident-shell .racard {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  text-align: left;
+  padding: 0;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.9rem;
+  background: hsl(var(--card));
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.resident-shell .racard:hover,
+.resident-shell .racard:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  outline: none;
+}
+.resident-shell .racard-thumb {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: hsl(var(--surface-soft));
+  overflow: hidden;
+}
+.resident-shell .racard-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.resident-shell .racard-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--muted-foreground) / 0.55);
+}
+.resident-shell .racard-placeholder .lucide {
+  width: 42px;
+  height: 42px;
+}
+.resident-shell .racard-flag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+}
+.resident-shell .racard-body {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 12px 14px 14px;
+}
+.resident-shell .racard-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.resident-shell .racard-name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.resident-shell .racard-sex {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+  flex-shrink: 0;
+}
+.resident-shell .racard-meta {
+  font-size: 0.78rem;
+  color: hsl(var(--muted-foreground));
+  overflow-wrap: anywhere;
+}
+.resident-shell .racard-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* --- Load more --- */
+.resident-shell .rloadmore {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+/* --- Segmented tabs --- */
+.resident-shell .rtabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: calc(var(--radius) + 4px);
+  background: hsl(var(--surface-soft));
+  max-width: 100%;
+  overflow-x: auto;
+}
+.resident-shell .rtab {
+  border: none;
+  background: transparent;
+  border-radius: calc(var(--radius) + 1px);
+  min-height: 2.1rem;
+  padding-inline: 0.9rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.resident-shell .rtab.is-active {
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- Row lists (applications, listings) --- */
+.resident-shell .rlist {
+  display: flex;
+  flex-direction: column;
+}
+.resident-shell .rlist-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid hsl(var(--border));
+}
+.resident-shell .rlist-row:last-child {
+  border-bottom: none;
+}
+.resident-shell .rlist-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  background: hsl(var(--surface-soft));
+  color: hsl(var(--muted-foreground));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.resident-shell .rlist-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.resident-shell .rlist-icon .lucide {
+  width: 18px;
+  height: 18px;
+}
+.resident-shell .rlist-main {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.resident-shell .rlist-title {
+  font-weight: 800;
+  font-size: 0.93rem;
+  overflow-wrap: anywhere;
+}
+.resident-shell .rlist-sub {
+  margin-top: 2px;
+  font-size: 0.78rem;
+  color: hsl(var(--muted-foreground));
+  overflow-wrap: anywhere;
+}
+.resident-shell .rlist-side {
+  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* --- Detail layout --- */
+.resident-shell .rdetail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (min-width: 1024px) {
+  .resident-shell .rdetail-grid {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+}
+.resident-shell .rgallery-main {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: hsl(var(--surface-soft));
+  border-radius: 0.9rem 0.9rem 0 0;
+  overflow: hidden;
+}
+.resident-shell .rgallery-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.resident-shell .rgallery-thumbs {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  overflow-x: auto;
+}
+.resident-shell .rgallery-thumb {
+  flex: 0 0 auto;
+  width: 64px;
+  height: 48px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: calc(var(--radius) - 2px);
+  overflow: hidden;
+  cursor: pointer;
+  background: hsl(var(--surface-soft));
+  transition: border-color 0.15s ease;
+}
+.resident-shell .rgallery-thumb.is-active {
+  border-color: hsl(var(--primary));
+}
+.resident-shell .rgallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.resident-shell .rspec-list {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 16px;
+  row-gap: 9px;
+  font-size: 0.86rem;
+}
+.resident-shell .rspec-list dt {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: hsl(var(--muted-foreground));
+  padding-top: 2px;
+}
+.resident-shell .rspec-list dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.resident-shell .rtimeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.resident-shell .rtimeline-item {
+  position: relative;
+  padding-left: 20px;
+  font-size: 0.84rem;
+}
+.resident-shell .rtimeline-item::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: hsl(var(--jungle2));
+}
+.resident-shell .rtimeline-item::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 17px;
+  bottom: -18px;
+  width: 2px;
+  background: hsl(var(--border));
+}
+.resident-shell .rtimeline-item:last-child::after {
+  display: none;
+}
+
+/* --- Modal dialog --- */
+.resident-shell .rmodal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: hsl(var(--ink) / 0.45);
+  padding: 0;
+}
+@media (min-width: 640px) {
+  .resident-shell .rmodal-overlay {
+    align-items: center;
+    padding: 24px;
+  }
+}
+.resident-shell .rmodal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 540px;
+  max-height: 92vh;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem 1rem 0 0;
+  box-shadow: var(--shadow-md);
+}
+@media (min-width: 640px) {
+  .resident-shell .rmodal {
+    border-radius: 1rem;
+  }
+}
+.resident-shell .rmodal--wide {
+  max-width: 780px;
+}
+.resident-shell .rmodal-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid hsl(var(--border));
+}
+.resident-shell .rmodal-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.resident-shell .rmodal-x {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.resident-shell .rmodal-x:hover {
+  background: hsl(var(--surface-soft));
+  color: hsl(var(--foreground));
+}
+.resident-shell .rmodal-body {
+  padding: 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.resident-shell .rmodal-foot {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 18px;
+  border-top: 1px solid hsl(var(--border));
+}
+.resident-shell .rform-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.resident-shell .rform-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: hsl(var(--muted-foreground));
+}
+.resident-shell .rform-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: hsl(var(--destructive));
+}
+.resident-shell .rform-error[hidden] {
+  display: none;
+}
+
+/* --- 3D model viewer --- */
+.resident-shell .rmodel-stage {
+  width: 100%;
+  height: min(56vh, 420px);
+  border-radius: 0.75rem;
+  background:
+    radial-gradient(120% 90% at 50% 0%, hsl(var(--surface-soft)), hsl(var(--background)));
+  overflow: hidden;
+  position: relative;
+}
+.resident-shell .rmodel-stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: none;
+}
+.resident-shell .rmodel-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.76rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* --- 360° carousel --- */
+.resident-shell .rspin-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 0.75rem;
+  background: hsl(var(--surface-soft));
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: grab;
+}
+.resident-shell .rspin-stage.is-dragging {
+  cursor: grabbing;
+}
+.resident-shell .rspin-stage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.resident-shell .rspin-range {
+  width: 100%;
+  accent-color: hsl(var(--primary));
 }

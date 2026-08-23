@@ -1,4 +1,4 @@
-import { apiFetchFull, apiUpload } from "../../../js/lib/api.js";
+import { apiFetchFull, apiUpload, getAccessToken, API_BASE_URL } from "../../../js/lib/api.js";
 
 async function list(path, perPage = 100) {
   const sep = path.includes("?") ? "&" : "?";
@@ -44,6 +44,33 @@ export const fetchReport = (id) =>
 
 export const fetchNotifications = () =>
   list("/notifications?is_read=false");
+
+export const broadcastAnnouncement = (body) =>
+  apiFetchFull("/admin/notifications", { method: "POST", body });
+
+export const fetchRecentBroadcasts = () =>
+  raw("/admin/notifications/recent").then((d) => (d && d.broadcasts) || []);
+
+export function subscribeToNotifications(callback) {
+  const token = getAccessToken();
+  if (!token || typeof EventSource === "undefined") return null;
+  const url = `${API_BASE_URL}/notifications/stream?access_token=${encodeURIComponent(token)}`;
+  const source = new EventSource(url);
+  source.onmessage = (event) => {
+    let payload = null;
+    try {
+      payload = JSON.parse(event.data);
+    } catch {}
+    if (payload && typeof callback === "function") callback(payload);
+  };
+  return source;
+}
+
+export const fetchUnreadCount = () =>
+  raw("/notifications/unread-count").then((d) => (d && d.count) || 0);
+
+export const markNotificationRead = (id) =>
+  apiFetchFull(`/notifications/${encodeURIComponent(id)}/read`, { method: "PATCH" });
 
 export const fetchElearning = async () => {
   const published = await list("/elearning/modules?published_status=published");
@@ -137,6 +164,9 @@ export const fetchUser = (id) => raw(`/users/${id}`);
 
 export const setUserStatus = (id, status) =>
   patch(`/users/${id}`, { account_status: status });
+
+export const toggleRescuerDuty = (id, status) =>
+  patch(`/rescuers/${encodeURIComponent(id)}/duty`, { status });
 
 export const assignRescuer = (caseId, rescuerId) =>
   post(`/cases/${caseId}/assign`, { rescuer_id: rescuerId });

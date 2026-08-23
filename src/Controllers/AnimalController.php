@@ -28,6 +28,10 @@ class AnimalController extends AbstractController
                 $params[] = $req->query[$f];
             }
         }
+        if (!empty($req->query['q'])) {
+            $where .= " AND name LIKE ?";
+            $params[] = '%' . trim((string) $req->query['q']) . '%';
+        }
         $page = $this->page($req);
         $perPage = $this->perPage($req);
         $countStmt = $this->pdo->prepare("SELECT COUNT(*) FROM animals {$where}");
@@ -35,7 +39,7 @@ class AnimalController extends AbstractController
         $total = (int) $countStmt->fetchColumn();
         $offset = ($page - 1) * $perPage;
         $stmt = $this->pdo->prepare(
-            "SELECT id,name,species,breed_type,sex,age_estimate,birth_date,color_markings,photo_urls,adoption_status,source,created_at
+            "SELECT id,name,species,breed_type,sex,age_estimate,birth_date,color_markings,photo_urls,model_3d_url,photo_360_set,adoption_status,source,created_at
              FROM animals {$where} ORDER BY created_at DESC LIMIT " . (int) $perPage . " OFFSET " . (int) $offset
         );
         $stmt->execute($params);

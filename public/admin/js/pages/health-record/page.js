@@ -94,7 +94,7 @@ function PageHead(hasRecord, editing, mode) {
   return `
   <div class="page-head">
     <div>
-      <a href="health-records.html" class="cd-back"><i data-lucide="chevron-left"></i> Back to health records</a>
+      <a href="/admin/health-records.php" class="cd-back"><i data-lucide="chevron-left"></i> Back to health records</a>
     </div>
     <div class="page-head-actions">
       ${actions}
@@ -1359,12 +1359,7 @@ function openDocumentDialog(editIdx = null) {
   });
 }
 
-export function renderHealthRecord(user, record) {
-  _user = user;
-  _record = record || null;
-  _ui = { editing: false, mode: null, openForm: null, saving: false, addedVaccination: false, addedVital: false };
-  paint();
-
+export function initHealthRecordEvents() {
   const app = document.getElementById("app");
   if (!app) return;
   app.addEventListener("click", (e) => {
@@ -1374,7 +1369,14 @@ export function renderHealthRecord(user, record) {
       handleAction(actionEl);
     }
   });
+}
 
+export function renderHealthRecord(user, record) {
+  _user = user;
+  _record = record || null;
+  _ui = { editing: false, mode: null, openForm: null, saving: false, addedVaccination: false, addedVital: false };
+  paint();
+  initHealthRecordEvents();
   restoreAdoptionToast();
   maybeNotifyFromRecord();
 }

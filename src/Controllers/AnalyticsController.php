@@ -7,9 +7,76 @@ use App\Http\Response;
 
 class AnalyticsController extends AbstractController
 {
+    private const OVERVIEW_LABELS = [
+        'reports' => 'Total reports',
+        'reports_verified' => 'Reports verified',
+        'cases' => 'Total cases',
+        'cases_resolved' => 'Cases resolved',
+        'animals' => 'Total animals',
+        'animals_adopted' => 'Animals adopted',
+        'adoptions_pending' => 'Adoptions pending',
+        'adoptions_completed' => 'Adoptions completed',
+        'rescuers_on_duty' => 'Rescuers on duty',
+        'residents' => 'Residents',
+    ];
+
     public function overview(Request $req): void
     {
-        $stats = [
+        Response::success(['stats' => $this->overviewStats()]);
+    }
+
+    public function adoptionTrends(Request $req): void
+    {
+        Response::success(['trends' => $this->adoptionTrendRows($req)]);
+    }
+
+    public function healthUpdates(Request $req): void
+    {
+        Response::success(['updates' => $this->healthUpdateRows($req)]);
+    }
+
+    public function exportOverview(Request $req): void
+    {
+        $rows = [];
+        foreach ($this->overviewStats() as $key => $value) {
+            $rows[] = [self::OVERVIEW_LABELS[$key] ?? $key, $value, date('Y-m-d')];
+        }
+        $this->csv('furescue-overview-' . date('Y-m-d') . '.csv', ['Metric', 'Value', 'Date'], $rows);
+    }
+
+    public function exportAdoptionTrends(Request $req): void
+    {
+        $rows = array_map(
+            static fn(array $t): array => [(string) ($t['day'] ?? ''), (int) ($t['completed'] ?? 0)],
+            $this->adoptionTrendRows($req)
+        );
+        $this->csv('furescue-adoption-trends-' . date('Y-m-d') . '.csv', ['Date', 'Count'], $rows);
+    }
+
+    public function exportHealthUpdates(Request $req): void
+    {
+        $rows = array_map(static function (array $u): array {
+            return [
+                (string) ($u['id'] ?? ''),
+                (string) ($u['animal_name'] ?? ''),
+                (string) ($u['species'] ?? ''),
+                (string) ($u['breed_type'] ?? ''),
+                (string) ($u['rescue_status'] ?? ''),
+                (string) ($u['health_status'] ?? ''),
+                (string) ($u['logged_by_name'] ?? ''),
+                (string) ($u['logged_at'] ?? ''),
+            ];
+        }, $this->healthUpdateRows($req));
+        $this->csv(
+            'furescue-health-updates-' . date('Y-m-d') . '.csv',
+            ['ID', 'Animal', 'Species', 'Breed', 'Rescue Status', 'Health Status', 'Logged By', 'Logged At'],
+            $rows
+        );
+    }
+
+    private function overviewStats(): array
+    {
+        return [
             'reports' => $this->count('reports'),
             'reports_verified' => $this->countWhere("reports", "status = 'verified'"),
             'cases' => $this->count('cases'),
@@ -24,34 +91,85 @@ class AnalyticsController extends AbstractController
             ),
             'residents' => $this->countWhere("users", "role = 'resident'"),
         ];
-        Response::success(['stats' => $stats]);
     }
 
-    public function adoptionTrends(Request $req): void
+    private function adoptionTrendRows(Request $req): array
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT DATE(completed_at) AS day, COUNT(*) AS completed
-             FROM adoptions WHERE status = 'completed' AND completed_at IS NOT NULL
-             GROUP BY DATE(completed_at) ORDER BY day DESC LIMIT 30"
-        );
-        $stmt->execute();
-        Response::success(['trends' => $stmt->fetchAll(\PDO::FETCH_ASSOC)]);
+        [$start, $end] = $this->range($req);
+        $ranged = $start !== null && $end !== null;
+        $sql = "SELECT DATE(completed_at) AS day, COUNT(*) AS completed
+             FROM adoptions WHERE status = 'completed' AND completed_at IS NOT NULL";
+        $args = [];
+        if ($ranged) {
+            $sql .= " AND DATE(completed_at) BETWEEN ? AND ?";
+            $args = [$start, $end];
+        }
+        $sql .= $ranged
+            ? " GROUP BY DATE(completed_at) ORDER BY day ASC LIMIT 400"
+            : " GROUP BY DATE(completed_at) ORDER BY day DESC LIMIT 30";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($args);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    public function healthUpdates(Request $req): void
+    private function healthUpdateRows(Request $req): array
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT fs.id, fs.animal_id, fs.rescue_status, fs.health_status, fs.logged_at,
+        [$start, $end] = $this->range($req);
+        $ranged = $start !== null && $end !== null;
+        $sql = "SELECT fs.id, fs.animal_id, fs.rescue_status, fs.health_status, fs.logged_at,
                     a.name AS animal_name, a.species, a.breed_type,
                     u.full_name AS logged_by_name
              FROM animal_field_status fs
              JOIN animals a ON a.id = fs.animal_id
-             LEFT JOIN users u ON u.id = fs.logged_by
-             ORDER BY fs.logged_at DESC
-             LIMIT 50"
-        );
-        $stmt->execute();
-        Response::success(['updates' => $stmt->fetchAll(\PDO::FETCH_ASSOC)]);
+             LEFT JOIN users u ON u.id = fs.logged_by";
+        $args = [];
+        if ($ranged) {
+            $sql .= " WHERE DATE(fs.logged_at) BETWEEN ? AND ?";
+            $args = [$start, $end];
+        }
+        $sql .= $ranged
+            ? " ORDER BY fs.logged_at DESC LIMIT 500"
+            : " ORDER BY fs.logged_at DESC LIMIT 50";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($args);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    private function range(Request $req): array
+    {
+        return [$this->dateParam($req, 'start'), $this->dateParam($req, 'end')];
+    }
+
+    private function dateParam(Request $req, string $key): ?string
+    {
+        $raw = trim((string) ($req->query[$key] ?? ''));
+        if ($raw === '') {
+            return null;
+        }
+        $dt = \DateTime::createFromFormat('Y-m-d', $raw);
+        if (!$dt || $dt->format('Y-m-d') !== $raw) {
+            return null;
+        }
+        return $raw;
+    }
+
+    private function csv(string $filename, array $header, array $rows): void
+    {
+        Response::$sent = true;
+        if (!headers_sent()) {
+            http_response_code(200);
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Cache-Control: no-store');
+            header('Access-Control-Allow-Origin: *');
+        }
+        echo "\xEF\xBB\xBF";
+        $out = fopen('php://output', 'w');
+        fputcsv($out, $header);
+        foreach ($rows as $row) {
+            fputcsv($out, $row);
+        }
+        fclose($out);
     }
 
     private function count(string $table): int

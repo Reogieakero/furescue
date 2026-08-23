@@ -1,0 +1,44 @@
+/* Page-local layout for /admin/analytics/ — reuses shared admin tokens/classes. */
+
+.analytics-actions {
+  flex-wrap: wrap;
+}
+
+.range-controls {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.range-controls .dialog-label {
+  width: min(180px, 100%);
+}
+
+.range-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.range-note {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(11, 37, 69, 0.55);
+}
+
+@media (max-width: 479px) {
+  .range-controls .dialog-label {
+    width: 100%;
+  }
+
+  .range-actions {
+    width: 100%;
+  }
+
+  .range-actions button {
+    flex: 1;
+  }
+}

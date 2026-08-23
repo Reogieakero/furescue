@@ -3,8 +3,15 @@ export default {
   darkMode: "class",
   content: [
     "./public/landing/**/*.{html,js}",
-    "./public/auth/**/*.{html,js}",
-    "./public/admin/**/*.{html,js}",
+    "./public/auth/**/*.{html,js,php}",
+    "./public/admin/**/*.{html,js,php}",
+    "./public/report/**/*.{php,js}",
+    "./public/reports/**/*.{php,js}",
+    "./public/animals/**/*.{php,js}",
+    "./public/adoptions/**/*.{php,js}",
+    "./public/listings/**/*.{php,js}",
+    "./public/includes/*.php",
+    "./public/{learning,messages,notifications}/**/*.{php,js}",
     "./public/js/**/*.{js,ts}",
   ],
   theme: {

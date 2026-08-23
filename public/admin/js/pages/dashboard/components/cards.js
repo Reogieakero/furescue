@@ -13,6 +13,8 @@ import { Select } from "../../../../../js/components/ui/select.js";
 import { PaginationBar } from "../../../../../js/components/ui/pagination.js";
 import { AttentionQueue, mapHealthUpdate } from "./queues.js";
 import { ActivityTable } from "./activity.js";
+import { markNotificationRead } from "../../../lib/admin-data.js";
+import { setNavBadge } from "../../../../../js/lib/swr.js";
 
 export function HealthCarousel() {
   const list = state.healthUpdates.items.map(mapHealthUpdate);
@@ -193,8 +195,12 @@ export function AuditLogCard() {
   const items = state.notifications.items.slice(0, 4);
   const rows = items.length
     ? items.map(
-        (n) => `
-    <li class="audit-item"><span class="audit-time">${timeAgo(n.created_at)}</span><span class="audit-text">${n.message || "—"}</span></li>`
+        (n) => {
+          const markReadBtn = !n.is_read
+            ? `<button class="audit-read" data-nid="${n.id}" aria-label="Mark read"><i data-lucide="eye-off"></i></button>`
+            : "";
+          return `<li class="audit-item"><span class="audit-time">${timeAgo(n.created_at)}</span><span class="audit-text">${n.message || "—"}</span>${markReadBtn}</li>`;
+        }
       ).join("")
     : `<li class="audit-item"><span class="audit-text">No recent notifications.</span></li>`;
   return `
@@ -202,6 +208,30 @@ export function AuditLogCard() {
     <div class="audit-head"><i data-lucide="bell"></i> Recent notifications</div>
     <ul class="audit-list">${rows}</ul>
   </div>`;
+}
+
+export function bindAuditReadActions() {
+  document.querySelectorAll(".audit-read").forEach((btn) => {
+    if (btn.dataset.bound) return;
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.nid;
+      try {
+        await markNotificationRead(id);
+        state.notifications.items = state.notifications.items.filter((i) => i.id !== id);
+        state.unreadCount = Math.max(0, state.unreadCount - 1);
+        setNavBadge("notifications", state.unreadCount);
+        const auditEl = document.querySelector(".audit");
+        if (auditEl) {
+          auditEl.outerHTML = AuditLogCard();
+          createIcons({ icons });
+          bindAuditReadActions();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  });
 }
 
 export function AttentionRow() {

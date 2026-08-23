@@ -141,7 +141,7 @@ export function initCasesEvents() {
 
     const card = e.target.closest("article[data-case-id]");
     if (card) {
-      window.location.href = "case-detail.html?id=" + encodeURIComponent(card.dataset.caseId);
+      window.location.href = "/admin/case-detail.php?id=" + encodeURIComponent(card.dataset.caseId);
     }
   });
 

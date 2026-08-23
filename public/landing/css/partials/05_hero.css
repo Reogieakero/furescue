@@ -1,0 +1,194 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(3rem, 8vw, 4.5rem) clamp(3.5rem, 9vw, 5.5rem);
+}
+
+.hero-glow {
+  position: absolute;
+  top: -180px;
+  right: -120px;
+  width: min(480px, 90vw);
+  height: min(480px, 90vw);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    hsl(var(--brand-1) / 0.16),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.hero-split {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.hero-badge {
+  margin-bottom: 1.25rem;
+}
+
+.hero-title {
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  margin: 0 0 1.25rem;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: hsl(var(--muted-foreground));
+  max-width: 34rem;
+  margin: 0 0 1.75rem;
+}
+
+.hero-subtitle strong {
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.hero-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.hero-meta-item .lucide {
+  color: hsl(var(--primary));
+}
+
+.hero-visual {
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+.hero-visual-card {
+  position: relative;
+  border-radius: 1rem;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.hero-art {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.hero-art-dot {
+  fill: hsl(var(--sage));
+}
+
+.hero-art-pin-stop-a {
+  stop-color: hsl(var(--brand-1));
+}
+
+.hero-art-pin-stop-b {
+  stop-color: hsl(var(--brand-2));
+}
+
+.hero-art-route {
+  stroke: hsl(var(--brand-2) / 0.5);
+}
+
+.hero-art-node {
+  fill: hsl(var(--brand-2));
+  stroke: #fff;
+}
+
+.hero-art-halo--a {
+  fill: hsl(var(--brand-2) / 0.12);
+}
+
+.hero-art-halo--b {
+  fill: hsl(var(--brand-1) / 0.10);
+}
+
+.hero-art-shadow {
+  fill: hsl(var(--foreground) / 0.18);
+}
+
+.hero-art-paw {
+  fill: #fff;
+}
+
+.hero-art-heart path {
+  fill: hsl(var(--sage) / 0.55);
+}
+
+.float-card {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  box-shadow: var(--shadow-md);
+}
+
+.float-card strong {
+  display: block;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.float-card small {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+}
+
+.float-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  color: #fff;
+  background: linear-gradient(135deg, hsl(var(--brand-1)), hsl(var(--brand-2)));
+}
+
+.float-card--tl {
+  top: 1rem;
+  left: 1rem;
+}
+
+.float-card--br {
+  bottom: 1rem;
+  right: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .hero-split {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 3.5rem;
+  }
+
+  .hero-visual {
+    max-width: none;
+  }
+}

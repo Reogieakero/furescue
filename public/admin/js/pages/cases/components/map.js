@@ -77,7 +77,7 @@ export function renderCaseMap() {
       }).addTo(map);
       marker.bindPopup(`<strong>${esc(c.shortId)}</strong> &middot; ${esc(c.status)}<br>${esc(c.brgy)}`);
       marker.on("click", () => {
-        window.location.href = "case-detail.html?id=" + encodeURIComponent(c.id);
+        window.location.href = "/admin/case-detail.php?id=" + encodeURIComponent(c.id);
       });
     });
 

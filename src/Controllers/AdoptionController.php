@@ -12,7 +12,8 @@ class AdoptionController extends AbstractController
     public function apply(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('animal_id')->string(36);
+        $v->required('animal_id')->string(36)
+            ->optional('message')->string(1000);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
@@ -30,10 +31,31 @@ class AdoptionController extends AbstractController
             'id' => Database::uuidV4(),
             'animal_id' => $req->body['animal_id'],
             'applicant_id' => $req->user['id'],
+            'message' => isset($req->body['message']) ? trim((string) $req->body['message']) : null,
             'status' => 'pending',
         ]);
         $this->notifyRole('admin', 'adoption_applied', 'A new adoption application was submitted.', 'adoption', $id);
         Response::success(['adoption' => $this->repo('adoptions')->find($id)], 201);
+    }
+
+    public function cancel(Request $req): void
+    {
+        $repo = $this->repo('adoptions');
+        $adoption = $repo->find($req->params['id']);
+        if (!$adoption) {
+            Response::error('NOT_FOUND', 'Adoption not found', 404);
+            return;
+        }
+        if ($req->user['role'] === 'resident' && $adoption['applicant_id'] !== $req->user['id']) {
+            Response::error('FORBIDDEN', 'Not your application', 403);
+            return;
+        }
+        if ($adoption['status'] !== 'pending') {
+            Response::error('INVALID_STATE', 'Only pending applications can be cancelled', 409);
+            return;
+        }
+        $repo->update($adoption['id'], ['status' => 'cancelled']);
+        Response::success(['adoption' => $repo->find($adoption['id'])]);
     }
 
     public function index(Request $req): void

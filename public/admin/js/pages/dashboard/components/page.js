@@ -16,7 +16,7 @@ function Greeting(user) {
     </div>
     <div class="greeting-actions">
       ${Button({ text: "Export Report", variant: "outline", icon: "download" })}
-      ${Button({ text: "New Announcement", variant: "default", icon: "megaphone" })}
+      ${Button({ text: "New Announcement", variant: "default", icon: "megaphone", attrs: 'id="announce-btn"' })}
     </div>
   </div>`;
 }

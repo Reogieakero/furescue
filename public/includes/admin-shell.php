@@ -13,8 +13,8 @@ declare(strict_types=1);
  *
  * Badge merge mirrors Sidebar()'s `{ notifications, ...getNavBadges(), ...badges }`
  * minus localStorage: server-side that collapses to ['notifications' => 3] + $navBadges.
- * An explicit null value in $navBadges suppresses that item's static badge,
- * matching JS `override !== undefined ? override : item.badge`.
+ * Sidebar items carry no static badge values anymore — badges are purely dynamic,
+ * so an explicit null in $navBadges simply suppresses that item's badge on fresh load.
  */
 
 $adminUser = $adminUser ?? [];
@@ -32,7 +32,7 @@ $adminNavGroups = [
     [
         'label' => 'Rescue Management',
         'items' => [
-            ['icon' => 'map-pin', 'label' => 'Reports', 'badgeKey' => 'reports', 'badge' => '14', 'badgeCls' => 'stamp--accent'],
+            ['icon' => 'map-pin', 'label' => 'Reports', 'badgeKey' => 'reports', 'badgeCls' => 'stamp--accent'],
             ['icon' => 'clipboard-list', 'label' => 'Cases', 'badgeKey' => 'cases'],
             ['icon' => 'siren', 'label' => 'Rescuers', 'badgeKey' => 'rescuers'],
         ],
@@ -41,14 +41,14 @@ $adminNavGroups = [
         'label' => 'Animal Management',
         'items' => [
             ['icon' => 'paw-print', 'label' => 'Animals'],
-            ['icon' => 'heart-pulse', 'label' => 'Health Records', 'badgeKey' => 'health', 'badge' => '6', 'badgeCls' => 'stamp--muted'],
+            ['icon' => 'heart-pulse', 'label' => 'Health Records', 'badgeKey' => 'health', 'badgeCls' => 'stamp--muted'],
         ],
     ],
     [
         'label' => 'Adoption',
         'items' => [
             ['icon' => 'home', 'label' => 'Listings'],
-            ['icon' => 'file-check', 'label' => 'Applications', 'badgeKey' => 'applications', 'badge' => '9', 'badgeCls' => 'stamp--accent'],
+            ['icon' => 'file-check', 'label' => 'Applications', 'badgeKey' => 'applications', 'badgeCls' => 'stamp--accent'],
         ],
     ],
     [
@@ -59,7 +59,7 @@ $adminNavGroups = [
         'label' => 'Communication',
         'items' => [
             ['icon' => 'message-square', 'label' => 'Messages'],
-            ['icon' => 'bell', 'label' => 'Notifications', 'badgeKey' => 'notifications', 'badge' => '3', 'badgeCls' => 'stamp--coral'],
+            ['icon' => 'bell', 'label' => 'Notifications', 'badgeKey' => 'notifications', 'badgeCls' => 'stamp--coral'],
         ],
     ],
 ];
@@ -103,10 +103,10 @@ $adminMenuDanger = 'text-destructive hover:bg-destructive/10 hover:text-destruct
 $adminMenuLabel = static fn(string $text): string =>
     '<div class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">' . $esc($text) . '</div>';
 $adminMenuSeparator = '<div class="-mx-1 my-1 h-px bg-muted"></div>';
-$adminMenuItem = static function (string $icon, string $label, bool $danger = false) use ($esc, $adminMenuItemBase, $adminMenuDanger): string {
+$adminMenuItem = static function (string $icon, string $label, string $href = '#', bool $danger = false) use ($esc, $adminMenuItemBase, $adminMenuDanger): string {
     $cls = $danger ? $adminMenuItemBase . ' ' . $adminMenuDanger : $adminMenuItemBase;
     return '
-  <a href="#" class="' . $cls . '">
+  <a href="' . $esc($href) . '" class="' . $cls . '">
     <i data-lucide="' . $esc($icon) . '" class="h-4 w-4"></i>
     <span>' . $esc($label) . '</span>
   </a>';
@@ -123,14 +123,13 @@ $adminProfileMenu = '
     </button>
     <div data-dropdown-content role="menu" class="absolute top-full z-50 mt-1 hidden min-w-56 overflow-hidden rounded-md border border-input bg-card p-1 text-card-foreground shadow-md right-0">'
         . $adminMenuLabel('Insights')
-        . $adminMenuItem('bar-chart-3', 'Analytics')
-        . $adminMenuItem('file-down', 'Reports & Exports')
+        . $adminMenuItem('bar-chart-3', 'Analytics', '/admin/analytics/')
+        . $adminMenuItem('file-down', 'Reports & Exports', '/admin/reports.php')
         . $adminMenuSeparator
         . $adminMenuLabel('System')
-        . $adminMenuItem('users', 'Users')
-        . $adminMenuItem('settings', 'Settings')
+        . $adminMenuItem('users', 'Users', '/admin/rescuers.php')
         . $adminMenuSeparator
-        . $adminMenuItem('log-out', 'Log Out', true) . '
+        . $adminMenuItem('log-out', 'Log Out', '/auth/logout.php', true) . '
     </div>
   </div>';
 ?>

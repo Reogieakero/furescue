@@ -9,6 +9,8 @@ use App\Database;
 
 Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2))->safeLoad();
 
+$googleClientId = trim((string) Database::env('GOOGLE_CLIENT_ID', ''));
+
 $error = '';
 $emailValue = '';
 
@@ -93,7 +95,6 @@ require __DIR__ . '/../includes/site-head.php';
                       <input type="checkbox" id="remember" name="remember" checked class="checkbox" />
                       <span>Remember me</span>
                     </label>
-<a href="#forgot" class="auth-link">Forgot password?</a>
                   </div>
 <?php if ($error !== ''): ?>
                   <div class="toast-viewport" aria-live="polite">
@@ -109,7 +110,7 @@ require __DIR__ . '/../includes/site-head.php';
               </div>
               <div class="flex items-center p-6 pt-0 auth-card-foot">
                 <div class="separator separator--label"><span>or</span></div>
-                <a href="#google" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-6 text-sm auth-submit">
+                <a href="#google" data-google-signin class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-6 text-sm auth-submit">
                   <svg class="google-icon" viewBox="0 0 48 48" width="18" height="18" aria-hidden="true">
                     <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.4 1.1 7.3 2.8l5.7-5.7C33.5 6.5 29 5 24 5 13.5 5 5 13.5 5 24s8.5 19 19 19 19-8.5 19-19c0-1.3-.1-2.3-.4-3.5z"/>
                     <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c2.8 0 5.4 1.1 7.3 2.8l5.7-5.7C33.5 6.5 29 5 24 5 16.3 5 9.7 9.3 6.3 14.7z"/>
@@ -118,13 +119,14 @@ require __DIR__ . '/../includes/site-head.php';
                   </svg>
 <span>Continue with Google</span>
                 </a>
-                <p class="auth-alt">Don't have an account? <a href="#" class="auth-link">Sign up</a></p>
+                <p class="auth-alt">Don't have an account? <a href="/auth/signup.php" class="auth-link">Sign up</a></p>
               </div>
             </div>
           </div>
         </div>
       </main>
     </div>
+    <script>window.FURESCUE_GOOGLE_CLIENT_ID = <?= json_encode($googleClientId) ?>;</script>
     <script type="module" src="/auth/js/auth.js"></script>
   </body>
 </html>

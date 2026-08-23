@@ -2,6 +2,8 @@
 
 namespace App\Http;
 
+use App\Database;
+
 class Response
 {
     public static bool $sent = false;
@@ -12,11 +14,31 @@ class Response
         if (!headers_sent()) {
             http_response_code($status);
             header('Content-Type: application/json; charset=utf-8');
-            header('Access-Control-Allow-Origin: *');
-            header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
-            header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Device-Key');
+            self::sendCorsHeaders();
         }
         echo json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    private static function sendCorsHeaders(): void
+    {
+        header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
+        header('Access-Control-Allow-Headers: Authorization, Content-Type, X-Device-Key');
+
+        $allowedOrigins = array_filter(
+            array_map('trim', explode(',', (string) Database::env('CORS_ALLOWED_ORIGINS', '')))
+        );
+
+        if ($allowedOrigins === []) {
+            error_log('[CORS] CORS_ALLOWED_ORIGINS is not set; falling back to Access-Control-Allow-Origin: *');
+            header('Access-Control-Allow-Origin: *');
+            return;
+        }
+
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        if (in_array($origin, $allowedOrigins, true)) {
+            header('Access-Control-Allow-Origin: ' . $origin);
+            header('Vary: Origin');
+        }
     }
 
     public static function success($data = null, int $status = 200, ?array $meta = null): void

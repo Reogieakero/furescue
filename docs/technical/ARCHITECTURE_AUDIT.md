@@ -3,6 +3,8 @@
 **Scope:** facts observed in the repository on 2026-08-22. No redesign. Claims that could not be proven from files are marked **[uncertain]**.
 
 > **NOTE (post-audit):** The repository tree has changed since this audit was written. The `backend/` and `frontend/` directories are gone; the code now lives at the repo root (`src/`, `bin/`, `migrations/`, `seeders/`, `tests/`, `dbtool/`, with `public/` as the sole web root). The paths below describe the **pre-refactor** tree and are kept as a historical record.
+>
+> **NOTE (page migration):** Pages are no longer static HTML. They have been migrated to **PHP-rendered pages** (`public/*.php`) that share partials in `public/includes/` and are served by the same single server as the API (`php -S 127.0.0.1:8000 -t public public\index.php`). References below to `frontend/*.html` pages opened via a separate static server describe an obsolete setup; read them as `public/**/*.php`. Section 6 items that were fixed since: the API endpoint table in `SYSTEM_REPORT.md` now matches `src/Http/Routes/*Routes.php`, the paginated envelope is documented correctly, login curl examples use `tokens.access_token`, and CORS is configurable via `CORS_ALLOWED_ORIGINS` (wildcard only as logged fallback). `dbtool/index.php` now requires `?key=<DEVTOOL_KEY>`.
 
 ---
 
