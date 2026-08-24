@@ -39,6 +39,7 @@ export function mapHealthUpdate(h) {
     id: shortId(h.id),
     rid: h.id,
     animal,
+    animalId: h.animal_id || "",
     by: h.logged_by_name || "—",
     when: timeAgo(h.logged_at),
     icon: h.species === "cat" ? "cat" : "paw-print",
@@ -106,7 +107,7 @@ export function ReportsQueueInner() {
         <tbody>${rows}</tbody>
       </table>
     </div>
-    <div class="panel-foot"><a href="#" class="btn-link">View all ${state.reportsPending.total} reports ${ChevronRight()}</a></div>
+    <div class="panel-foot"><a href="/admin/reports/" class="btn-link">View all ${state.reportsPending.total} reports ${ChevronRight()}</a></div>
     ${paginationBar("reports", list.length)}`;
 }
 
@@ -159,7 +160,7 @@ export function HealthQueueInner() {
       <td class="table-cell table-cell--right table-cell--nowrap">
         <span class="table-actions">
           <a href="#" class="action-link" data-action="details" data-id="${r.rid}">Details</a>
-          <a href="#" class="action-link">View record</a>
+          <a href="${r.animalId ? `/admin/health-records/health-record.php?id=${r.animalId}` : "/admin/health-records/"}" class="action-link">View record</a>
         </span>
       </td>
     </tr>`

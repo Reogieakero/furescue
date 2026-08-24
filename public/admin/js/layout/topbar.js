@@ -11,10 +11,10 @@ export function Topbar({ user } = {}) {
     items: [
       { type: "label", text: "Insights" },
       { type: "item", icon: "bar-chart-3", label: "Analytics", href: "/admin/analytics/" },
-      { type: "item", icon: "file-down", label: "Reports & Exports", href: "/admin/reports.php" },
+      { type: "item", icon: "file-down", label: "Reports & Exports", href: "/admin/reports/" },
       { type: "separator" },
       { type: "label", text: "System" },
-      { type: "item", icon: "users", label: "Users", href: "/admin/rescuers.php" },
+      { type: "item", icon: "users", label: "Users", href: "/admin/rescuers/" },
       { type: "separator" },
       { type: "item", icon: "log-out", label: "Log Out", href: "/auth/logout.php", danger: true },
     ],

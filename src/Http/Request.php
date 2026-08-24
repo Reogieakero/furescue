@@ -10,6 +10,7 @@ class Request
     public array $body;
     public array $headers;
     public ?array $user = null;
+    public array $permissions = [];
     public array $params = [];
 
     public function __construct()

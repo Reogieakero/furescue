@@ -11,11 +11,17 @@ declare(strict_types=1);
  *   $navBadges     array  assoc map badgeKey => value (may be empty)
  *   $adminChildren string pre-rendered HTML for <main class="admin-main">
  *
+ * Navigation is defined once in public/includes/admin-nav.php and rendered
+ * here as real <a href> links. Active state is resolved server-side from
+ * $activeNav, so navigation works without JavaScript.
+ *
  * Badge merge mirrors Sidebar()'s `{ notifications, ...getNavBadges(), ...badges }`
  * minus localStorage: server-side that collapses to ['notifications' => 3] + $navBadges.
  * Sidebar items carry no static badge values anymore — badges are purely dynamic,
  * so an explicit null in $navBadges simply suppresses that item's badge on fresh load.
  */
+
+require __DIR__ . '/admin-nav.php';
 
 $adminUser = $adminUser ?? [];
 $activeNav = $activeNav ?? '';
@@ -24,46 +30,6 @@ $adminChildren = $adminChildren ?? '';
 
 $esc = static fn(mixed $v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 
-$adminNavGroups = [
-    [
-        'label' => 'Overview',
-        'items' => [['icon' => 'layout-dashboard', 'label' => 'Dashboard', 'active' => true]],
-    ],
-    [
-        'label' => 'Rescue Management',
-        'items' => [
-            ['icon' => 'map-pin', 'label' => 'Reports', 'badgeKey' => 'reports', 'badgeCls' => 'stamp--accent'],
-            ['icon' => 'clipboard-list', 'label' => 'Cases', 'badgeKey' => 'cases'],
-            ['icon' => 'siren', 'label' => 'Rescuers', 'badgeKey' => 'rescuers'],
-        ],
-    ],
-    [
-        'label' => 'Animal Management',
-        'items' => [
-            ['icon' => 'paw-print', 'label' => 'Animals'],
-            ['icon' => 'heart-pulse', 'label' => 'Health Records', 'badgeKey' => 'health', 'badgeCls' => 'stamp--muted'],
-        ],
-    ],
-    [
-        'label' => 'Adoption',
-        'items' => [
-            ['icon' => 'home', 'label' => 'Listings'],
-            ['icon' => 'file-check', 'label' => 'Applications', 'badgeKey' => 'applications', 'badgeCls' => 'stamp--accent'],
-        ],
-    ],
-    [
-        'label' => 'Content',
-        'items' => [['icon' => 'book-open', 'label' => 'E-Learning']],
-    ],
-    [
-        'label' => 'Communication',
-        'items' => [
-            ['icon' => 'message-square', 'label' => 'Messages'],
-            ['icon' => 'bell', 'label' => 'Notifications', 'badgeKey' => 'notifications', 'badgeCls' => 'stamp--coral'],
-        ],
-    ],
-];
-
 $adminBadgeMap = ['notifications' => 3];
 foreach ($navBadges as $k => $v) {
     $adminBadgeMap[$k] = $v;
@@ -71,6 +37,7 @@ foreach ($navBadges as $k => $v) {
 
 $adminNavItems = static function (array $items) use ($esc, $adminBadgeMap, $activeNav): string {
     $out = '';
+    $resolvedActive = $activeNav !== '' ? $activeNav : 'dashboard';
     foreach ($items as $item) {
         $hasOverride = isset($item['badgeKey']) && array_key_exists($item['badgeKey'], $adminBadgeMap);
         $value = $hasOverride ? $adminBadgeMap[$item['badgeKey']] : ($item['badge'] ?? null);
@@ -78,10 +45,11 @@ $adminNavItems = static function (array $items) use ($esc, $adminBadgeMap, $acti
         $badge = $showBadge
             ? '<span class="stamp stamp--sm sidebar-badge ' . $esc($item['badgeCls'] ?? '') . '">' . $esc($value) . '</span>'
             : '';
-        $isActive = ($activeNav !== '' ? $activeNav : 'dashboard') === strtolower((string) ($item['label'] ?? ''));
+        $isActive = $resolvedActive === (string) ($item['key'] ?? '');
         $tone = $isActive ? ' sidebar-link--active' : '';
+        $aria = $isActive ? ' aria-current="page"' : '';
         $out .= '
-    <a href="#" data-nav="' . $esc(strtolower((string) ($item['label'] ?? ''))) . '" class="sidebar-link' . $tone . '">
+    <a href="' . $esc($item['href'] ?? '#') . '" class="sidebar-link' . $tone . '"' . $aria . '>
       <i data-lucide="' . $esc($item['icon'] ?? '') . '"></i> <span>' . $esc($item['label'] ?? '') . '</span>
       ' . $badge . '
     </a>';
@@ -90,7 +58,7 @@ $adminNavItems = static function (array $items) use ($esc, $adminBadgeMap, $acti
 };
 
 $adminGroupsHtml = '';
-foreach ($adminNavGroups as $group) {
+foreach ($adminNav as $group) {
     $adminGroupsHtml .= '
     <div class="sidebar-group">
       <div class="sidebar-label">' . $esc($group['label']) . '</div>
@@ -124,10 +92,10 @@ $adminProfileMenu = '
     <div data-dropdown-content role="menu" class="absolute top-full z-50 mt-1 hidden min-w-56 overflow-hidden rounded-md border border-input bg-card p-1 text-card-foreground shadow-md right-0">'
         . $adminMenuLabel('Insights')
         . $adminMenuItem('bar-chart-3', 'Analytics', '/admin/analytics/')
-        . $adminMenuItem('file-down', 'Reports & Exports', '/admin/reports.php')
+        . $adminMenuItem('file-down', 'Reports & Exports', '/admin/reports/')
         . $adminMenuSeparator
         . $adminMenuLabel('System')
-        . $adminMenuItem('users', 'Users', '/admin/rescuers.php')
+        . $adminMenuItem('users', 'Users', '/admin/rescuers/')
         . $adminMenuSeparator
         . $adminMenuItem('log-out', 'Log Out', '/auth/logout.php', true) . '
     </div>

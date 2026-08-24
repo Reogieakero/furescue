@@ -15,7 +15,7 @@ function Greeting(user) {
       <p class="greeting-sub" id="greeting-sub">${state.decisionCount} items need a decision today across reports, rescuers, health records, and adoptions.</p>
     </div>
     <div class="greeting-actions">
-      ${Button({ text: "Export Report", variant: "outline", icon: "download" })}
+      ${Button({ text: "Export Report", variant: "outline", icon: "download", href: "/admin/analytics/" })}
       ${Button({ text: "New Announcement", variant: "default", icon: "megaphone", attrs: 'id="announce-btn"' })}
     </div>
   </div>`;

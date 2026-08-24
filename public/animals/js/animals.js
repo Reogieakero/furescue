@@ -14,6 +14,7 @@ const state = {
   shown: 0,
   loading: false,
   failed: false,
+  queued: false,
 };
 
 const registry = new Map();
@@ -100,17 +101,34 @@ function remember(items) {
 }
 
 function updateMeta() {
+  const empty = el("gallery-empty");
+  const title = empty.querySelector(".rempty-title");
+  const text = empty.querySelector(".rempty-text");
+  if (state.failed) {
+    if (title) title.textContent = "Could not load animals";
+    if (text) text.textContent = "Check your connection and try again.";
+    empty.hidden = false;
+  } else {
+    if (title) title.textContent = "No animals match your filters";
+    if (text) {
+      text.textContent = "Try clearing a filter — or check back soon, new rescues arrive regularly.";
+    }
+    empty.hidden = state.shown > 0;
+  }
   el("gallery-count").hidden = state.failed;
   el("gallery-count").textContent = `Showing ${state.shown} of ${state.total} available ${
     state.total === 1 ? "animal" : "animals"
   }`;
-  el("gallery-empty").hidden = state.shown > 0 || state.failed;
-  el("load-more").hidden = !state.failed && (state.shown >= state.total || state.shown === 0);
+  el("load-more").hidden = state.failed || state.shown >= state.total || state.shown === 0;
 }
 
 async function load({ append = false } = {}) {
-  if (state.loading) return;
+  if (state.loading) {
+    if (!append) state.queued = true;
+    return;
+  }
   state.loading = true;
+  state.queued = false;
 
   const params = new URLSearchParams({
     adoption_status: "available",
@@ -147,6 +165,10 @@ async function load({ append = false } = {}) {
   } finally {
     state.loading = false;
     updateMeta();
+    if (state.queued) {
+      state.queued = false;
+      load({ append: false });
+    }
   }
 }
 
@@ -154,6 +176,7 @@ const refresh = () => load({ append: false });
 
 function initEvents() {
   const grid = el("gallery-grid");
+  if (!grid) return;
 
   grid.addEventListener("click", (event) => {
     const card = event.target.closest(".racard");
@@ -180,19 +203,34 @@ function initEvents() {
   el("load-more").addEventListener("click", () => load({ append: true }));
 
   let debounce = null;
-  el("filter-q").addEventListener("input", () => {
+  const debouncedRefresh = () => {
     clearTimeout(debounce);
     debounce = setTimeout(refresh, 300);
-  });
+  };
+  el("filter-q")?.addEventListener("input", debouncedRefresh);
+  el("filter-breed")?.addEventListener("input", debouncedRefresh);
   ["filter-species", "filter-sex", "filter-breed"].forEach((id) => {
-    el(id).addEventListener("change", refresh);
+    el(id)?.addEventListener("change", refresh);
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const user = bootstrapPageAuth();
-  if (!user) redirectToLogin();
-  initResidentShell();
-  initEvents();
-  refresh();
-});
+function boot() {
+  try {
+    const user = bootstrapPageAuth();
+    if (!user) {
+      redirectToLogin();
+      return;
+    }
+    initResidentShell();
+    initEvents();
+    refresh();
+  } catch (err) {
+    console.error("animals boot failed", err);
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}

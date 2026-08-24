@@ -31,7 +31,7 @@ class ElearningController extends AbstractController
             Response::error('NOT_FOUND', 'Module not found', 404);
             return;
         }
-        if ($module['published_status'] !== 'published' && $req->user['role'] !== 'admin') {
+        if ($module['published_status'] !== 'published' && !in_array('elearning.write', $req->permissions, true)) {
             Response::error('FORBIDDEN', 'Module not published', 403);
             return;
         }

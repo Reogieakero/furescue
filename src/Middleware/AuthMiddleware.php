@@ -3,6 +3,7 @@
 namespace App\Middleware;
 
 use App\Auth\JwtService;
+use App\Auth\Permissions;
 use App\Http\Request;
 use App\Http\Response;
 use App\Repositories\UserRepository;
@@ -45,6 +46,7 @@ class AuthMiddleware
         }
 
         $request->user = $user->toArray();
+        $request->permissions = Permissions::resolve($user->role());
         return null;
     }
 }

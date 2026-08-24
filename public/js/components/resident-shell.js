@@ -58,7 +58,7 @@ function initLogout() {
     el.addEventListener("click", (e) => {
       e.preventDefault();
       clearSession();
-      window.location.replace("/auth/login.php");
+      window.location.replace("/auth/logout.php");
     });
   });
 }

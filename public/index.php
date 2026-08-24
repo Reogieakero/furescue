@@ -1,14 +1,13 @@
 <?php
 
-use App\Auth\GoogleAuthService;
 use App\Auth\JwtService;
 use App\Auth\PasswordService;
+use App\Auth\GoogleAuthService;
 use App\Database;
 use App\Http\Request;
 use App\Http\Response;
 use App\Http\Router;
 use App\Middleware\AuthMiddleware;
-use App\Middleware\RoleMiddleware;
 use App\Services\DedupService;
 use App\Services\GeoService;
 
@@ -71,8 +70,6 @@ $dedup = new DedupService($pdo);
 $geo = new GeoService();
 
 $authMw = new AuthMiddleware($pdo, $jwt);
-$adminMw = new RoleMiddleware(['admin']);
-$staffMw = new RoleMiddleware(['rescuer', 'admin']);
 
 $deps = [
     'pdo' => $pdo,
@@ -82,8 +79,6 @@ $deps = [
     'dedup' => $dedup,
     'geo' => $geo,
     'authMw' => $authMw,
-    'adminMw' => $adminMw,
-    'staffMw' => $staffMw,
 ];
 
 $router = new Router();

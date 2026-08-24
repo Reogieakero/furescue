@@ -103,7 +103,7 @@ export function RescuersCard() {
       <div class="panel-title-wrap"><i data-lucide="siren"></i><h2 class="panel-title panel-title--sm">Rescuers on duty</h2></div>
       <div class="rescuer-head-tools">
         <span class="stamp stamp--sm stamp--accent">${state.overview.rescuers_on_duty} On duty</span>
-        <a href="rescuers.html" class="btn-link">View all ${ChevronRight()}</a>
+        <a href="/admin/rescuers/" class="btn-link">View all ${ChevronRight()}</a>
       </div>
     </div>
     ${rows ? `<div class="rescuer-list">${rows}</div>` : EmptyState({ icon: "siren", text: "No rescuers on duty." })}
@@ -128,7 +128,7 @@ export function MapCard() {
           ],
         })}
         <button type="button" id="map-expand" class="map-expand" aria-label="Expand map" title="Expand map"><i data-lucide="maximize"></i></button>
-        <a href="#" class="btn-link">Open full map ${ChevronRight()}</a>
+        <a href="/admin/cases/" class="btn-link">Open full map ${ChevronRight()}</a>
       </div>
     </div>
     <div id="case-density-map" class="map-canvas map-canvas--leaflet"></div>

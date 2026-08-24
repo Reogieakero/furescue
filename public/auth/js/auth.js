@@ -209,11 +209,17 @@ function initToastDismiss() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function boot() {
   createIcons({ icons });
   initPasswordToggle();
   initInlineValidation();
   initSignupForm();
   initGoogleSignIn();
   initToastDismiss();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}

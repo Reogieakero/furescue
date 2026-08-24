@@ -36,7 +36,7 @@ class AdoptionListingController extends AbstractController
     {
         $repo = $this->repo('adoption_listings');
         $filters = [];
-        if ($req->user['role'] === 'resident') {
+        if (!in_array('adoptions.read', $req->permissions, true)) {
             $filters['posted_by'] = $req->user['id'];
         }
         if (!empty($req->query['status'])) {

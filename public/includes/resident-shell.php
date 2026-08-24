@@ -131,7 +131,7 @@ $residentChrome = static function () use ($esc, $residentGroupsHtml, $residentSh
           <a href="/notifications/" class="' . $residentMenuBase . '">
             <i data-lucide="bell" class="lucide h-4 w-4"></i><span>Notifications</span>
           </a>
-          <a href="#" data-action="logout" class="' . $residentMenuBase . ' text-destructive hover:bg-destructive/10 hover:text-destructive">
+          <a href="/auth/logout.php" data-action="logout" class="' . $residentMenuBase . ' text-destructive hover:bg-destructive/10 hover:text-destructive">
             <i data-lucide="log-out" class="lucide h-4 w-4"></i><span>Log Out</span>
           </a>
         </div>

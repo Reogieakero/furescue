@@ -98,8 +98,8 @@ class UserController extends AbstractController
         }
 
         $isSelf = $req->user['id'] === $id;
-        $isAdmin = $req->user['role'] === 'admin';
-        if (!$isSelf && !$isAdmin) {
+        $hasPerm = in_array('users.update_self', $req->permissions, true);
+        if (!$isSelf && !$hasPerm) {
             Response::error('FORBIDDEN', 'Cannot update this user', 403);
             return;
         }

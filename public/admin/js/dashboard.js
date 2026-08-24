@@ -1,5 +1,6 @@
 import { createIcons, icons } from "lucide";
 import { requireAuth, getSessionUser } from "../../js/lib/api.js";
+import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
 import { initShell } from "./layout/app-shell.js";
 import { DashboardPage, ActivityInner, bindAuditReadActions } from "./pages/dashboard/components.js";
 import { loadDashboard, state, hydrateFromCache } from "./pages/dashboard/state.js";
@@ -87,6 +88,7 @@ window.addEventListener("beforeunload", () => {
 
 document.addEventListener("DOMContentLoaded", () => {
   if (window.__PAGE_STATE__) {
+    bootstrapPageAuth();
     Object.assign(state, window.__PAGE_STATE__);
     const app = document.getElementById("app");
     if (app && !app.childElementCount) {

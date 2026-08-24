@@ -109,9 +109,12 @@ async function maybeOpenDeepLinkApply(animalId) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function boot() {
   const user = bootstrapPageAuth();
-  if (!user) redirectToLogin();
+  if (!user) {
+    redirectToLogin();
+    return;
+  }
   initResidentShell();
 
   document.querySelector(".rtabs").addEventListener("click", (event) => {
@@ -136,4 +139,10 @@ document.addEventListener("DOMContentLoaded", () => {
       maybeOpenDeepLinkApply(window.__PAGE_STATE__.applyAnimalId);
     }
   });
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}

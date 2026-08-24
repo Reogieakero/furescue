@@ -44,9 +44,15 @@ function initSmoothScroll() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function boot() {
   createIcons({ icons });
   initMobileMenu();
   initNavbarScroll();
   initSmoothScroll();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}

@@ -1,5 +1,6 @@
 import { createIcons, icons } from "lucide";
 import { apiFetch, requireAuth, getSessionUser } from "/js/lib/api.js";
+import { bootstrapPageAuth } from "/js/lib/page-auth.js";
 import { esc, timeAgo } from "/js/lib/format.js";
 import { initResidentShell } from "/js/components/resident-shell.js";
 import { toast } from "/js/components/ui/toast.js";
@@ -12,6 +13,7 @@ const state = {
   currentKey: null,
   pollTimer: null,
   sending: false,
+  loadError: "",
 };
 
 function threadKey(t) {
@@ -29,6 +31,17 @@ function initialOf(name) {
 function renderThreads() {
   const wrap = document.getElementById("msg-threads");
   if (!wrap) return;
+
+  if (state.loadError) {
+    wrap.innerHTML = `
+      <div class="rempty">
+        <i data-lucide="wifi-off"></i>
+        <p class="rempty-title">Could not load conversations</p>
+        <p class="rempty-text">${esc(state.loadError)}</p>
+      </div>`;
+    createIcons({ icons });
+    return;
+  }
 
   if (!state.threads.length) {
     wrap.innerHTML = `
@@ -173,9 +186,13 @@ async function refreshThreads({ silent = false } = {}) {
   try {
     const data = await apiFetch("/messages/threads");
     state.threads = (data && Array.isArray(data.threads)) ? data.threads : [];
+    state.loadError = "";
     renderThreads();
   } catch (err) {
-    if (!silent) toast(err.message || "Could not load conversations.", { type: "error" });
+    if (silent) return;
+    state.loadError = err.message || "Could not load conversations.";
+    toast(state.loadError, { type: "error" });
+    renderThreads();
   }
 }
 
@@ -225,9 +242,10 @@ function startPolling() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  bootstrapPageAuth();
   const user = requireAuth();
   if (!user) return;
-  state.me = state.me || user;
+  state.me = user;
   initResidentShell();
 
   const list = document.getElementById("msg-threads");

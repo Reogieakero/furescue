@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../vendor/autoload.php';
 
+use App\Auth\JwtService;
 use App\Database;
 
 Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2))->safeLoad();
@@ -41,7 +42,7 @@ $content = '
       <p class="mt-1 text-sm text-muted-foreground">Pin the location on the map, describe the animal, and attach photos. Our team verifies every report.</p>
     </div>
 
-    <form id="report-form" class="grid grid-cols-1 gap-5 lg:grid-cols-2" novalidate>
+    <form id="report-form" method="post" action="#" class="grid grid-cols-1 gap-5 lg:grid-cols-2" novalidate>
       <div class="flex flex-col gap-5">
         <div class="' . $cardCls . ' p-4 sm:p-5">
           ' . $sectionTitle('file-text', 'Animal details') . '
@@ -75,6 +76,7 @@ $content = '
             <p class="mt-2 text-xs text-muted-foreground">Tap the map to drop a pin inside Mati City.</p>
           </div>
           <div id="report-map" class="h-64 w-full sm:h-80 lg:h-72 xl:h-80" aria-label="Location picker map"></div>
+          <p id="report-map-status" class="hidden px-4 pt-2 text-xs font-semibold text-destructive" role="status"></p>
           <div class="space-y-3 p-4 sm:p-5">
             <div data-error-for="location" class="' . $errorCls . '"><i data-lucide="alert-circle" class="h-3.5 w-3.5"></i><span>Drop a pin on the map first.</span></div>
             <div class="grid grid-cols-2 gap-3">
@@ -114,9 +116,14 @@ $residentUser = [
 ];
 $activeNav = 'report animal';
 $residentShellTitle = 'Report an animal';
-$pageState = ['bounds' => $bounds];
+$jwt = new JwtService();
+$pageState = [
+    'accessToken' => $jwt->issueAccessToken(['id' => $uid, 'role' => $residentUser['role']]),
+    'user' => $residentUser,
+    'bounds' => $bounds,
+];
 $pageScripts = ['https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'];
-$pageModules = ['/js/components/resident-shell.js', '/report/js/report.js'];
+$pageModules = ['/report/js/report.js'];
 
 $pageTitle = 'FurEscue — Report an animal';
 $pageDescription = 'Report a stray animal in Mati City — pin the location, describe the situation and attach photos.';

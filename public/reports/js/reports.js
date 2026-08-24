@@ -1,5 +1,6 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, apiFetchFull } from "../../js/lib/api.js";
+import { requireAuth, apiFetchFull, redirectToLogin } from "../../js/lib/api.js";
+import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
 import { toast } from "../../js/components/ui/toast.js";
 
 const esc = (value) =>
@@ -23,7 +24,8 @@ const STATUS_LABEL = {
   dismissed: "Dismissed",
 };
 
-const PILL_BASE = "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wide";
+const PILL_BASE =
+  "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wide";
 
 function timeAgo(value) {
   if (!value) return "";
@@ -48,6 +50,9 @@ function timeAgo(value) {
 
 function photoUrlsOf(report) {
   const raw = report.photo_urls;
+  if (Array.isArray(raw)) {
+    return raw.filter((u) => typeof u === "string" && u.trim() !== "");
+  }
   if (!raw || typeof raw !== "string") return [];
   try {
     const decoded = JSON.parse(raw);
@@ -77,7 +82,8 @@ function photosHtml(urls) {
 function reportCard(report) {
   const status = String(report.status || "");
   const pillCls = STATUS_PILL_CLS[status] || "bg-muted text-muted-foreground";
-  const label = STATUS_LABEL[status] || status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const label =
+    STATUS_LABEL[status] || status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   let pills = `<span class="${PILL_BASE} ${pillCls}">${esc(label)}</span>`;
   if (report.validation_status === "flagged_duplicate" && status !== "dismissed") {
     pills += ` <span class="${PILL_BASE} bg-destructive/10 text-destructive">Flagged duplicate</span>`;
@@ -107,17 +113,40 @@ function emptyStateHtml() {
     </div>
     <h2 class="mt-3 text-base font-extrabold">You haven't submitted any reports yet.</h2>
     <p class="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">Spotted a stray animal in need? Pin its location and our rescue team will take it from there.</p>
-    <a href="/report/" class="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-4 text-sm font-bold text-primary-foreground shadow transition-colors hover:bg-primary/90 mt-4">Report an animal</a>
+    <a href="/report/" class="mt-4 inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-4 text-sm font-bold text-primary-foreground shadow transition-colors hover:bg-primary/90">Report an animal</a>
+  </div>`;
+}
+
+function errorStateHtml(message) {
+  return `
+  <div id="reports-error" class="md:col-span-2 rounded-xl border bg-card px-6 py-12 text-center">
+    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
+      <i data-lucide="triangle-alert" class="h-6 w-6 text-destructive"></i>
+    </div>
+    <h2 class="mt-3 text-base font-extrabold">Could not load your reports.</h2>
+    <p class="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">${esc(message || "Please try again.")}</p>
+    <button type="button" id="reports-retry" class="mt-4 inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-input bg-background px-3 text-[13px] font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
+      <i data-lucide="refresh-cw" class="h-4 w-4"></i><span>Try again</span>
+    </button>
   </div>`;
 }
 
 function renderReports(reports) {
   const list = document.getElementById("reports-list");
   if (!list) return;
-  list.innerHTML = reports.length
-    ? reports.map(reportCard).join("")
-    : emptyStateHtml();
+  list.innerHTML = reports.length ? reports.map(reportCard).join("") : emptyStateHtml();
   createIcons({ icons });
+}
+
+function renderError(message) {
+  const list = document.getElementById("reports-list");
+  if (!list) return;
+  list.innerHTML = errorStateHtml(message);
+  createIcons({ icons });
+  document.getElementById("reports-retry")?.addEventListener("click", () => {
+    const btn = document.getElementById("refresh-reports");
+    if (btn) refreshReports(btn);
+  });
 }
 
 async function refreshReports(btn) {
@@ -129,15 +158,17 @@ async function refreshReports(btn) {
     renderReports(reports);
     const count = document.getElementById("reports-count");
     if (count) {
-      count.textContent = reports.length === 1 ? "1 report submitted" : `${reports.length} reports submitted`;
+      count.textContent =
+        reports.length === 1 ? "1 report submitted" : `${reports.length} reports submitted`;
     }
     toast("Reports refreshed.", { type: "success" });
   } catch (err) {
     if (err.status === 401) {
       toast("Your session expired. Please sign in again.", { type: "error" });
-      setTimeout(() => window.location.replace("/auth/login.php"), 1200);
+      setTimeout(redirectToLogin, 1200);
       return;
     }
+    renderError(err.message || "Could not refresh reports.");
     toast(err.message || "Could not refresh reports.", { type: "error" });
   } finally {
     btn.disabled = false;
@@ -157,12 +188,26 @@ function showFlash() {
   }
 }
 
-requireAuth();
-
-document.addEventListener("DOMContentLoaded", () => {
-  createIcons({ icons });
-  showFlash();
+function bindRefresh() {
   document.getElementById("refresh-reports")?.addEventListener("click", (e) => {
     refreshReports(e.currentTarget);
   });
-});
+  document.getElementById("reports-retry")?.addEventListener("click", () => {
+    const btn = document.getElementById("refresh-reports");
+    if (btn) refreshReports(btn);
+  });
+}
+
+function boot() {
+  bootstrapPageAuth();
+  if (!requireAuth()) return;
+  createIcons({ icons });
+  showFlash();
+  bindRefresh();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}

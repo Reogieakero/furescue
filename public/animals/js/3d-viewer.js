@@ -13,7 +13,8 @@ function openModal({ title, icon = "rotate-3d", wide = true }) {
       </div>
       <div class="rmodal-body" data-modal-body></div>
     </div>`;
-  document.body.appendChild(overlay);
+  const host = document.querySelector(".resident-shell") || document.body;
+  host.appendChild(overlay);
   createIcons({ icons });
 
   const close = () => {

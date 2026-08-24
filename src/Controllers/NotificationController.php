@@ -171,7 +171,7 @@ class NotificationController extends AbstractController
             Response::error('NOT_FOUND', 'Notification not found', 404);
             return;
         }
-        if ($note['user_id'] !== $req->user['id'] && $req->user['role'] !== 'admin') {
+        if ($note['user_id'] !== $req->user['id'] && !in_array('notifications.delete', $req->permissions, true)) {
             Response::error('FORBIDDEN', 'Not allowed to delete this notification', 403);
             return;
         }

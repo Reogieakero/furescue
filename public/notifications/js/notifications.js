@@ -1,5 +1,6 @@
 import { createIcons, icons } from "lucide";
 import { apiFetch, requireAuth } from "/js/lib/api.js";
+import { bootstrapPageAuth } from "/js/lib/page-auth.js";
 import { esc, timeAgo } from "/js/lib/format.js";
 import { initResidentShell, setResidentNavBadge } from "/js/components/resident-shell.js";
 import { toast } from "/js/components/ui/toast.js";
@@ -148,6 +149,7 @@ async function markOne(id) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  bootstrapPageAuth();
   const user = requireAuth();
   if (!user) return;
   initResidentShell();

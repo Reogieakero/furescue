@@ -2,6 +2,12 @@
 
 .analytics-actions {
   flex-wrap: wrap;
+  flex-shrink: 1;
+  max-width: 100%;
+}
+
+.analytics-actions button {
+  max-width: 100%;
 }
 
 .range-controls {
@@ -26,7 +32,7 @@
   margin: 10px 0 0;
   font-size: 12px;
   line-height: 1.4;
-  color: rgba(11, 37, 69, 0.55);
+  color: hsl(var(--muted-foreground));
 }
 
 @media (max-width: 479px) {

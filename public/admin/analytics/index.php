@@ -106,7 +106,16 @@ $stmtUser = $pdo->prepare('SELECT id, full_name, email, role, profile_photo_url 
 $stmtUser->execute([(string) $_SESSION['user']['id']]);
 $currentUserData = $stmtUser->fetch(\PDO::FETCH_ASSOC) ?: [];
 
+$uid = (string) $_SESSION['user']['id'];
+$role = (string) ($_SESSION['user']['role'] ?? '');
 $state = [
+    'accessToken' => (new \App\Auth\JwtService())->issueAccessToken(['id' => $uid, 'role' => $role]),
+    'user' => [
+        'id' => $uid,
+        'full_name' => (string) ($_SESSION['user']['full_name'] ?? ''),
+        'email' => (string) ($_SESSION['user']['email'] ?? ''),
+        'role' => $role,
+    ],
     'range' => ['start' => $start, 'end' => $end],
     'overview' => $overviewRows,
     'trends' => $trends,

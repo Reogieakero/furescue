@@ -46,7 +46,7 @@ class AdoptionController extends AbstractController
             Response::error('NOT_FOUND', 'Adoption not found', 404);
             return;
         }
-        if ($req->user['role'] === 'resident' && $adoption['applicant_id'] !== $req->user['id']) {
+        if ($adoption['applicant_id'] !== $req->user['id'] && !in_array('adoptions.read', $req->permissions, true)) {
             Response::error('FORBIDDEN', 'Not your application', 403);
             return;
         }
@@ -62,7 +62,7 @@ class AdoptionController extends AbstractController
     {
         $where = [];
         $params = [];
-        if ($req->user['role'] === 'resident') {
+        if (!in_array('adoptions.read', $req->permissions, true)) {
             $where[] = 'a.applicant_id = ?';
             $params[] = $req->user['id'];
         }
@@ -99,7 +99,7 @@ class AdoptionController extends AbstractController
             Response::error('NOT_FOUND', 'Adoption not found', 404);
             return;
         }
-        if ($req->user['role'] === 'resident' && $adoption['applicant_id'] !== $req->user['id']) {
+        if ($adoption['applicant_id'] !== $req->user['id'] && !in_array('adoptions.read', $req->permissions, true)) {
             Response::error('FORBIDDEN', 'Not your application', 403);
             return;
         }

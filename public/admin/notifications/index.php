@@ -39,10 +39,10 @@ foreach ($broadcasts as $b) {
     </tr>';
 }
 if ($broadcastRows === '') {
-    $recentInner = '<div class="queue-empty">' . empty_state('megaphone', 'No broadcasts yet. Compose your first announcement.') . '</div>';
+    $recentInner = '<div id="broadcast-list" class="queue-empty">' . empty_state('megaphone', 'No broadcasts yet. Compose your first announcement.') . '</div>';
 } else {
     $recentInner = '
-    <div class="table-wrap">
+    <div id="broadcast-list" class="table-wrap">
       <table class="table">
         ' . table_head(['Message', 'Recipients', 'Sent']) . '
         <tbody id="broadcast-rows">' . $broadcastRows . '</tbody>
@@ -64,7 +64,7 @@ $composeCard = '
         <span class="field-label" id="broadcast-target-label">Audience</span>
         ' . select_control('broadcast-target', $audienceOptions, 'all', 'Audience', '', '', 'w-full') . '
       </div>
-      ' . button_html('Send broadcast', 'default', 'default', '', 'send', 'id="broadcast-send"') . '
+      ' . button_html('Send broadcast', 'default', 'default', '', 'send', 'id="broadcast-send"', 'submit') . '
     </form>
   </div>';
 
@@ -99,6 +99,19 @@ $adminUser = [
 ];
 $activeNav = 'notifications';
 $navBadges = ['notifications' => $unreadCount];
+$uid = (string) $_SESSION['user']['id'];
+$role = (string) ($_SESSION['user']['role'] ?? '');
+$state = [
+    'accessToken' => (new \App\Auth\JwtService())->issueAccessToken(['id' => $uid, 'role' => $role]),
+    'user' => [
+        'id' => $uid,
+        'full_name' => (string) ($_SESSION['user']['full_name'] ?? ''),
+        'email' => (string) ($_SESSION['user']['email'] ?? ''),
+        'role' => $role,
+    ],
+    'unreadCount' => $unreadCount,
+    'broadcasts' => $broadcasts,
+];
 $adminChildren = $children;
 ob_start();
 require __DIR__ . '/../../includes/admin-shell.php';
@@ -112,6 +125,7 @@ require __DIR__ . '/../../includes/site-head.php';
 ?>
   <body>
     <div id="app"><?= $pageHtml ?></div>
+    <script>window.__PAGE_STATE__ = <?= json_encode($state, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
     <script type="module" src="/admin/notifications/js/broadcast.js"></script>
   </body>
 </html>

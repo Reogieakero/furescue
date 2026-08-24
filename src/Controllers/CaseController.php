@@ -29,7 +29,7 @@ class CaseController extends AbstractController
     {
         $where = [];
         $params = [];
-        if ($req->user['role'] === 'rescuer') {
+        if (!in_array('cases.assign', $req->permissions, true)) {
             $where[] = 'c.assigned_rescuer_id = ?';
             $params[] = $req->user['id'];
         }
@@ -123,7 +123,7 @@ class CaseController extends AbstractController
             Response::error('NOT_FOUND', 'Case not found', 404);
             return;
         }
-        if ($req->user['role'] === 'rescuer' && $case->assignedRescuerId() !== $req->user['id']) {
+        if (!in_array('cases.assign', $req->permissions, true) && $case->assignedRescuerId() !== $req->user['id']) {
             Response::error('FORBIDDEN', 'Not your case', 403);
             return;
         }

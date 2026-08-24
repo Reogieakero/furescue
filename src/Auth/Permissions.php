@@ -1,0 +1,127 @@
+<?php
+
+namespace App\Auth;
+
+class Permissions
+{
+    public const ALL_PERMISSIONS = [
+        'animals.read',
+        'animals.write',
+        'animals.medical.read',
+        'animals.medical.write',
+        'animals.documents.upload',
+        'animals.documents.delete',
+        'animals.field_status.write',
+        'animals.vitals.read',
+        'cases.read',
+        'cases.assign',
+        'cases.status_change',
+        'cases.proof',
+        'reports.read',
+        'reports.read_own',
+        'reports.create',
+        'reports.verify',
+        'reports.dismiss',
+        'users.read',
+        'users.update_self',
+        'users.approve_rescuers',
+        'users.reject_rescuers',
+        'users.toggle_duty',
+        'notifications.read',
+        'notifications.broadcast',
+        'notifications.delete',
+        'analytics.read',
+        'analytics.export',
+        'elearning.read',
+        'elearning.write',
+        'adoptions.read',
+        'adoptions.apply',
+        'adoptions.approve',
+        'adoptions.reject',
+        'adoptions.complete',
+        'adoptions.listings.create',
+        'adoptions.listings.approve',
+        'adoptions.listings.reject',
+        'messages.send',
+        'messages.read',
+        'messages.mark_read',
+        'health.read',
+        'health.export',
+        'vitals.ingest',
+    ];
+
+    private const ROLE_DEFAULTS = [
+        'admin' => [
+            'animals.read',
+            'animals.write',
+            'animals.medical.read',
+            'animals.medical.write',
+            'animals.documents.upload',
+            'animals.documents.delete',
+            'animals.field_status.write',
+            'animals.vitals.read',
+            'cases.read',
+            'cases.assign',
+            'cases.status_change',
+            'cases.proof',
+            'reports.read',
+            'reports.read_own',
+            'reports.create',
+            'reports.verify',
+            'reports.dismiss',
+            'users.read',
+            'users.update_self',
+            'users.approve_rescuers',
+            'users.reject_rescuers',
+            'users.toggle_duty',
+            'notifications.read',
+            'notifications.broadcast',
+            'notifications.delete',
+            'analytics.read',
+            'analytics.export',
+            'elearning.read',
+            'elearning.write',
+            'adoptions.read',
+            'adoptions.apply',
+            'adoptions.approve',
+            'adoptions.reject',
+            'adoptions.complete',
+            'adoptions.listings.create',
+            'adoptions.listings.approve',
+            'adoptions.listings.reject',
+            'messages.send',
+            'messages.read',
+            'messages.mark_read',
+            'health.read',
+            'health.export',
+            'vitals.ingest',
+        ],
+        'rescuer' => [
+            'cases.read',
+            'cases.status_change',
+            'animals.read',
+            'reports.read',
+            'vitals.read',
+            'vitals.write',
+            'notifications.read',
+        ],
+        'resident' => [
+            'reports.create',
+            'reports.read_own',
+            'animals.read',
+            'notifications.read',
+            'adoptions.apply',
+        ],
+    ];
+
+    public static function resolve(string $role, array $extra = []): array
+    {
+        $defaults = self::ROLE_DEFAULTS[strtolower($role)] ?? [];
+        return array_values(array_unique(array_merge($defaults, $extra)));
+    }
+
+    public static function has(array $effective, string $slug): bool
+    {
+        return in_array($slug, $effective, true);
+    }
+}

@@ -27,7 +27,15 @@ export function openApplyModal(animal, { onApplied } = {}) {
         <button type="button" class="rbtn rbtn--solid" data-act="submit"><i data-lucide="send"></i><span>Submit application</span></button>
       </div>
     </div>`;
-  document.body.appendChild(overlay);
+  const host = document.querySelector(".resident-shell") || document.body;
+  host.appendChild(overlay);
+  const body = overlay.querySelector(".rmodal-body");
+  const foot = overlay.querySelector(".rmodal-foot");
+  if (body) {
+    body.style.flex = "1 1 auto";
+    body.style.minHeight = "0";
+  }
+  if (foot) foot.style.flexShrink = "0";
   createIcons({ icons });
 
   const close = () => {

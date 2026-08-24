@@ -93,7 +93,7 @@ class ReportController extends AbstractController
     public function index(Request $req): void
     {
         $filters = [];
-        if ($req->user['role'] === 'resident') {
+        if (!in_array('reports.read', $req->permissions, true)) {
             $filters['resident_id'] = $req->user['id'];
         }
         foreach (['status','validation_status'] as $f) {
@@ -124,7 +124,7 @@ class ReportController extends AbstractController
             Response::error('NOT_FOUND', 'Report not found', 404);
             return;
         }
-        if ($req->user['role'] === 'resident' && $report->residentId() !== $req->user['id']) {
+        if (!in_array('reports.read', $req->permissions, true) && $report->residentId() !== $req->user['id']) {
             Response::error('FORBIDDEN', 'Not your report', 403);
             return;
         }
@@ -201,7 +201,7 @@ class ReportController extends AbstractController
             Response::error('NOT_FOUND', 'Report not found', 404);
             return;
         }
-        if ($req->user['role'] === 'resident' && $report->residentId() !== $req->user['id']) {
+        if (!in_array('reports.read', $req->permissions, true) && $report->residentId() !== $req->user['id']) {
             Response::error('FORBIDDEN', 'Not your report', 403);
             return;
         }

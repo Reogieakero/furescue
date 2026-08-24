@@ -142,7 +142,15 @@ function openNewListingModal() {
           <button type="button" class="rbtn rbtn--solid" data-act="submit"><i data-lucide="send"></i><span>Submit for review</span></button>
         </div>
       </div>`;
-    document.body.appendChild(overlay);
+    const host = document.querySelector(".resident-shell") || document.body;
+    host.appendChild(overlay);
+    const body = overlay.querySelector(".rmodal-body");
+    const foot = overlay.querySelector(".rmodal-foot");
+    if (body) {
+      body.style.flex = "1 1 auto";
+      body.style.minHeight = "0";
+    }
+    if (foot) foot.style.flexShrink = "0";
     createIcons({ icons });
 
     const close = () => {
@@ -182,9 +190,12 @@ function openNewListingModal() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function boot() {
   const user = bootstrapPageAuth();
-  if (!user) redirectToLogin();
+  if (!user) {
+    redirectToLogin();
+    return;
+  }
   initResidentShell();
 
   const ready = load();
@@ -196,4 +207,10 @@ document.addEventListener("DOMContentLoaded", () => {
         else toast(err.message || "Could not load animals.", { type: "error" });
       });
   });
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}

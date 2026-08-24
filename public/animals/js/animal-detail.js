@@ -53,6 +53,19 @@ async function loadAnimal() {
   if (!animal) throw new Error("Animal not found");
 }
 
+async function loadApplied() {
+  try {
+    const payload = await apiFetchFull("/adoptions?per_page=100");
+    const rows = Array.isArray(payload.data) ? payload.data : [];
+    applied = rows.some(
+      (row) =>
+        row.animal_id === state.animalId && (row.status === "pending" || row.status === "approved")
+    );
+  } catch {
+    applied = false;
+  }
+}
+
 function galleryHtml(photos) {
   const main = photos[0] || null;
   return `
@@ -228,9 +241,12 @@ function onApplied() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+function boot() {
   const user = bootstrapPageAuth();
-  if (!user) redirectToLogin();
+  if (!user) {
+    redirectToLogin();
+    return;
+  }
   initResidentShell();
 
   if (!state.animalId) {
@@ -240,24 +256,30 @@ document.addEventListener("DOMContentLoaded", async () => {
         <p class="rempty-title">No animal selected</p>
         <p class="rempty-text">Pick an animal from the <a class="underline text-primary" href="/animals/">adoption gallery</a>.</p>
       </div>`;
+    createIcons({ icons });
     return;
   }
 
-  try {
-    await loadAnimal();
-    renderDetail();
-  } catch (err) {
-    if (err && err.status === 401) {
-      redirectToLogin();
-      return;
-    }
-    el("detail-root").innerHTML = `
+  Promise.all([loadAnimal(), loadApplied()])
+    .then(() => renderDetail())
+    .catch((err) => {
+      if (err && err.status === 401) {
+        redirectToLogin();
+        return;
+      }
+      el("detail-root").innerHTML = `
       <div class="rempty">
         <i data-lucide="cat"></i>
         <p class="rempty-title">Profile unavailable</p>
         <p class="rempty-text">${esc(err.message || "This animal could not be loaded.")}</p>
         <a href="/animals/" class="rbtn rbtn--ghost"><i data-lucide="arrow-left"></i><span>Back to gallery</span></a>
       </div>`;
-    createIcons({ icons });
-  }
-});
+      createIcons({ icons });
+    });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}

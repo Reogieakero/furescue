@@ -1,9 +1,24 @@
 <?php
 
 $footerCols = [
-    ['title' => 'Platform', 'links' => ['Report a stray', 'Browse adoption', 'Find rescuers', 'Map view']],
-    ['title' => 'For', 'links' => ['Rescuers', 'City Veterinarian', 'Community', 'Volunteers']],
-    ['title' => 'Resources', 'links' => ['How it works', 'Safety guide', 'Contact', 'FAQ']],
+    ['title' => 'Platform', 'links' => [
+        ['label' => 'Report a stray', 'href' => '/report/'],
+        ['label' => 'Browse adoption', 'href' => '/animals/'],
+        ['label' => 'Find rescuers', 'href' => '#'],
+        ['label' => 'Map view', 'href' => '#'],
+    ]],
+    ['title' => 'For', 'links' => [
+        ['label' => 'Rescuers', 'href' => '#'],
+        ['label' => 'City Veterinarian', 'href' => '#'],
+        ['label' => 'Community', 'href' => '#'],
+        ['label' => 'Volunteers', 'href' => '#'],
+    ]],
+    ['title' => 'Resources', 'links' => [
+        ['label' => 'How it works', 'href' => '#how'],
+        ['label' => 'Safety guide', 'href' => '#'],
+        ['label' => 'Contact', 'href' => '#'],
+        ['label' => 'FAQ', 'href' => '#'],
+    ]],
 ];
 
 $footerColMarkup = static function (array $cols): string {
@@ -13,8 +28,10 @@ $footerColMarkup = static function (array $cols): string {
       <div class="footer-col">
         <h4 class="footer-col-title">' . htmlspecialchars($col['title'], ENT_QUOTES, 'UTF-8') . '</h4>
         <ul class="footer-col-links">';
-        foreach ($col['links'] as $linkLabel) {
-            $out .= '<li><a href="#" class="footer-link">' . htmlspecialchars($linkLabel, ENT_QUOTES, 'UTF-8') . '</a></li>';
+        foreach ($col['links'] as $link) {
+            $href = htmlspecialchars((string) ($link['href'] ?? '#'), ENT_QUOTES, 'UTF-8');
+            $label = htmlspecialchars((string) ($link['label'] ?? ''), ENT_QUOTES, 'UTF-8');
+            $out .= '<li><a href="' . $href . '" class="footer-link">' . $label . '</a></li>';
         }
         $out .= '
         </ul>

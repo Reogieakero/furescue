@@ -16,20 +16,6 @@ export function AppShell({ user, badges = {}, notifications = 3, activeNav, chil
   </div>`;
 }
 
-const NAV_TARGETS = {
-  dashboard: "/admin/index.php",
-  reports: "/admin/reports.php",
-  cases: "/admin/cases.php",
-  rescuers: "/admin/rescuers.php",
-  animals: "/admin/animals.php",
-  "health records": "/admin/health-records.php",
-  listings: "/admin/listings/",
-  applications: "/admin/applications/",
-  "e-learning": "/admin/elearning/",
-  messages: "/admin/messages/",
-  notifications: "/admin/notifications/",
-};
-
 export function initShell() {
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("overlay");
@@ -51,21 +37,13 @@ export function initShell() {
     if (e.key === "Escape") close();
   });
 
-  sidebar.querySelectorAll(".sidebar-link[data-nav]").forEach((link) => {
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      const target = NAV_TARGETS[link.dataset.nav];
-      if (target) window.location.href = target;
-    });
-  });
-
   const searchInput = document.querySelector(".topbar-search input");
   if (searchInput) {
     searchInput.addEventListener("keydown", (e) => {
       if (e.key !== "Enter") return;
       const q = searchInput.value.trim();
       if (!q) return;
-      window.location.href = `/admin/cases.php?q=${encodeURIComponent(q)}`;
+      window.location.href = `/admin/cases/?q=${encodeURIComponent(q)}`;
     });
   }
 

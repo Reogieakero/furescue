@@ -1,6 +1,9 @@
 import { createIcons, icons } from "lucide";
 import { requireAuth, apiFetchFull } from "../../../js/lib/api.js";
+import { bootstrapPageAuth } from "../../../js/lib/page-auth.js";
 import { fetchRecentBroadcasts } from "../../js/lib/admin-data.js";
+import { initShell } from "../../js/layout/app-shell.js";
+import { initDropdownMenu } from "../../../js/components/ui/dropdown-menu.js";
 import { initSelect } from "../../../js/components/ui/select.js";
 import { toast } from "../../../js/components/ui/toast.js";
 
@@ -39,6 +42,10 @@ function timeAgo(value) {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+function emptyState(icon, text) {
+  return `<div class="empty-state"><i data-lucide="${icon}"></i><span>${esc(text)}</span></div>`;
+}
+
 function rowHtml(broadcast) {
   const recipients = parseInt(broadcast.recipients, 10) || 0;
   return `
@@ -50,12 +57,20 @@ function rowHtml(broadcast) {
 }
 
 function renderBroadcasts(items) {
-  const rows = document.getElementById("broadcast-rows");
+  const list = document.getElementById("broadcast-list");
   const totalEl = document.getElementById("broadcast-total");
-  if (!rows) return;
-  rows.innerHTML = items.length
-    ? items.map(rowHtml).join("")
-    : '<tr><td class="table-cell table-cell--muted" colspan="3">No broadcasts yet.</td></tr>';
+  if (!list) return;
+  if (!items.length) {
+    list.className = "queue-empty";
+    list.innerHTML = emptyState("megaphone", "No broadcasts yet. Compose your first announcement.");
+  } else {
+    list.className = "table-wrap";
+    list.innerHTML = `
+      <table class="table">
+        <thead><tr class="table-head"><th>Message</th><th>Recipients</th><th>Sent</th></tr></thead>
+        <tbody id="broadcast-rows">${items.map(rowHtml).join("")}</tbody>
+      </table>`;
+  }
   if (totalEl) totalEl.textContent = String(items.length);
   createIcons({ icons });
 }
@@ -73,7 +88,7 @@ function initCounter() {
   const counter = document.getElementById("broadcast-count");
   if (!message || !counter) return;
   const update = () => {
-    counter.textContent = String(message.value.length);
+    counter.textContent = String(Math.min(message.value.length, MAX_LENGTH));
   };
   message.addEventListener("input", update);
   update();
@@ -83,12 +98,19 @@ function initForm() {
   const form = document.getElementById("broadcast-form");
   const sendBtn = document.getElementById("broadcast-send");
   if (!form || !sendBtn) return;
+  let inFlight = false;
+
   form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    send();
+  });
+  sendBtn.addEventListener("click", (e) => {
     e.preventDefault();
     send();
   });
 
   async function send() {
+    if (inFlight || sendBtn.disabled) return;
     const messageEl = document.getElementById("broadcast-message");
     const message = messageEl ? messageEl.value.trim() : "";
     if (!message) {
@@ -97,6 +119,7 @@ function initForm() {
       return;
     }
     const targets = TARGET_MAP[selectedTarget] || TARGET_MAP.all;
+    inFlight = true;
     sendBtn.disabled = true;
     try {
       const payload = await apiFetchFull("/admin/notifications/broadcast", {
@@ -111,14 +134,19 @@ function initForm() {
     } catch (err) {
       toast(err.message || "Failed to send broadcast", { type: "error" });
     } finally {
+      inFlight = false;
       sendBtn.disabled = false;
     }
   }
 }
 
 function init() {
+  bootstrapPageAuth();
   const user = requireAuth(["admin"]);
   if (!user) return;
+  createIcons({ icons });
+  initShell();
+  initDropdownMenu(document);
   initSelect(document, {
     "broadcast-target": (value) => {
       selectedTarget = value;

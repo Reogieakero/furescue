@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../vendor/autoload.php';
 
+use App\Auth\JwtService;
 use App\Database;
 use App\Repositories\ReportRepository;
 
@@ -18,8 +19,14 @@ $userData = (new \App\Repositories\UserRepository($pdo))->find($uid);
 $userData = $userData ? $userData->toArray() : [];
 
 $reportRepo = new ReportRepository($pdo);
-$result = $reportRepo->paginate(1, 50, ['resident_id' => $uid]);
-$reports = array_map(static fn($r) => $r->toArray(), $result['items']);
+$listError = null;
+try {
+    $result = $reportRepo->paginate(1, 50, ['resident_id' => $uid]);
+    $reports = array_map(static fn($r) => $r->toArray(), $result['items']);
+} catch (Throwable $e) {
+    $reports = [];
+    $listError = 'Could not load your reports. Please try again.';
+}
 
 $timeAgo = static function (?string $value): string {
     if (!$value) {
@@ -66,9 +73,13 @@ $statusLabel = [
 $esc = static fn(mixed $v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 
 $btnPrimary = 'inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-4 text-sm font-bold text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+$btnOutline = 'inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-input bg-background px-3 text-[13px] font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
 
 $photoUrlsOf = static function (array $r): array {
     $raw = $r['photo_urls'] ?? null;
+    if (is_array($raw)) {
+        return array_values(array_filter($raw, static fn($u) => is_string($u) && trim($u) !== ''));
+    }
     if (!is_string($raw) || trim($raw) === '') {
         return [];
     }
@@ -134,10 +145,20 @@ $emptyState = '
       </div>
       <h2 class="mt-3 text-base font-extrabold">You haven\'t submitted any reports yet.</h2>
       <p class="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">Spotted a stray animal in need? Pin its location and our rescue team will take it from there.</p>
-      <a href="/report/" class="' . $btnPrimary . '">Report an animal</a>
+      <a href="/report/" class="' . $btnPrimary . ' mt-4">Report an animal</a>
     </div>';
 
-$btnOutline = 'inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-input bg-background px-3 text-[13px] font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
+$errorState = '
+    <div id="reports-error" class="md:col-span-2 rounded-xl border bg-card px-6 py-12 text-center">
+      <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
+        <i data-lucide="triangle-alert" class="h-6 w-6 text-destructive"></i>
+      </div>
+      <h2 class="mt-3 text-base font-extrabold">Could not load your reports.</h2>
+      <p class="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">' . $esc($listError ?? 'Please try again.') . '</p>
+      <button type="button" id="reports-retry" class="' . $btnOutline . ' mt-4">
+        <i data-lucide="refresh-cw" class="h-4 w-4"></i><span>Try again</span>
+      </button>
+    </div>';
 
 $content = '
   <div class="mx-auto w-full max-w-4xl">
@@ -153,7 +174,7 @@ $content = '
     </div>
 
     <div id="reports-list" class="grid grid-cols-1 gap-4 md:grid-cols-2">' .
-        ($cardsHtml !== '' ? $cardsHtml : $emptyState) . '
+        ($listError ? $errorState : ($cardsHtml !== '' ? $cardsHtml : $emptyState)) . '
     </div>
   </div>';
 
@@ -166,7 +187,12 @@ $residentUser = [
 ];
 $activeNav = 'my reports';
 $residentShellTitle = 'My Reports';
-$pageModules = ['/js/components/resident-shell.js', '/reports/js/reports.js'];
+$jwt = new JwtService();
+$pageState = [
+    'accessToken' => $jwt->issueAccessToken(['id' => $uid, 'role' => $residentUser['role']]),
+    'user' => $residentUser,
+];
+$pageModules = ['/reports/js/reports.js'];
 
 $pageTitle = 'FurEscue — My Reports';
 $pageDescription = 'Track the stray animal reports you submitted to FurEscue in Mati City.';

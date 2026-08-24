@@ -12,7 +12,6 @@ use App\Auth\PasswordService;
 use App\Http\RouteLoader;
 use App\Http\Router;
 use App\Middleware\AuthMiddleware;
-use App\Middleware\RoleMiddleware;
 use App\Services\GeoService;
 use App\Tests\Support\InteractsWithHttp;
 use App\Tests\Support\SqliteTestDatabase;
@@ -56,8 +55,6 @@ class ApiIntegrationTest extends TestCase
             'dedup' => new TestDedupService($this->pdo),
             'geo' => new GeoService(),
             'authMw' => new AuthMiddleware($this->pdo, $jwt),
-            'adminMw' => new RoleMiddleware(['admin']),
-            'staffMw' => new RoleMiddleware(['rescuer', 'admin']),
         ]);
     }
 

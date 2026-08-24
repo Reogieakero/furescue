@@ -1,5 +1,6 @@
 import { createIcons, icons } from "lucide";
 import { apiFetch, apiFetchFull, requireAuth } from "/js/lib/api.js";
+import { bootstrapPageAuth } from "/js/lib/page-auth.js";
 import { esc } from "/js/lib/format.js";
 import { initResidentShell } from "/js/components/resident-shell.js";
 import { toast } from "/js/components/ui/toast.js";
@@ -16,6 +17,7 @@ const state = {
   progress: new Map(),
   currentId: null,
   busy: false,
+  loadError: "",
 };
 
 function categoryMeta(category) {
@@ -37,6 +39,19 @@ function statusChip(moduleId) {
 function renderGrid() {
   const grid = document.getElementById("learn-grid");
   if (!grid) return;
+
+  if (state.loadError) {
+    grid.innerHTML = `
+      <div class="rcard">
+        <div class="rempty">
+          <i data-lucide="wifi-off"></i>
+          <p class="rempty-title">Could not load modules</p>
+          <p class="rempty-text">${esc(state.loadError)}</p>
+        </div>
+      </div>`;
+    createIcons({ icons });
+    return;
+  }
 
   if (!state.modules.length) {
     grid.innerHTML = `
@@ -103,6 +118,7 @@ function showList() {
 }
 
 async function openLesson(moduleId) {
+  bootstrapPageAuth();
   const section = document.getElementById("learn-lesson-section");
   const list = document.getElementById("learn-list-section");
   if (!section || !list) return;
@@ -122,6 +138,7 @@ async function openLesson(moduleId) {
     }
 
     const meta = categoryMeta(mod.category);
+    const done = statusFor(mod.id)?.status === "completed";
     const titleEl = document.getElementById("learn-lesson-title");
     const catEl = document.getElementById("learn-lesson-category");
     const bodyEl = document.getElementById("learn-lesson-content");
@@ -130,19 +147,20 @@ async function openLesson(moduleId) {
     if (catEl) catEl.textContent = meta.label;
     if (bodyEl) bodyEl.innerHTML = String(mod.content_body || "");
     if (statusEl) {
-      const done = statusFor(mod.id)?.status === "completed";
       statusEl.textContent = done ? "Completed" : "In progress";
       statusEl.className = `rchip ${done ? "rchip--success" : "rchip--sky"}`;
       statusEl.hidden = false;
     }
+    list.classList.add("is-hidden");
+    section.classList.remove("is-hidden");
+
     const btn = document.getElementById("learn-complete");
     if (btn) {
       btn.disabled = done;
-      btn.querySelector("span").textContent = done ? "Completed" : "Mark Complete";
+      const label = btn.querySelector("span");
+      if (label) label.textContent = done ? "Completed" : "Mark Complete";
     }
 
-    list.classList.add("is-hidden");
-    section.classList.remove("is-hidden");
     createIcons({ icons });
     renderProgress();
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -153,6 +171,7 @@ async function openLesson(moduleId) {
 
 async function markComplete() {
   if (!state.currentId || state.busy) return;
+  bootstrapPageAuth();
   const btn = document.getElementById("learn-complete");
   state.busy = true;
   if (btn) btn.disabled = true;
@@ -171,13 +190,14 @@ async function markComplete() {
       statusEl.textContent = "Completed";
       statusEl.className = "rchip rchip--success";
     }
-    if (btn) btn.querySelector("span").textContent = "Completed";
+    const label = btn && btn.querySelector("span");
+    if (label) label.textContent = "Completed";
     toast("Module completed. Nice work!", { type: "success" });
   } catch (err) {
     toast(err.message || "Could not save your progress.", { type: "error" });
+    if (btn) btn.disabled = false;
   } finally {
     state.busy = false;
-    if (btn) btn.disabled = false;
     renderProgress();
     renderGrid();
   }
@@ -208,26 +228,34 @@ function bindEvents() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  bootstrapPageAuth();
   const user = requireAuth();
   if (!user) return;
   initResidentShell();
   bindEvents();
 
   try {
-    const [modulesFull, progress] = await Promise.all([
-      apiFetchFull("/elearning/modules?per_page=100"),
-      apiFetch("/elearning/progress"),
-    ]);
+    const modulesFull = await apiFetchFull("/elearning/modules?per_page=100");
     const items = (modulesFull && modulesFull.data) || [];
     state.modules = Array.isArray(items)
       ? items.filter((m) => m && m.published_status === "published")
       : [];
+    state.loadError = "";
+  } catch (err) {
+    state.loadError = err.message || "Could not load modules.";
+    toast(state.loadError, { type: "error" });
+  }
+
+  try {
+    const progress = await apiFetch("/elearning/progress");
     const rows = (progress && progress.progress) || [];
     state.progress = new Map(
       (Array.isArray(rows) ? rows : []).map((r) => [r.module_id, r])
     );
-  } catch (err) {
-    toast(err.message || "Could not load modules.", { type: "error" });
+  } catch {
+    toast("Saved progress is temporarily unavailable. You can still read modules.", {
+      type: "error",
+    });
   }
 
   renderGrid();

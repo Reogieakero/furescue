@@ -42,7 +42,7 @@ export function ActivityTable() {
   <div class="panel">
     <div class="panel-head">
       <div class="panel-title-wrap"><i data-lucide="list"></i><h2 class="panel-title">Recent case activity</h2></div>
-      <a href="#" class="btn-link">View all cases ${ChevronRight()}</a>
+      <a href="/admin/cases/" class="btn-link">View all cases ${ChevronRight()}</a>
     </div>
     <div id="activity-table" class="activity-table">${ActivityInner()}</div>
   </div>`;

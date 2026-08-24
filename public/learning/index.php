@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../vendor/autoload.php';
 
+use App\Auth\JwtService;
+
 Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2))->safeLoad();
 
 require __DIR__ . '/../includes/guard.php';
@@ -17,6 +19,13 @@ $residentUser = [
     'email' => (string) ($sessionUser['email'] ?? ''),
     'role' => (string) ($sessionUser['role'] ?? ''),
     'profile_photo_url' => (string) ($sessionUser['profile_photo_url'] ?? ''),
+];
+$pageState = [
+    'accessToken' => (new JwtService())->issueAccessToken([
+        'id' => $residentUser['id'],
+        'role' => $residentUser['role'],
+    ]),
+    'user' => $residentUser,
 ];
 
 $activeNav = 'learning hub';
@@ -83,6 +92,7 @@ require __DIR__ . '/../includes/site-head.php';
 ?>
   <body>
     <div id="app"><?= $pageHtml ?></div>
+    <script>window.__PAGE_STATE__ = <?= json_encode($pageState, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
     <script type="module" src="/learning/js/learning.js"></script>
   </body>
 </html>
