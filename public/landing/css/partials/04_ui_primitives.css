@@ -57,13 +57,13 @@
 .on-dark .btn--ghost,
 .cta-actions .btn--ghost {
   background: transparent;
-  border-color: hsl(0 0% 100% / 0.55);
-  color: #fff;
+  border-color: hsl(var(--primary-foreground) / 0.55);
+  color: hsl(var(--primary-foreground));
 }
 
 .on-dark .btn--ghost:hover,
 .cta-actions .btn--ghost:hover {
-  background: hsl(0 0% 100% / 0.12);
+  background: hsl(var(--primary-foreground) / 0.12);
 }
 
 .badge {
@@ -88,8 +88,8 @@
 }
 
 .badge--sage {
-  background: hsl(var(--sage));
-  color: hsl(var(--foreground));
+  background: hsl(var(--paperdark));
+  color: hsl(var(--jungle));
 }
 
 .card {

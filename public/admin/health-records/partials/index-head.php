@@ -8,7 +8,7 @@ foreach ($hrFilters as $f) {
 // ui/button.js final tailwind-merge-resolved string (cva base incl. disabled:* groups
 // which shared BTN_BASE lacks — same local-emission pattern as reports/rescuers units).
 const HR_BTN_BASE = 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50';
-$hrExportCsvButton = '<button type="button" class="' . e(trim(HR_BTN_BASE . ' border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-4')) . '" ><i data-lucide="download" class="icon"></i><span>Export CSV</span></button>';
+$hrExportCsvButton = '<button type="button" class="' . e(trim(HR_BTN_BASE . ' border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-4')) . '" data-export="csv"><i data-lucide="download" class="icon"></i><span>Export CSV</span></button>';
 
 // ---- Page head + controls ---------------------------------------------------
 $pageHead = '
@@ -25,7 +25,7 @@ $pageHead = '
   </div>';
 
 $controlsPanel = '
-  <div class="panel panel--padded">
+  <div class="panel hr-toolbar-panel">
     <div class="report-toolbar">
       <div class="q-tabs" id="hr-tabs">' . $hrTabs . '</div>
       <div class="report-search">

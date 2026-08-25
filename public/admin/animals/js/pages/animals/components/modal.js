@@ -2,6 +2,7 @@ import { createIcons, icons } from "lucide";
 import { Button } from "/js/components/ui/button.js";
 import { Spinner } from "/js/components/ui/spinner.js";
 import { addAnimal, parsePhoto360 } from "../state.js";
+import { bindProfileAssets, clientAssetError, profileAssetsFields, readProfileAssets } from "./profile-assets.js";
 import { esc, resizeImage, ageFromBirthDate } from "./util.js";
 
 function tabsHtml(attr, options, active) {
@@ -47,6 +48,7 @@ export function openAddAnimalDialog() {
       status: "pending",
       ageUnit: "yr",
       photo: null,
+      pendingId: null,
     };
 
     overlay.innerHTML = `
@@ -99,11 +101,7 @@ export function openAddAnimalDialog() {
               <input type="file" id="aa-photo" accept="image/*" class="aa-photo-input" />
             </div>
 
-            <label class="dialog-label" for="aa-model3d">3D model URL <span class="dialog-hint">optional — .glb/.gltf/.obj</span></label>
-            <input class="dialog-input" id="aa-model3d" placeholder="https://…" autocomplete="off" />
-
-            <label class="dialog-label" for="aa-photo360">360° photo set <span class="dialog-hint">optional — JSON array of image URLs</span></label>
-            <textarea class="dialog-input aa-textarea" id="aa-photo360" rows="3" placeholder='["https://…/view-01.jpg", "https://…/view-02.jpg"]'></textarea>
+            ${profileAssetsFields({ prefix: "aa" })}
 
             <p class="dialog-error" id="aa-error" hidden>Please provide a name.</p>
           </div>
@@ -115,6 +113,7 @@ export function openAddAnimalDialog() {
       </div>`;
 
     document.body.appendChild(overlay);
+    bindProfileAssets(overlay, "aa");
     createIcons({ icons });
 
     const nameEl = overlay.querySelector("#aa-name");
@@ -218,12 +217,17 @@ export function openAddAnimalDialog() {
       errorEl.hidden = true;
       const age = ageEl && ageEl.value.trim() ? `${ageEl.value.trim()} ${form.ageUnit}` : null;
       const birthDate = birthEl && birthEl.value.trim() ? birthEl.value.trim() : null;
-      const model3d = overlay.querySelector("#aa-model3d").value.trim();
+      const assets = readProfileAssets(overlay, "aa");
+      const assetErr = clientAssetError(assets);
+      if (assetErr) {
+        errorEl.textContent = assetErr;
+        errorEl.hidden = false;
+        return;
+      }
       let photo360Urls = null;
-      const photo360Text = overlay.querySelector("#aa-photo360").value;
-      if (photo360Text.trim()) {
+      if (!assets.photo360Files.length && assets.photo360Text.trim()) {
         try {
-          photo360Urls = parsePhoto360(photo360Text);
+          photo360Urls = parsePhoto360(assets.photo360Text);
         } catch (err) {
           errorEl.textContent = err.message;
           errorEl.hidden = false;
@@ -235,6 +239,7 @@ export function openAddAnimalDialog() {
       okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Adding…</span>`;
       try {
         const animal = await addAnimal({
+          id: form.pendingId || null,
           name,
           species: form.species,
           breed: form.breed,
@@ -244,12 +249,15 @@ export function openAddAnimalDialog() {
           status: form.status,
           color: colorEl ? colorEl.value.trim() : null,
           photo: form.photo,
-          model3d,
+          model3d: assets.modelFile ? "" : assets.modelUrl,
           photo360Urls,
+          modelFile: assets.modelFile,
+          photo360Files: assets.photo360Files,
         });
         overlay.remove();
         resolve(animal);
       } catch (err) {
+        if (err && err.animalId) form.pendingId = err.animalId;
         okBtn.disabled = false;
         okBtn.innerHTML = `<i data-lucide="plus"></i><span>Add animal</span>`;
         createIcons({ icons });
@@ -265,7 +273,7 @@ export function openAddAnimalDialog() {
       if (e.target === overlay) close();
     });
     overlay.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && e.target.tagName !== "TEXTAREA" && e.target.type !== "file") {
+      if (e.key === "Enter" && e.target.tagName !== "TEXTAREA" && e.target.type !== "file" && e.target.tagName !== "SUMMARY") {
         e.preventDefault();
         submit();
       }

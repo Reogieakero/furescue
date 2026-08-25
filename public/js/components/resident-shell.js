@@ -1,5 +1,6 @@
 import { createIcons, icons } from "lucide";
 import { clearSession, apiFetch } from "../lib/api.js";
+import { bootstrapPageAuth } from "../lib/page-auth.js";
 import { setNavBadge } from "../lib/swr.js";
 import { initDropdownMenu } from "./ui/dropdown-menu.js";
 
@@ -68,6 +69,7 @@ let booted = false;
 export function initResidentShell() {
   if (booted) return;
   booted = true;
+  bootstrapPageAuth();
   createIcons({ icons });
   initMenuToggle();
   initDate();

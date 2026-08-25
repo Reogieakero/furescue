@@ -111,6 +111,10 @@ class Permissions
             'animals.read',
             'notifications.read',
             'adoptions.apply',
+            'adoptions.listings.create',
+            'messages.send',
+            'messages.read',
+            'messages.mark_read',
         ],
     ];
 

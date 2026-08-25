@@ -4,6 +4,7 @@ namespace App\Http\Routes;
 
 use App\Controllers\AnimalController;
 use App\Controllers\AnimalMedicalController;
+use App\Controllers\AnimalProfileController;
 use App\Controllers\DocumentsController;
 use App\Controllers\HealthController;
 use App\Controllers\VitalsController;
@@ -33,6 +34,12 @@ class AnimalRoutes
         $router->add('POST', '/api/v1/vitals', fn(Request $r) => (new VitalsController($pdo))->ingest($r));
         $router->add('GET', '/api/v1/animals/{id}/vitals', fn(Request $r) => (new VitalsController($pdo))->list($r), [$authMw]);
         $router->add('POST', '/api/v1/animals/{id}/vitals', fn(Request $r) => (new VitalsController($pdo))->create($r), [$authMw, new PermissionMiddleware('animals.vitals.read')]);
+
+        $write = [$authMw, new PermissionMiddleware('animals.write')];
+        $router->add('POST', '/api/v1/animals/{id}/model-3d', fn(Request $r) => (new AnimalProfileController($pdo))->uploadModel3d($r), $write);
+        $router->add('DELETE', '/api/v1/animals/{id}/model-3d', fn(Request $r) => (new AnimalProfileController($pdo))->deleteModel3d($r), $write);
+        $router->add('POST', '/api/v1/animals/{id}/photo-360', fn(Request $r) => (new AnimalProfileController($pdo))->uploadPhoto360($r), $write);
+        $router->add('DELETE', '/api/v1/animals/{id}/photo-360', fn(Request $r) => (new AnimalProfileController($pdo))->deletePhoto360($r), $write);
 
         $router->add('POST', '/api/v1/animals/{id}/documents', fn(Request $r) => (new DocumentsController($pdo))->create($r), [$authMw, new PermissionMiddleware('animals.documents.upload')]);
         $router->add('PATCH', '/api/v1/documents/{id}', fn(Request $r) => (new DocumentsController($pdo))->update($r), [$authMw, new PermissionMiddleware('animals.documents.upload')]);

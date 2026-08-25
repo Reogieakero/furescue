@@ -1,0 +1,106 @@
+.elearn-page {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.elearn-page .report-search {
+  min-width: 0;
+  flex: 1 1 12rem;
+  max-width: 100%;
+}
+
+.elearn-page .elearn-cat-toolbar {
+  margin-top: 0;
+}
+
+.elearn-cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.elearn-table {
+  display: none;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .elearn-cards {
+    display: none;
+  }
+
+  .elearn-table {
+    display: block;
+  }
+}
+
+.elearn-mod-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.elearn-mod-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.elearn-mod-card .table-actions {
+  flex-wrap: wrap;
+  white-space: normal;
+}
+
+.elearn-mod-card .panel-title,
+.elearn-page .table-cell--strong {
+  overflow-wrap: anywhere;
+}
+
+.elearn-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.elearn-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .elearn-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .elearn-form-grid .elearn-field--full {
+    grid-column: 1 / -1;
+  }
+}
+
+.elearn-form .input--area {
+  min-height: 16rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+.elearn-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.elearn-page .queue-pagination nav[aria-label="Pagination"] {
+  max-width: 100%;
+}
+
+.elearn-page .queue-pagination ul {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+}

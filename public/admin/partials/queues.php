@@ -171,7 +171,7 @@ if ($adoptRows === '') {
         <tbody>' . $adoptRows . '</tbody>
       </table>
     </div>
-    <div class="panel-foot"><a href="#" class="btn-link">View all ' . e($adoptionsPending['total']) . ' applications ' . chevron_right() . '</a></div>
+    <div class="panel-foot"><a href="/admin/applications/" class="btn-link">View all ' . e($adoptionsPending['total']) . ' applications ' . chevron_right() . '</a></div>
     ' . $pagination;
 }
 

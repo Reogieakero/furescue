@@ -1,12 +1,16 @@
 import { createIcons, icons } from "lucide";
-import { state } from "./state.js";
+import { state, visibleRecords } from "./state.js";
 import { rerenderAll } from "./components.js";
 import { RecordsPanel, FilterTabs } from "./components/table.js";
 import { AttentionPanel } from "./components/queue.js";
 import { StackedPanel, destroyCharts, mountCharts } from "./components/charts.js";
 import { initSelect } from "/js/components/ui/select.js";
+import { toast } from "/js/components/ui/toast.js";
+import { datedCsvName, downloadCsv } from "/js/lib/csv.js";
 
 let eventsReady = false;
+let searchTimer = null;
+let ignoreSearchInput = false;
 
 function setRegion(id, html) {
   const el = document.getElementById(id);
@@ -32,8 +36,6 @@ function refreshQueue() {
   createIcons({ icons });
 }
 
-let searchTimer = null;
-
 export function initHealthRecordsEvents() {
   const app = document.getElementById("app");
   if (!app) return;
@@ -47,7 +49,11 @@ export function initHealthRecordsEvents() {
         state.filter = tab.dataset.filter;
         state.page = 1;
         const tabs = document.getElementById("hr-tabs");
-        if (tabs) tabs.querySelectorAll("[data-filter]").forEach((b) => b.classList.toggle("is-active", b === tab));
+        if (tabs) {
+          tabs.querySelectorAll("[data-filter]").forEach((b) =>
+            b.classList.toggle("is-active", b.dataset.filter === state.filter)
+          );
+        }
         rerenderAll();
         return;
       }
@@ -76,14 +82,18 @@ export function initHealthRecordsEvents() {
       if (card) {
         const name = card.dataset.animal || "";
         clearTimeout(searchTimer);
+        ignoreSearchInput = true;
         state.query = name;
         state.filter = "all";
         state.page = 1;
-        const search = document.getElementById("hr-search");
-        if (search) search.value = name;
         const tabs = document.getElementById("hr-tabs");
         if (tabs) tabs.innerHTML = FilterTabs();
         rerenderAll();
+        const search = document.getElementById("hr-search");
+        if (search) search.value = name;
+        setTimeout(() => {
+          ignoreSearchInput = false;
+        }, 250);
         const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         document.getElementById("hr-records")?.scrollIntoView({
           behavior: reduce ? "auto" : "smooth",
@@ -98,11 +108,37 @@ export function initHealthRecordsEvents() {
         refreshQueue();
         return;
       }
+
+      const exportBtn = e.target.closest("[data-export]");
+      if (exportBtn) {
+        const rows = visibleRecords();
+        if (!rows.length) {
+          toast("No health records match the current filters.", { type: "error" });
+          return;
+        }
+        downloadCsv(
+          datedCsvName("health-records"),
+          ["id", "animal", "species", "breed", "barangay", "vaccination", "last_checkup", "next_due", "condition", "updated"],
+          rows.map((r) => [
+            r.id,
+            r.animalName,
+            r.species,
+            r.breedType,
+            r.barangay,
+            r.vaccinationStatus,
+            r.lastCheckupDate,
+            r.nextCheckupDue,
+            r.condition,
+            r.updatedAt,
+          ])
+        );
+        toast("CSV downloaded.", { type: "success" });
+      }
     });
 
     app.addEventListener("input", (e) => {
       const s = e.target.closest("#hr-search");
-      if (!s) return;
+      if (!s || ignoreSearchInput) return;
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
         state.query = s.value;

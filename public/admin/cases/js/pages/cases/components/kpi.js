@@ -2,8 +2,8 @@ import { state } from "../state.js";
 import { Chart } from "chart.js";
 import { createIcons, icons } from "lucide";
 import { Select } from "/js/components/ui/select.js";
-import { esc } from "./util.js";
-import { shortId, timeAgo, titleCase, initials } from "/admin/js/pages/dashboard/helpers.js";
+import { KpiCard, KpiGrid } from "/js/components/kpi-card.js";
+import { esc } from "/js/lib/format.js";
 
 const STATUS_COLORS = {
   open: "hsl(211, 71%, 38%)",
@@ -33,34 +33,44 @@ export function caseCounts() {
 export function buildKpis() {
   const c = caseCounts();
   return [
-    { icon: "clipboard-list", value: c.all, label: "Total cases", note: null, desc: "Every case in the system, all statuses included." },
-    { icon: "folder-open", value: c.open, label: "Open", note: c.open ? { text: "Intake", cls: "kpi-note--coral" } : null, desc: "Newly reported cases not yet assigned to a rescuer." },
-    { icon: "user-plus", value: c.assigned, label: "Assigned", note: null, desc: "Assigned to a rescuer, awaiting their acceptance." },
-    { icon: "activity", value: c.in_progress, label: "In progress", dark: true, desc: "Rescues that are actively underway." },
-    { icon: "check-circle-2", value: c.resolved, label: "Resolved", note: null, desc: "Cases successfully completed and closed." },
+    { icon: "clipboard-list", value: c.all, label: "Total cases", tone: "jungle", desc: "Every case in the system, all statuses included." },
+    {
+      icon: "folder-open",
+      value: c.open,
+      label: "Open",
+      tone: "coral",
+      trend: c.open ? "Intake" : "",
+      trendTone: "down",
+      desc: "Newly reported cases not yet assigned to a rescuer.",
+    },
+    { icon: "user-plus", value: c.assigned, label: "Assigned", tone: "sky", desc: "Assigned to a rescuer, awaiting their acceptance." },
+    { icon: "activity", value: c.in_progress, label: "In progress", tone: "sky", desc: "Rescues that are actively underway." },
+    { icon: "check-circle-2", value: c.resolved, label: "Resolved", tone: "jungle", desc: "Cases successfully completed and closed." },
   ];
 }
 
+export function toKpiCardProps(k) {
+  const aria = k.desc ? `${k.label}: ${k.value}. ${k.desc}` : `${k.label}: ${k.value}`;
+  const extra = [`aria-label="${esc(aria)}"`];
+  if (k.desc) extra.push(`title="${esc(k.desc)}"`);
+  return {
+    icon: k.icon,
+    tone: k.tone,
+    label: k.label,
+    value: k.value,
+    trend: k.trend || "",
+    trendTone: k.trendTone || "neutral",
+    attrs: extra.join(" "),
+  };
+}
+
 export function KpiTile(k) {
-  const note = k.note
-    ? `<span class="kpi-note ${k.note.cls}">${k.note.icon ? `<i data-lucide="${k.note.icon}"></i>` : ""}${k.note.text}</span>`
-    : "";
-  return `
-  <div class="kpi-tile${k.dark ? " kpi-tile--dark" : ""}">
-    <div class="kpi-top">
-      <div class="kpi-icon"><i data-lucide="${k.icon}"></i></div>
-      ${note}
-    </div>
-    <div class="kpi-value">${k.value}</div>
-    <div class="kpi-label">${k.label}</div>
-    <div class="kpi-desc">${esc(k.desc)}</div>
-  </div>`;
+  return KpiCard(toKpiCardProps(k));
 }
 
 export function KpiStrip() {
-  const kpis = buildKpis().map(KpiTile).join("");
   return `
-    <div class="kpi-grid">${kpis}</div>
+    ${KpiGrid({ items: buildKpis().map(toKpiCardProps) })}
     <div class="kpi-donut" id="kpi-donut-card">${StatusChart()}</div>`;
 }
 

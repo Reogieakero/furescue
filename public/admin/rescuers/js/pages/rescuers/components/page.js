@@ -4,7 +4,8 @@ import { Button } from "/js/components/ui/button.js";
 import { SkeletonRescuers } from "/js/components/ui/skeleton.js";
 import { setNavBadge } from "/js/lib/swr.js";
 import { state } from "../state.js";
-import { buildKpis, KpiTile, rescuerCounts } from "./kpis.js";
+import { KpiGrid } from "/js/components/kpi-card.js";
+import { buildKpis, KpiTile, rescuerCounts, toKpiCardProps } from "./kpis.js";
 import { FilterTabs } from "./filters.js";
 import { RescuerTable } from "./table.js";
 import { RescuerDetail } from "./detail.js";
@@ -18,7 +19,7 @@ function PageHead() {
       <p class="page-sub">Manage rescuers, duty status, and applications.</p>
     </div>
     <div class="page-head-actions">
-      ${Button({ text: "Export CSV", variant: "outline", icon: "download" })}
+      ${Button({ text: "Export CSV", variant: "outline", icon: "download", attrs: 'data-export="csv"' })}
     </div>
   </div>`;
 }
@@ -47,7 +48,6 @@ export function RescuersPage(user, { loading = false } = {}) {
       children: SkeletonRescuers(),
     });
   }
-  const kpis = buildKpis().map(KpiTile).join("");
   return AppShell({
     user,
     notifications: 0,
@@ -55,7 +55,7 @@ export function RescuersPage(user, { loading = false } = {}) {
     activeNav: "rescuers",
     children: [
       PageHead(),
-      `<div id="rescuer-kpis" class="kpi-grid">${kpis}</div>`,
+      KpiGrid({ id: "rescuer-kpis", items: buildKpis().map(toKpiCardProps) }),
       `<div class="rescuer-split">
         ${RescuersPanel()}
         <div id="rescuer-detail" class="panel rescuer-detail-panel">${RescuerDetail()}</div>

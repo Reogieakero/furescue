@@ -98,7 +98,7 @@
 }
 
 .hero-art-dot {
-  fill: hsl(var(--sage));
+  fill: hsl(var(--paperdark));
 }
 
 .hero-art-pin-stop-a {
@@ -115,7 +115,7 @@
 
 .hero-art-node {
   fill: hsl(var(--brand-2));
-  stroke: #fff;
+  stroke: hsl(var(--card));
 }
 
 .hero-art-halo--a {
@@ -131,11 +131,11 @@
 }
 
 .hero-art-paw {
-  fill: #fff;
+  fill: hsl(var(--card));
 }
 
 .hero-art-heart path {
-  fill: hsl(var(--sage) / 0.55);
+  fill: hsl(var(--jungle) / 0.35);
 }
 
 .float-card {
@@ -168,7 +168,7 @@
   width: 34px;
   height: 34px;
   border-radius: 9px;
-  color: #fff;
+  color: hsl(var(--primary-foreground));
   background: linear-gradient(135deg, hsl(var(--brand-1)), hsl(var(--brand-2)));
 }
 

@@ -91,22 +91,6 @@ $normalize = static function (array $r) use ($firstPhoto, $medSet): array {
 
 $animals = array_map($normalize, $rows);
 
-$uid = (string) $_SESSION['user']['id'];
-$role = (string) ($_SESSION['user']['role'] ?? '');
-$state = [
-    'accessToken' => (new \App\Auth\JwtService())->issueAccessToken(['id' => $uid, 'role' => $role]),
-    'user' => [
-        'id' => $uid,
-        'full_name' => (string) ($_SESSION['user']['full_name'] ?? ''),
-        'email' => (string) ($_SESSION['user']['email'] ?? ''),
-        'role' => $role,
-    ],
-    'animals' => $animals,
-    'query' => '',
-    'filter' => 'all',
-    'selectedId' => null,
-];
-
 $statusCount = static function (string $s) use ($animals): int {
     return count(array_filter($animals, static fn(array $a) => $a['status'] === $s));
 };
@@ -117,6 +101,44 @@ $counts = [
     'Adopted' => $statusCount('Adopted'),
     'Not listed' => $statusCount('Not listed'),
 ];
+
+$noMedical = count(array_filter($animals, static fn(array $a) => empty($a['hasMedical'])));
+$animalKpiData = [
+    ['icon' => 'paw-print', 'value' => $counts['all'], 'label' => 'Total', 'tone' => 'jungle', 'filter' => 'all', 'trend' => null, 'desc' => 'Every animal currently in the shelter system.'],
+    ['icon' => 'check-circle-2', 'value' => $counts['Available'], 'label' => 'Available', 'tone' => 'sky', 'filter' => 'Available', 'trend' => null, 'desc' => 'Animals listed and ready for adoption.'],
+    ['icon' => 'hourglass', 'value' => $counts['Pending'], 'label' => 'Pending', 'tone' => 'amber', 'filter' => 'Pending', 'trend' => null, 'desc' => 'In-care animals on hold pending adoption or review.'],
+    ['icon' => 'heart', 'value' => $counts['Adopted'], 'label' => 'Adopted', 'tone' => 'ink', 'filter' => 'Adopted', 'trend' => null, 'desc' => 'Animals that have already been adopted.'],
+    ['icon' => 'alert-triangle', 'value' => $noMedical, 'label' => 'No medical records', 'tone' => 'coral', 'filter' => null, 'trend' => $noMedical ? ['text' => 'Needs records', 'tone' => 'down'] : null, 'desc' => 'Animals with no medical file on record.'],
+];
+$kpiTiles = '';
+foreach ($animalKpiData as $k) {
+    $label = (string) $k['label'];
+    $value = (string) $k['value'];
+    $aria = $label . ': ' . $value;
+    if (!empty($k['desc'])) {
+        $aria .= '. ' . (string) $k['desc'];
+    }
+    $title = !empty($k['desc']) ? ' title="' . e((string) $k['desc']) . '"' : '';
+    $trend = '';
+    if (!empty($k['trend']['text'])) {
+        $trend = '<p class="kpi-card__trend kpi-card__trend--' . e((string) ($k['trend']['tone'] ?? 'neutral')) . '">' . e((string) $k['trend']['text']) . '</p>';
+    }
+    $filter = $k['filter'] ?? null;
+    $tag = $filter ? 'button' : 'article';
+    $extraClass = $filter ? ' kpi-card--interactive' : '';
+    $typeAttr = $filter ? ' type="button"' : '';
+    $filterAttr = $filter ? ' data-filter="' . e((string) $filter) . '"' : '';
+    $kpiTiles .= '
+  <' . $tag . ' class="kpi-card' . $extraClass . '"' . $typeAttr . $filterAttr . ' aria-label="' . e($aria) . '"' . $title . '>
+    <div class="kpi-card__icon kpi-card__icon--' . e((string) $k['tone']) . '" aria-hidden="true"><i data-lucide="' . e((string) $k['icon']) . '"></i></div>
+    <div class="kpi-card__body">
+      <p class="kpi-card__label">' . e($label) . '</p>
+      <p class="kpi-card__value">' . e($value) . '</p>
+      ' . $trend . '
+    </div>
+  </' . $tag . '>';
+}
+$kpiGrid = '<div id="animal-kpis" class="kpi-grid">' . $kpiTiles . '</div>';
 
 $animalFilters = [
     ['key' => 'all', 'label' => 'All'],
@@ -157,7 +179,7 @@ foreach ($animals as $a) {
     </button>';
 }
 if ($cardsHtml === '') {
-    $cardsHtml = '<div class="animal-empty"><i data-lucide="paw-print"></i><p>No animals match your filters.</p></div>';
+    $cardsHtml = '<div class="animal-empty empty-state"><i data-lucide="paw-print"></i><span>No animals match your filters.</span></div>';
 }
 
 $gridPanel = '
@@ -167,40 +189,17 @@ $gridPanel = '
         <i data-lucide="paw-print"></i>
         <h2 class="panel-title">Animals <span class="animal-count" id="animal-total-badge">' . e(count($animals)) . '</span></h2>
       </div>
-      <div class="animal-grid-tools">
-        <div class="report-search animal-search">
-          <i data-lucide="search"></i>
-          <input id="animal-search" type="text" placeholder="Search name, species, breed, ID…" value="">
-        </div>
+    </div>
+    <div class="report-toolbar animal-toolbar">
+      <div id="animal-filter-tabs" class="q-tabs">' . $filterTabsHtml . '</div>
+      <div class="report-search animal-search">
+        <i data-lucide="search"></i>
+        <input id="animal-search" type="text" placeholder="Search name, species, breed, ID…" value="">
       </div>
     </div>
-    <div id="animal-filter-tabs" class="q-tabs">' . $filterTabsHtml . '</div>
     <div class="panel-body">
       <div id="animal-grid" class="animal-grid">' . $cardsHtml . '</div>
       <div id="animal-selected-store" hidden></div>
-    </div>
-  </div>';
-
-$miniStats = '';
-foreach (
-    [
-        ['icon' => 'paw-print', 'value' => $counts['all'], 'label' => 'Total', 'cls' => 'mini-stat--jungle'],
-        ['icon' => 'check-circle-2', 'value' => $counts['Available'], 'label' => 'Available', 'cls' => 'mini-stat--accent'],
-        ['icon' => 'hourglass', 'value' => $counts['Pending'], 'label' => 'Pending', 'cls' => 'mini-stat--muted'],
-        ['icon' => 'heart-pulse', 'value' => $counts['Adopted'], 'label' => 'Adopted', 'cls' => 'mini-stat--coral'],
-    ] as $t
-) {
-    $miniStats .= '
-    <div class="mini-stat ' . e($t['cls']) . '">
-      <div class="mini-stat-icon"><i data-lucide="' . e($t['icon']) . '"></i></div>
-      <div class="mini-stat-value">' . e($t['value']) . '</div>
-      <div class="mini-stat-label">' . e($t['label']) . '</div>
-    </div>';
-}
-$statsPanel = '
-  <div class="panel panel--padded animal-stats">
-    <div class="panel-title-wrap"><i data-lucide="layout-grid"></i><h2 class="panel-title panel-title--sm">Overview</h2></div>
-    <div class="mini-stat-grid">' . $miniStats . '
     </div>
   </div>';
 
@@ -221,32 +220,20 @@ $pageHead = '
     </div>
     <div class="page-head-actions">
       ' . button_html('Add animal', 'default', icon: 'plus', attrs: 'data-act="open-add"') . '
-      ' . button_html('Export CSV', 'outline', icon: 'download') . '
+      ' . button_html('Export CSV', 'outline', icon: 'download', attrs: 'data-export="csv"') . '
     </div>
   </div>';
 
-$children = $pageHead . "\n  " . '<div class="animal-split">'
+$children = '<div class="animals-list">'
+    . $pageHead
+    . $kpiGrid
+    . '<div class="animal-split">'
     . '<div class="animal-grid-col">' . $gridPanel . '</div>'
     . '<div id="animal-side" class="animal-side-col">'
-    . '<div class="animal-side">' . $statsPanel . '<div id="animal-detail">' . $detailEmpty . '</div></div>'
+    . '<div class="animal-side"><div id="animal-detail">' . $detailEmpty . '</div></div>'
+    . '</div>'
     . '</div>'
     . '</div>';
-
-$currentUser = (new UserRepository($pdo))->find($uid);
-$currentUserData = $currentUser ? $currentUser->toArray() : [];
-$adminUser = [
-    'id' => $uid,
-    'full_name' => (string) ($currentUserData['full_name'] ?? ($_SESSION['user']['full_name'] ?? '')),
-    'email' => (string) ($_SESSION['user']['email'] ?? ''),
-    'role' => (string) ($_SESSION['user']['role'] ?? ''),
-    'profile_photo_url' => (string) ($currentUserData['profile_photo_url'] ?? ''),
-];
-$activeNav = 'animals';
-$navBadges = [];
-$adminChildren = $children;
-ob_start();
-require __DIR__ . '/../../includes/admin-shell.php';
-$pageHtml = (string) ob_get_clean();
 
 $uid = (string) $_SESSION['user']['id'];
 $role = (string) ($_SESSION['user']['role'] ?? '');
@@ -282,7 +269,7 @@ $pageHtml = (string) ob_get_clean();
 
 $pageTitle = 'FurEscue — Animals';
 $pageDescription = 'FurEscue admin animals — browse, add, and manage every animal in the City of Mati rescue system.';
-$pageCss = ['/admin/css/admin.css'];
+$pageCss = ['/admin/css/admin.css', '/admin/animals/css/animals-list.css'];
 $fontsHref = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700;800&display=swap';
 require __DIR__ . '/../../includes/site-head.php';
 ?>

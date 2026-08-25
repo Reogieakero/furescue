@@ -3,6 +3,8 @@
   flex-direction: column;
   height: 250px;
   overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
 }
 .health-carousel .panel-head {
   flex-shrink: 0;
@@ -11,6 +13,9 @@
   position: relative;
   flex: 1;
   overflow: hidden;
+  min-width: 0;
+  width: 100%;
+  contain: inline-size;
 }
 .carousel-track {
   display: flex;
@@ -20,6 +25,8 @@
 .carousel-slide {
   flex: 0 0 100%;
   min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 16px;
   display: flex;
   flex-direction: column;

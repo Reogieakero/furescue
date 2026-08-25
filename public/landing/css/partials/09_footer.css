@@ -1,6 +1,6 @@
 .footer {
-  background: hsl(var(--foreground));
-  color: #fff;
+  background: hsl(var(--jungle));
+  color: hsl(var(--paper));
   padding-block: clamp(2.5rem, 7vw, 3.5rem) 2rem;
   margin-top: 2rem;
 }
@@ -10,22 +10,22 @@
   grid-template-columns: 1fr;
   gap: 2.25rem;
   padding-bottom: 2.5rem;
-  border-bottom: 1px solid hsl(var(--background) / 0.14);
+  border-bottom: 1px solid hsl(var(--paper) / 0.14);
 }
 
 .footer-brand .brand {
-  color: #fff;
+  color: hsl(var(--paper));
   margin-bottom: 0.9rem;
 }
 
 .footer-brand .brand .text-primary {
-  color: hsl(var(--sage));
+  color: hsl(var(--jungle2));
 }
 
 .footer-tagline {
   max-width: 24rem;
   font-size: 0.9rem;
-  color: hsl(var(--background) / 0.65);
+  color: hsl(var(--paper) / 0.72);
   margin: 0;
 }
 
@@ -40,7 +40,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: hsl(var(--sage));
+  color: hsl(var(--jungle2));
   margin: 0 0 0.9rem;
 }
 
@@ -54,12 +54,12 @@
 
 .footer-link {
   font-size: 0.9rem;
-  color: hsl(var(--background) / 0.72);
+  color: hsl(var(--paper) / 0.78);
   transition: color 0.15s ease;
 }
 
 .footer-link:hover {
-  color: #fff;
+  color: hsl(var(--jungle2));
 }
 
 .footer-bottom {
@@ -70,7 +70,7 @@
   gap: 0.75rem;
   padding-top: 1.75rem;
   font-size: 0.85rem;
-  color: hsl(var(--background) / 0.6);
+  color: hsl(var(--paper) / 0.65);
 }
 
 .footer-muted {

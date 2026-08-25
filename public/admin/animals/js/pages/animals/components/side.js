@@ -1,31 +1,7 @@
 import { createIcons, icons } from "lucide";
-import { state, animalCounts, getAnimal, statusTone } from "../state.js";
+import { state, getAnimal, statusTone } from "../state.js";
 import { Button } from "/js/components/ui/button.js";
 import { esc } from "./util.js";
-
-function StatTile({ icon, value, label, cls = "" }) {
-  return `
-  <div class="mini-stat ${cls}">
-    <div class="mini-stat-icon"><i data-lucide="${icon}"></i></div>
-    <div class="mini-stat-value">${value}</div>
-    <div class="mini-stat-label">${esc(label)}</div>
-  </div>`;
-}
-
-export function StatsPanel() {
-  const c = animalCounts();
-  const tiles = [
-    { icon: "paw-print", value: c.all, label: "Total", cls: "mini-stat--jungle" },
-    { icon: "check-circle-2", value: c.Available, label: "Available", cls: "mini-stat--accent" },
-    { icon: "hourglass", value: c.Pending, label: "Pending", cls: "mini-stat--muted" },
-    { icon: "heart-pulse", value: c.Adopted, label: "Adopted", cls: "mini-stat--coral" },
-  ].map(StatTile).join("");
-  return `
-  <div class="panel panel--padded animal-stats">
-    <div class="panel-title-wrap"><i data-lucide="layout-grid"></i><h2 class="panel-title panel-title--sm">Overview</h2></div>
-    <div class="mini-stat-grid">${tiles}</div>
-  </div>`;
-}
 
 export function DetailPanel() {
   const a = state.selectedId ? getAnimal(state.selectedId) : null;
@@ -83,7 +59,6 @@ export function DetailPanel() {
 export function SidePanel() {
   return `
   <div class="animal-side">
-    ${StatsPanel()}
     <div id="animal-detail">${DetailPanel()}</div>
   </div>`;
 }

@@ -10,6 +10,13 @@ const EMPTY_OVERVIEW = {
   reports_verified: 0,
   cases: 0,
   cases_resolved: 0,
+  cases_in_progress: 0,
+  reports_pending: 0,
+  reports_today: 0,
+  pending_today: 0,
+  in_progress_today: 0,
+  resolved_today: 0,
+  reports_monthly: [],
   animals: 0,
   animals_adopted: 0,
   adoptions_pending: 0,
@@ -34,6 +41,8 @@ export const state = {
   notifications: { items: [], total: 0 },
   unreadCount: 0,
   heatmap: [],
+  healthRecords: [],
+  reportTrend: [],
   decisionCount: 0,
   activityPage: 1,
 };
@@ -41,7 +50,7 @@ export const state = {
 export const queueState = { reports: 1, rescuers: 1, health: 1, adopt: 1 };
 
 export async function loadDashboard() {
-  const [overview, reports, allReports, rescuersPending, rescuers, adoptions, cases, notifications, unreadCount, elearning, trends, heatmap, healthUpdates] =
+  const [overview, reports, allReports, rescuersPending, rescuers, adoptions, cases, notifications, unreadCount, elearning, trends, heatmap, healthUpdates, healthRecords] =
     await Promise.all([
       safe(api.fetchOverview(), null),
       safe(api.fetchReports("pending_verification"), { items: [], total: 0 }),
@@ -54,8 +63,9 @@ export async function loadDashboard() {
       safe(api.fetchUnreadCount(), 0),
       safe(api.fetchElearning(), null),
       safe(api.fetchAdoptionTrends(), []),
-      safe(api.fetchHeatmap(), []),
+      safe(api.fetchHeatmap("all"), []),
       safe(api.fetchHealthUpdates(), []),
+      safe(api.fetchHealthRecords(), []),
     ]);
 
   const updates = healthUpdates || [];
@@ -76,11 +86,13 @@ export async function loadDashboard() {
   state.notifications = { items: notifications.items || [], total: notifications.total || 0 };
   state.unreadCount = unreadCount || 0;
   state.heatmap = heatmap || [];
+  state.healthRecords = healthRecords || [];
   state.chart = chart.bars;
   state.growth = chart.growth;
 
   if (overview) {
-    state.overview = { ...overview };
+    state.overview = { ...EMPTY_OVERVIEW, ...overview };
+    state.reportTrend = overview.reports_monthly || [];
   } else {
     state.overview = {
       ...EMPTY_OVERVIEW,

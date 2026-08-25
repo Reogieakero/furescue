@@ -120,29 +120,31 @@ $counts = [
 ];
 
 $kpiData = [
-    ['icon' => 'map-pin', 'value' => $counts['all'], 'label' => 'Total reports', 'note' => null],
-    ['icon' => 'badge-check', 'value' => $counts['pending'], 'label' => 'Pending verify', 'note' => $counts['pending'] ? ['text' => 'Needs You', 'cls' => 'kpi-note--coral'] : null],
-    ['icon' => 'file-check', 'value' => $counts['verified'], 'label' => 'Verified', 'note' => null],
-    ['icon' => 'file-x', 'value' => $counts['dismissed'], 'label' => 'Dismissed', 'note' => null],
-    ['icon' => 'clipboard-list', 'value' => $counts['activeCases'], 'label' => 'Active cases', 'note' => null],
-    ['icon' => 'check-circle-2', 'value' => $counts['resolvedCases'], 'label' => 'Resolved cases', 'dark' => true],
+    ['icon' => 'map-pin', 'value' => $counts['all'], 'label' => 'Total reports', 'tone' => 'jungle', 'trend' => '', 'trendTone' => 'neutral'],
+    ['icon' => 'badge-check', 'value' => $counts['pending'], 'label' => 'Pending verify', 'tone' => 'coral', 'trend' => $counts['pending'] ? 'Needs You' : '', 'trendTone' => 'down'],
+    ['icon' => 'file-check', 'value' => $counts['verified'], 'label' => 'Verified', 'tone' => 'ink', 'trend' => '', 'trendTone' => 'neutral'],
+    ['icon' => 'file-x', 'value' => $counts['dismissed'], 'label' => 'Dismissed', 'tone' => 'ink', 'trend' => '', 'trendTone' => 'neutral'],
+    ['icon' => 'clipboard-list', 'value' => $counts['activeCases'], 'label' => 'Active cases', 'tone' => 'sky', 'trend' => '', 'trendTone' => 'neutral'],
+    ['icon' => 'check-circle-2', 'value' => $counts['resolvedCases'], 'label' => 'Resolved cases', 'tone' => 'jungle', 'trend' => '', 'trendTone' => 'neutral'],
 ];
 $kpiTiles = '';
 foreach ($kpiData as $k) {
-    $note = '';
-    if (!empty($k['note'])) {
-        $note = '<span class="kpi-note ' . e($k['note']['cls']) . '">' . e($k['note']['text']) . '</span>';
-    }
-    $tileCls = 'kpi-tile' . (!empty($k['dark']) ? ' kpi-tile--dark' : '');
-    $kpiTiles .= "
-  <div class=\"{$tileCls}\">
-    <div class=\"kpi-top\">
-      <div class=\"kpi-icon\"><i data-lucide=\"{$k['icon']}\"></i></div>
-      {$note}
+    $label = (string) $k['label'];
+    $value = (string) $k['value'];
+    $aria = $label . ': ' . $value;
+    $trend = (string) ($k['trend'] ?? '');
+    $trendHtml = $trend !== ''
+        ? '<p class="kpi-card__trend kpi-card__trend--' . e((string) ($k['trendTone'] ?? 'neutral')) . '">' . e($trend) . '</p>'
+        : '';
+    $kpiTiles .= '
+  <article class="kpi-card" aria-label="' . e($aria) . '">
+    <div class="kpi-card__icon kpi-card__icon--' . e((string) $k['tone']) . '"><i data-lucide="' . e((string) $k['icon']) . '"></i></div>
+    <div class="kpi-card__body">
+      <p class="kpi-card__label">' . e($label) . '</p>
+      <p class="kpi-card__value">' . e($value) . '</p>
+      ' . $trendHtml . '
     </div>
-    <div class=\"kpi-value\">" . e($k['value']) . "</div>
-    <div class=\"kpi-label\">" . e($k['label']) . '</div>
-  </div>';
+  </article>';
 }
 
 $caseByReport = [];
@@ -266,7 +268,7 @@ if ($reports === []) {
 
 $exportCsvButton = (static function () use ($rptBtnBase, $rptBtnVariants): string {
     $cls = trim($rptBtnBase . ' ' . $rptBtnVariants['outline'] . ' h-8 px-4');
-    return '<button type="button" class="' . e($cls) . '" ><i data-lucide="download" class="icon"></i><span>Export CSV</span></button>';
+    return '<button type="button" class="' . e($cls) . '" data-export="csv"><i data-lucide="download" class="icon"></i><span>Export CSV</span></button>';
 })();
 
 $filterButtons = static function (array $defs, string $activeKey, array $chipCounts): string {
@@ -360,7 +362,7 @@ $pageCss = [
     '/admin/css/admin.css',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
 ];
-$fontsHref = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
+$fontsHref = 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
 require __DIR__ . '/../../includes/site-head.php';
 ?>
   <body>

@@ -19,7 +19,7 @@ export let ui = {
 export function setSession(nextUser, nextRecord, nextUi) {
   user = nextUser;
   record = nextRecord || null;
-  ui = nextUi;
+  if (nextUi) Object.assign(ui, nextUi);
 }
 
 export function setRecord(next) {
@@ -45,7 +45,12 @@ export function setAfterReload(fn) {
 export function paint() {
   const app = document.getElementById("app");
   if (!app) return;
-  app.innerHTML = pageHtml();
+  try {
+    app.innerHTML = pageHtml();
+  } catch (err) {
+    console.error("health-record paint failed", err);
+    return;
+  }
   createIcons({ icons });
   initShell();
   initDatePicker(app);

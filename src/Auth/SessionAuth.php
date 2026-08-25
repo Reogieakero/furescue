@@ -54,6 +54,34 @@ final class SessionAuth
         return isset($_SESSION['user']) && is_array($_SESSION['user']) ? $_SESSION['user'] : null;
     }
 
+    public static function homePath(?string $role = null): string
+    {
+        return match (self::resolvedRole($role)) {
+            'admin' => '/admin/',
+            'resident', 'rescuer' => '/reports/',
+            default => '/index.php',
+        };
+    }
+
+    public static function homeLabel(?string $role = null): string
+    {
+        return match (self::resolvedRole($role)) {
+            'admin' => 'Dashboard',
+            'resident', 'rescuer' => 'My Reports',
+            default => 'Home',
+        };
+    }
+
+    private static function resolvedRole(?string $role): string
+    {
+        if ($role !== null) {
+            return strtolower($role);
+        }
+        $user = self::user();
+
+        return strtolower((string) ($user['role'] ?? ''));
+    }
+
     public static function logout(): void
     {
         self::start();

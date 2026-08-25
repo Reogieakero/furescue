@@ -204,7 +204,7 @@ export function AdoptionQueueInner() {
         <tbody>${rows}</tbody>
       </table>
     </div>
-    <div class="panel-foot"><a href="#" class="btn-link">View all ${state.adoptionsPending.total} applications ${ChevronRight()}</a></div>
+    <div class="panel-foot"><a href="/admin/applications/" class="btn-link">View all ${state.adoptionsPending.total} applications ${ChevronRight()}</a></div>
     ${paginationBar("adopt", list.length)}`;
 }
 

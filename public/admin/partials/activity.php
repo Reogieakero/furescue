@@ -53,12 +53,11 @@ $activityTable = '
   </div>';
 
 $dashboardSections = "
-  {$mapCard}
+  {$gisRow}
+  {$recentReportsCard}
+  {$healthTrendRow}
+  {$attentionRow}
   <div class=\"cols cols--two\">
-    {$chartCard}
     {$elearningCard}
-  </div>
-  <div class=\"cols\">
-    <div class=\"col-main\">{$activityTable}</div>
-    <div class=\"col-side\">{$auditLogCard}</div>
+    {$auditLogCard}
   </div>";

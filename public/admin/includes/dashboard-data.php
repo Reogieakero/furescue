@@ -16,6 +16,7 @@ $requiredRole = 'admin';
 require __DIR__ . '/../../includes/guard.php';
 
 require __DIR__ . '/ui-helpers.php';
+require __DIR__ . '/dashboard-insights.php';
 
 $pdo = Database::connect();
 $uid = (string) $_SESSION['user']['id'];
@@ -45,13 +46,31 @@ $overview = [
         "d.status = 'on_duty' AND u.account_status = 'active' AND u.role = 'rescuer'"
     ),
     'residents' => $countWhere("users", "role = 'resident'"),
+    'cases_in_progress' => $countWhere("cases", "status IN ('assigned','in_progress')"),
+    'reports_pending' => $countWhere("reports", "status = 'pending_verification'"),
+    'reports_today' => $countWhere("reports", "DATE(created_at) = CURDATE()"),
+    'pending_today' => $countWhere("reports", "status = 'pending_verification' AND DATE(created_at) = CURDATE()"),
+    'in_progress_today' => $countWhere("cases", "status IN ('assigned','in_progress') AND DATE(updated_at) = CURDATE()"),
+    'resolved_today' => $countWhere("cases", "status = 'resolved' AND DATE(updated_at) = CURDATE()"),
 ];
 
 $reportRepo = new ReportRepository($pdo);
 $reportsPendingResult = $reportRepo->paginate(1, 100, ['status' => 'pending_verification']);
 $allReportsResult = $reportRepo->paginate(1, 100, []);
 $reportsPendingItems = array_map(static fn($r) => $r->toArray(), $reportsPendingResult['items']);
-$allReportItems = array_map(static fn($r) => $r->toArray(), $allReportsResult['items']);
+$stmt = $pdo->prepare(
+    "SELECT r.id, r.resident_id, r.animal_description, r.latitude, r.longitude,
+            r.address_text, r.status, r.created_at, r.validation_status,
+            u.full_name AS resident_name,
+            c.status AS case_status, c.id AS case_id
+     FROM reports r
+     LEFT JOIN users u ON u.id = r.resident_id
+     LEFT JOIN cases c ON c.report_id = r.id
+     ORDER BY r.created_at DESC
+     LIMIT 100"
+);
+$stmt->execute();
+$allReportItems = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
 $freshRescuersByStatus = static function (string $accountStatus) use ($pdo): array {
     $stmt = $pdo->prepare(
@@ -121,7 +140,48 @@ $stmt = $pdo->prepare(
 $stmt->execute();
 $trends = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-$heatmap = (new GeoService())->heatmapPoints(null);
+$heatmap = (new GeoService())->heatmapPoints('all');
+
+$stmt = $pdo->prepare(
+    "SELECT a.id, a.name, a.species, a.photo_urls,
+            am.vaccination_status, am.vaccination_expiry, am.next_checkup_due,
+            am.last_checkup_date, am.treatment_stage,
+            fs.health_status
+     FROM animals a
+     LEFT JOIN animal_medical_records am ON am.animal_id = a.id
+     LEFT JOIN (
+         SELECT fs1.animal_id, fs1.health_status
+         FROM animal_field_status fs1
+         INNER JOIN (
+             SELECT animal_id, MAX(logged_at) AS mx
+             FROM animal_field_status
+             GROUP BY animal_id
+         ) fs2 ON fs2.animal_id = fs1.animal_id AND fs2.mx = fs1.logged_at
+     ) fs ON fs.animal_id = a.id
+     WHERE a.deleted_at IS NULL
+     ORDER BY a.created_at DESC
+     LIMIT 200"
+);
+$stmt->execute();
+$healthRecordRows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+$healthRecords = array_map(static function (array $r): array {
+    return [
+        'id' => $r['id'],
+        'animalId' => $r['id'],
+        'animalName' => $r['name'] ?? 'Unnamed',
+        'name' => $r['name'] ?? 'Unnamed',
+        'species' => $r['species'],
+        'photo_urls' => $r['photo_urls'],
+        'vaccinationStatus' => $r['vaccination_status'] ?? 'none',
+        'vaccinationExpiry' => $r['vaccination_expiry'],
+        'lastCheckupDate' => $r['last_checkup_date'],
+        'nextCheckupDue' => $r['next_checkup_due'],
+        'healthStatus' => $r['health_status'] ?? 'healthy',
+        'treatmentStage' => $r['treatment_stage'] ?? 'none',
+    ];
+}, $healthRecordRows);
+$reportTrend = dash_report_trend($pdo);
+$overview['reports_monthly'] = $reportTrend;
 
 $stmt = $pdo->prepare(
     "SELECT fs.id, fs.animal_id, fs.rescue_status, fs.health_status, fs.logged_at,
@@ -216,6 +276,8 @@ $state = [
     'elearning' => $elearning,
     'notifications' => $notificationsState,
     'heatmap' => $heatmap,
+    'healthRecords' => $healthRecords,
+    'reportTrend' => $reportTrend,
     'decisionCount' => $decisionCount,
     'activityPage' => 1,
 ];

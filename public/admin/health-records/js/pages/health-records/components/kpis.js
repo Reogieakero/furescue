@@ -1,78 +1,89 @@
-import { state, visibleRecords, recordCounts, avgHeartRate } from "../state.js";
-import { esc } from "./util.js";
+import { KpiGrid } from "/js/components/kpi-card.js";
+import { esc } from "/js/lib/format.js";
+import { state, recordCounts } from "../state.js";
+import { daysUntil } from "./util.js";
+
+function dueSoonCount(list) {
+  return list.filter((r) => {
+    if (!r.nextCheckupDue) return false;
+    const parsed = new Date(r.nextCheckupDue);
+    if (Number.isNaN(parsed.getTime())) return false;
+    const d = daysUntil(r.nextCheckupDue);
+    return d >= 0 && d <= 14;
+  }).length;
+}
 
 export function buildKpis() {
-  const list = visibleRecords();
-  const total = list.length;
-  const complete = list.filter((r) => r.vaccinationStatus === "complete").length;
-  const partial = list.filter((r) => r.vaccinationStatus === "partial").length;
-  const overdue = list.filter((r) => {
-    const d = new Date(r.nextCheckupDue);
-    return d.getTime() < Date.now();
-  }).length;
-  const under = list.filter((r) => r.healthStatus === "not_healthy").length;
-  const pct = total ? Math.round((complete / total) * 100) : 0;
+  const c = recordCounts();
+  const dueSoon = dueSoonCount(state.records);
+  const pct = c.all ? Math.round((c.complete / c.all) * 100) : 0;
   return [
     {
-      icon: "clipboard-list",
-      value: total,
-      label: "Records",
-      desc: "Filtered animal health records in view.",
+      icon: "alert-triangle",
+      value: c.overdue,
+      label: "Overdue",
+      tone: "coral",
+      filter: "overdue",
+      trend: c.overdue ? "Needs attention" : "",
+      trendTone: "down",
+      desc: "Checkups whose due date has already passed.",
+    },
+    {
+      icon: "calendar-clock",
+      value: dueSoon,
+      label: "Due soon",
+      tone: "amber",
+      trend: "Next 14 days",
+      trendTone: "neutral",
+      desc: "Checkups due today or within the next 14 days.",
     },
     {
       icon: "shield-check",
-      value: complete,
-      label: "Fully vaccinated",
-      note: { text: `+${pct}%`, cls: "kpi-note--accent" },
-      desc: "Complete vaccination coverage within the current filter.",
+      value: c.complete,
+      label: "Current",
+      tone: "jungle",
+      filter: "complete",
+      trend: `${pct}% of records`,
+      trendTone: "neutral",
+      desc: "Animals with complete vaccination coverage.",
     },
     {
-      icon: "syringe",
-      value: partial,
-      label: "Partially vaccinated",
-      desc: "Animals with an incomplete vaccination course.",
-    },
-    {
-      icon: "alert-triangle",
-      value: overdue,
-      label: "Overdue checkups",
-      note: overdue ? { text: "Action", cls: "kpi-note--coral" } : null,
-      desc: "Checkups whose due date has passed.",
+      icon: "clipboard-x",
+      value: c.none,
+      label: "Missing vaccines",
+      tone: "ink",
+      filter: "none",
+      desc: "Animals with no vaccination on file.",
     },
     {
       icon: "stethoscope",
-      value: under,
-      label: "Under treatment",
-      dark: true,
+      value: c.under_treatment,
+      label: "In treatment",
+      tone: "sky",
+      filter: "under_treatment",
       desc: "Animals flagged not healthy and being monitored.",
-    },
-    {
-      icon: "heart-pulse",
-      value: `${avgHeartRate()}`,
-      label: "Avg heart rate",
-      desc: "Mean bpm across the filtered records.",
     },
   ];
 }
 
-export function KpiTile(k) {
-  const note = k.note
-    ? `<span class="kpi-note ${k.note.cls}">${k.note.icon ? `<i data-lucide="${k.note.icon}"></i>` : ""}${k.note.text}</span>`
-    : "";
-  return `
-  <div class="kpi-tile${k.dark ? " kpi-tile--dark" : ""}">
-    <div class="kpi-top">
-      <div class="kpi-icon"><i data-lucide="${k.icon}"></i></div>
-      ${note}
-    </div>
-    <div class="kpi-value">${esc(k.value)}</div>
-    <div class="kpi-label">${esc(k.label)}</div>
-    <div class="kpi-desc">${esc(k.desc)}</div>
-  </div>`;
+export function toKpiCardProps(k) {
+  const extra = [];
+  if (k.desc) extra.push(`title="${esc(k.desc)}"`);
+  if (k.filter) extra.push(`data-filter="${esc(k.filter)}"`);
+  return {
+    icon: k.icon,
+    tone: k.tone,
+    label: k.label,
+    value: k.value,
+    trend: k.trend || "",
+    trendTone: k.trendTone || "neutral",
+    interactive: Boolean(k.filter),
+    attrs: extra.join(" "),
+  };
 }
 
 export function KpiStrip() {
-  return `<div class="kpi-grid">${buildKpis().map(KpiTile).join("")}</div>`;
+  return KpiGrid({ items: buildKpis().map(toKpiCardProps) });
 }
 
 export { recordCounts };

@@ -6,9 +6,10 @@ import { DashboardPage, ActivityInner, bindAuditReadActions } from "./pages/dash
 import { loadDashboard, state, hydrateFromCache } from "./pages/dashboard/state.js";
 import { createCarousel } from "./pages/dashboard/carousel.js";
 import { initQueueTabs, initQueuePagination, initQueueActions } from "./pages/dashboard/queue.js";
-import { initCaseDensityMap } from "./pages/dashboard/map.js";
+import { initCaseDensityMap, bindGisActions } from "./pages/dashboard/map.js";
 import { initDropdownMenu } from "../../js/components/ui/dropdown-menu.js";
 import { initAnnounceDialog } from "./pages/dashboard/components/announce.js";
+import { mountDashboardCharts } from "./pages/dashboard/components/charts.js";
 import * as api from "./lib/admin-data.js";
 import { safe } from "./pages/dashboard/helpers.js";
 import { setNavBadge } from "../../js/lib/swr.js";
@@ -51,6 +52,8 @@ function render(user, { loading = false } = {}) {
   createCarousel(document.querySelector(".health-carousel"));
   createCarousel(document.querySelector(".elearn-card"));
   initCaseDensityMap(state.heatmap);
+  bindGisActions();
+  void mountDashboardCharts();
   initActivityPagination();
   initDate();
   initAnnounceDialog();
@@ -67,6 +70,8 @@ function initPageInteractions() {
   createCarousel(document.querySelector(".health-carousel"));
   createCarousel(document.querySelector(".elearn-card"));
   initCaseDensityMap(state.heatmap);
+  bindGisActions();
+  void mountDashboardCharts();
   initActivityPagination();
   initDate();
   initAnnounceDialog();

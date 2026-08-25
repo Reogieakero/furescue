@@ -34,6 +34,10 @@ function filteredPending() {
   return list;
 }
 
+export function exportableRescuers() {
+  return state.filter === "pending" ? filteredPending() : filteredRescuers();
+}
+
 function rescuerRow(r) {
   const duty = r.duty_status || "off_duty";
   const suspended = r.account_status === "suspended";

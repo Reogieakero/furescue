@@ -17,7 +17,7 @@ function PageHead() {
       <p class="page-sub">Track active rescues, assign rescuers, and follow each case to resolution.</p>
     </div>
     <div class="page-head-actions">
-      ${Button({ text: "Export CSV", variant: "outline", icon: "download" })}
+      ${Button({ text: "Export CSV", variant: "outline", icon: "download", attrs: 'data-export="csv"' })}
     </div>
   </div>`;
 }

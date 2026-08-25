@@ -107,26 +107,6 @@ $attentionRow = "
     </div>
   </div>";
 
-$selectHeat = select_control('heat-intensity', [
-    ['value' => 'low', 'label' => 'Low'],
-    ['value' => 'medium', 'label' => 'Medium'],
-    ['value' => 'high', 'label' => 'High'],
-], 'medium', 'Heat intensity');
-$mapCard = '
-  <div class="panel" id="case-density-panel">
-    <div class="panel-head">
-      <div class="panel-title-wrap"><i data-lucide="map"></i><h2 class="panel-title">Case density &middot; City of Mati</h2></div>
-      <div class="map-tools">
-        <span class="map-label">Heat intensity</span>
-        ' . $selectHeat . '
-        <button type="button" id="map-expand" class="map-expand" aria-label="Expand map" title="Expand map"><i data-lucide="maximize"></i></button>
-        <a href="/admin/cases/" class="btn-link">Open full map ' . chevron_right() . '</a>
-      </div>
-    </div>
-    <div id="case-density-map" class="map-canvas map-canvas--leaflet"></div>
-    <div class="map-foot"><span id="heat-count">0</span> Active pins &middot; Live</div>
-  </div>';
-
 $chartCols = '';
 foreach ($chartBars as $d) {
     $barCls = 'chart-bar' . ($d['coral'] ? ' chart-bar--coral' : '');
@@ -159,12 +139,14 @@ if ($elearnItems === []) {
   </div>';
 } else {
     $buildElearnSlide = static function (array $m): string {
+        $modId = (string) ($m['id'] ?? '');
+        $readHref = $modId !== '' ? '/admin/elearning/?id=' . rawurlencode($modId) : '/admin/elearning/';
         return '
     <div class="carousel-slide carousel-slide--elearn">
       <span class="ec-category">' . e(($m['category'] ?? null) ?: 'Module') . '</span>
       <h3 class="ec-title">' . e(($m['title'] ?? null) ?: 'Untitled module') . '</h3>
       <p class="ec-meta">' . e(time_ago($m['created_at'] ?? null)) . ' &middot; Published</p>
-      <a href="#" class="btn-link ec-link">Read module ' . chevron_right() . '</a>
+      <a href="' . e($readHref) . '" class="btn-link ec-link">Read module ' . chevron_right() . '</a>
     </div>';
     };
     $elearnSlides = '';
@@ -185,7 +167,7 @@ if ($elearnItems === []) {
       </div>
       <div class="carousel-dots">' . $elearnDots . '</div>
     </div>
-    ' . button_html('Manage content', 'outline', className: 'w-full elearn-action') . '
+    ' . button_anchor_html('/admin/elearning/', 'Manage content', 'outline', className: 'w-full elearn-action') . '
   </div>';
 }
 

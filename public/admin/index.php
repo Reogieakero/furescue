@@ -10,7 +10,7 @@ $btnAnnouncement = button_html('New Announcement', 'default', icon: 'megaphone',
 $greeting = <<<HTML
   <div class="greeting">
     <div>
-      <span class="stamp stamp--coral">Command Center</span>
+      <p class="dash-kicker">Command Center</p>
       <h1 class="greeting-title">Good morning, {$greetingNameEsc}</h1>
       <p class="greeting-sub" id="greeting-sub">{$decisionCount} items need a decision today across reports, rescuers, health records, and adoptions.</p>
     </div>
@@ -21,38 +21,38 @@ $greeting = <<<HTML
   </div>
 HTML;
 
-$kpiTiles = '';
+$inProgressCount = (int) ($overview['cases_in_progress'] ?? 0);
+$resolvedCount = (int) ($overview['cases_resolved'] ?? $resolvedCases);
 $kpiData = [
-    ['icon' => 'map-pin', 'value' => $reportsTotal, 'label' => 'Total reports', 'note' => null],
-    ['icon' => 'badge-check', 'value' => $reportsPending['total'], 'label' => 'Pending verify', 'note' => $reportsPending['total'] ? ['text' => 'Needs You', 'cls' => 'kpi-note--coral'] : null],
-    ['icon' => 'siren', 'value' => count($onDutyRescuers), 'label' => 'Rescuers on duty', 'note' => null],
-    ['icon' => 'heart-pulse', 'value' => $healthUpdatesState['total'], 'label' => 'Health updates', 'note' => $healthUpdatesState['total'] ? ['text' => 'Recent', 'cls' => 'kpi-note--muted'] : null],
-    ['icon' => 'home', 'value' => $adoptionsPending['total'], 'label' => 'Pending adoptions', 'note' => null],
-    ['icon' => 'check-circle-2', 'value' => $resolvedCases, 'label' => 'Resolved cases', 'dark' => true],
+    ['icon' => 'folder-kanban', 'tone' => 'jungle', 'value' => $reportsTotal, 'label' => 'Total Reports', 'trend' => dash_trend_label((int) ($overview['reports_today'] ?? 0))],
+    ['icon' => 'file-warning', 'tone' => 'coral', 'value' => $reportsPending['total'], 'label' => 'Pending Reports', 'trend' => dash_trend_label((int) ($overview['pending_today'] ?? 0))],
+    ['icon' => 'refresh-cw', 'tone' => 'sky', 'value' => $inProgressCount, 'label' => 'In Progress', 'trend' => dash_trend_label((int) ($overview['in_progress_today'] ?? 0))],
+    ['icon' => 'check-circle-2', 'tone' => 'amber', 'value' => $resolvedCount, 'label' => 'Resolved', 'trend' => dash_trend_label((int) ($overview['resolved_today'] ?? 0))],
 ];
+$kpiTiles = '';
 foreach ($kpiData as $k) {
-    $note = '';
-    if (!empty($k['note'])) {
-        $note = '<span class="kpi-note ' . e($k['note']['cls']) . '">' . e($k['note']['text']) . '</span>';
-    }
-    $tileCls = 'kpi-tile' . (!empty($k['dark']) ? ' kpi-tile--dark' : '');
-    $kpiTiles .= "
-  <div class=\"{$tileCls}\">
-    <div class=\"kpi-top\">
-      <div class=\"kpi-icon\"><i data-lucide=\"{$k['icon']}\"></i></div>
-      {$note}
+    $trendTone = $k['trend']['tone'] ?? 'neutral';
+    $aria = $k['label'] . ': ' . (string) $k['value'];
+    $kpiTiles .= '
+  <article class="kpi-card" aria-label="' . e($aria) . '">
+    <div class="kpi-card__icon kpi-card__icon--' . e($k['tone']) . '" aria-hidden="true"><i data-lucide="' . e($k['icon']) . '"></i></div>
+    <div class="kpi-card__body">
+      <p class="kpi-card__label">' . e($k['label']) . '</p>
+      <p class="kpi-card__value">' . e((string) $k['value']) . '</p>
+      <p class="kpi-card__trend kpi-card__trend--' . e($trendTone) . '">' . e($k['trend']['text']) . '</p>
     </div>
-    <div class=\"kpi-value\">" . e($k['value']) . "</div>
-    <div class=\"kpi-label\">" . e($k['label']) . '</div>
-  </div>';
+  </article>';
 }
 $kpiGrid = "<div class=\"kpi-grid\" id=\"kpi-grid\">{$kpiTiles}</div>";
 
 require __DIR__ . '/partials/queues.php';
 require __DIR__ . '/partials/cards.php';
+require __DIR__ . '/partials/gis.php';
+require __DIR__ . '/partials/recent-reports.php';
+require __DIR__ . '/partials/health-overview.php';
 require __DIR__ . '/partials/activity.php';
 
-$children = $greeting . "\n" . $kpiGrid . "\n" . $attentionRow . "\n" . $dashboardSections;
+$children = '<div class="dash">' . $greeting . "\n" . $kpiGrid . "\n" . $dashboardSections . '</div>';
 
 $currentUserData = $currentUser ? $currentUser->toArray() : [];
 $adminUser = [
@@ -79,7 +79,8 @@ $pageCss = [
     '/admin/css/admin.css',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
 ];
-$fontsHref = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
+$fontsHref = 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Nunito:wght@400;500;600;700;800&display=swap';
+$importMapExtras = ['chart.js' => 'https://esm.sh/chart.js@4.4.4/auto'];
 require __DIR__ . '/../includes/site-head.php';
 ?>
   <body>

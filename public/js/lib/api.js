@@ -39,12 +39,15 @@ export function redirectToLogin() {
   window.location.replace("/auth/login.php");
 }
 
+export function homePathForRole(user) {
+  const role = user && user.role;
+  if (role === "admin") return "/admin/";
+  if (role === "resident" || role === "rescuer") return "/reports/";
+  return "/index.php";
+}
+
 export function redirectForRole(user) {
-  if (user && user.role === "admin") {
-    window.location.replace("../admin/index.php");
-    return;
-  }
-  window.location.replace("/index.php");
+  window.location.replace(homePathForRole(user));
 }
 
 export async function apiFetch(path, { method = "GET", body, auth = true } = {}) {
@@ -89,9 +92,10 @@ export async function apiUpload(path, formData) {
 
 async function request(path, { method = "GET", body, auth = true } = {}) {
   const headers = { "Content-Type": "application/json" };
+  let sentToken = "";
   if (auth) {
-    const token = getAccessToken();
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+    sentToken = getAccessToken();
+    if (sentToken) headers["Authorization"] = `Bearer ${sentToken}`;
   }
 
   let res;
@@ -119,7 +123,7 @@ async function request(path, { method = "GET", body, auth = true } = {}) {
     );
     err.code = payload && payload.error && payload.error.code;
     err.status = res.status;
-    if (res.status === 401) {
+    if (res.status === 401 && sentToken && getAccessToken() === sentToken) {
       clearSession();
     }
     throw err;

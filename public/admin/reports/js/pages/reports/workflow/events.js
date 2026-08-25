@@ -3,11 +3,33 @@ import { state, reloadData } from "../state.js";
 import { ReportTable, rerenderAll, attachReportTooltips, hideReportMapDrawer } from "../components.js";
 import { openReportDrawer, openTimelineDrawer } from "./drawer.js";
 import { runVerify, runDismiss, assignDialog, runCaseStatus } from "./actions.js";
+import { filteredReports, enrich } from "../components/table.js";
+import { toast } from "/js/components/ui/toast.js";
+import { datedCsvName, downloadCsv } from "/js/lib/csv.js";
 
 export function initReportsEvents() {
   const main = document.getElementById("app");
 
   main.addEventListener("click", async (e) => {
+    const exportBtn = e.target.closest("[data-export]");
+    if (exportBtn) {
+      const list = filteredReports();
+      if (!list.length) {
+        toast("No reports match the current filters.", { type: "error" });
+        return;
+      }
+      downloadCsv(
+        datedCsvName("reports"),
+        ["id", "barangay", "reporter", "status", "case_status", "rescuer", "submitted"],
+        list.map((r) => {
+          const v = enrich(r);
+          return [r.id, v.brgy, v.reporter, v.status, v.caseStatus || "", v.rescuer, r.created_at];
+        })
+      );
+      toast("CSV downloaded.", { type: "success" });
+      return;
+    }
+
     const tab = e.target.closest("button[data-filter]");
     if (tab) {
       state.filter = tab.dataset.filter;

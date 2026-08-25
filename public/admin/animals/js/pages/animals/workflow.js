@@ -1,13 +1,15 @@
 import { createIcons, icons } from "lucide";
-import { state, getAnimal, setSelectedId } from "./state.js";
-import { renderAnimalGrid, renderSelection, FilterTabs } from "./components/grid.js";
+import { state, getAnimal, setSelectedId, visibleAnimals, normalize } from "./state.js";
+import { renderAnimalGrid, renderSelection } from "./components/grid.js";
 import { renderDetail, renderSideStats } from "./components/side.js";
+import { renderAnimalKpis } from "./components/kpis.js";
 import { openAddAnimalDialog } from "./components/modal.js";
 import { openHealthRecordDialog } from "./components/health.js";
 import { openEditAnimalDialog } from "./components/edit.js";
 import { confirmDialog } from "/js/components/ui/dialog.js";
 import { deleteAnimal } from "/admin/js/lib/admin-data.js";
-import { normalize } from "./state.js";
+import { toast } from "/js/components/ui/toast.js";
+import { datedCsvName, downloadCsv } from "/js/lib/csv.js";
 
 export function initAnimalsEvents() {
   const app = document.getElementById("app");
@@ -22,6 +24,7 @@ export function initAnimalsEvents() {
       if (animal) {
         setSelectedId(animal.id);
         renderAnimalGrid();
+        renderAnimalKpis();
         renderSideStats();
         renderSelection();
       }
@@ -36,6 +39,7 @@ export function initAnimalsEvents() {
         if (saved) {
           animal.hasMedical = true;
           renderAnimalGrid();
+          renderAnimalKpis();
           renderDetail();
         }
       }
@@ -51,6 +55,7 @@ export function initAnimalsEvents() {
           const idx = state.animals.findIndex((a) => a.id === animal.id);
           if (idx !== -1) state.animals[idx] = normalize(updated);
           renderAnimalGrid();
+          renderAnimalKpis();
           renderSideStats();
           renderSelection();
         }
@@ -74,6 +79,7 @@ export function initAnimalsEvents() {
           state.animals = state.animals.filter((a) => a.id !== animal.id);
           setSelectedId(null);
           renderAnimalGrid();
+          renderAnimalKpis();
           renderSideStats();
         }
       }
@@ -92,7 +98,28 @@ export function initAnimalsEvents() {
     if (tab) {
       state.filter = tab.dataset.filter;
       renderAnimalGrid();
+      const tabs = document.getElementById("animal-filter-tabs");
+      if (tabs) {
+        tabs.querySelectorAll("[data-filter]").forEach((b) =>
+          b.classList.toggle("is-active", b.dataset.filter === state.filter)
+        );
+      }
       return;
+    }
+
+    const exportBtn = e.target.closest("[data-export]");
+    if (exportBtn) {
+      const rows = visibleAnimals();
+      if (!rows.length) {
+        toast("No animals match the current filters.", { type: "error" });
+        return;
+      }
+      downloadCsv(
+        datedCsvName("animals"),
+        ["id", "name", "species", "breed", "age", "sex", "status", "barangay", "intake"],
+        rows.map((a) => [a.id, a.name, a.species, a.breed, a.age, a.sex, a.status, a.barangay, a.intake])
+      );
+      toast("CSV downloaded.", { type: "success" });
     }
   });
 

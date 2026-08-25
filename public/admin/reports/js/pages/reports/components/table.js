@@ -77,7 +77,7 @@ function cmp(a, b) {
   return 0;
 }
 
-function filteredReports() {
+export function filteredReports() {
   const q = state.query.trim().toLowerCase();
   let list = state.reports;
   if (state.filter !== "all") list = list.filter((r) => r.status === state.filter);

@@ -43,7 +43,7 @@ if (
 if (is_string($uri) && str_starts_with($uri, '/uploads/')) {
     $file = __DIR__ . $uri;
     if (is_file($file)) {
-        $types = ['svg' => 'image/svg+xml', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'gif' => 'image/gif', 'webp' => 'image/webp', 'mp4' => 'video/mp4', 'webm' => 'video/webm'];
+        $types = ['svg' => 'image/svg+xml', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'gif' => 'image/gif', 'webp' => 'image/webp', 'mp4' => 'video/mp4', 'webm' => 'video/webm', 'glb' => 'model/gltf-binary', 'gltf' => 'model/gltf+json', 'obj' => 'text/plain'];
         $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
         header('Content-Type: ' . ($types[$ext] ?? 'application/octet-stream'));
         header('Content-Length: ' . (string) filesize($file));

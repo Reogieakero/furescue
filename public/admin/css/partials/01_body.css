@@ -10,7 +10,7 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #bfdcf2;
+  background: hsl(var(--jungle) / 0.35);
   border-radius: 9999px;
 }
 
@@ -33,7 +33,7 @@ body {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(11, 37, 69, 0.4);
+  background: hsl(var(--ink) / 0.4);
   z-index: 50;
 }
 .admin-overlay.is-visible {

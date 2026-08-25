@@ -188,7 +188,7 @@ export async function initMap(bounds, { onPin } = {}) {
     .addTo(map);
 
   window.L.rectangle(matiBounds, {
-    color: tokenHsl("--jungle2", "hsl(199 74% 53%)"),
+    color: tokenHsl("--jungle2", "hsl(110 28% 62%)"),
     weight: 1,
     fill: false,
     dashArray: "4 6",

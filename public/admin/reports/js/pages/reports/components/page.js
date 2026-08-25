@@ -5,7 +5,8 @@ import { SkeletonReports } from "/js/components/ui/skeleton.js";
 import { setNavBadge } from "/js/lib/swr.js";
 import { initSelect } from "/js/components/ui/select.js";
 import { state } from "../state.js";
-import { buildKpis, KpiTile } from "./kpis.js";
+import { KpiGrid } from "/js/components/kpi-card.js";
+import { buildKpis, KpiTile, toKpiCardProps } from "./kpis.js";
 import { FilterTabs } from "./filters.js";
 import { ReportTable } from "./table.js";
 import { attachReportTooltips } from "./tooltips.js";
@@ -19,7 +20,7 @@ function PageHead() {
       <p class="page-sub">Verify reports, assign rescuers, and track the full case workflow.</p>
     </div>
     <div class="page-head-actions">
-      ${Button({ text: "Export CSV", variant: "outline", icon: "download" })}
+      ${Button({ text: "Export CSV", variant: "outline", icon: "download", attrs: 'data-export="csv"' })}
     </div>
   </div>`;
 }
@@ -48,7 +49,6 @@ export function ReportsPage(user, { loading = false } = {}) {
       children: SkeletonReports(),
     });
   }
-  const kpis = buildKpis().map(KpiTile).join("");
   return AppShell({
     user,
     notifications: 0,
@@ -56,7 +56,7 @@ export function ReportsPage(user, { loading = false } = {}) {
     activeNav: "reports",
     children: [
       PageHead(),
-      `<div id="report-kpis" class="kpi-grid">${kpis}</div>`,
+      KpiGrid({ id: "report-kpis", items: buildKpis().map(toKpiCardProps) }),
       ReportsPanel(),
     ].join(""),
   });

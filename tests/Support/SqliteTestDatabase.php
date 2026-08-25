@@ -133,6 +133,13 @@ final class SqliteTestDatabase
                 completed_at TEXT,
                 created_at TEXT NOT NULL DEFAULT (datetime('now'))
             )",
+            "CREATE TABLE elearning_progress (
+                id TEXT PRIMARY KEY,
+                resident_id TEXT NOT NULL,
+                module_id TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'not_started',
+                completed_at TEXT
+            )",
         ];
     }
 }

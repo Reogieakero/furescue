@@ -63,4 +63,4 @@ npm run build                                :: compile Tailwind after editing C
 
 ## Docs caveat
 
-`docs/technical/ARCHITECTURE_AUDIT.md` and parts of `README.md` / `HOW_TO_RUN.md` still reference pre-refactor paths (`backend/`, `frontend/`) and `.html` page URLs; code now lives at the repo root (`src/`, `public/`, etc.) and pages are `.php`. Trust the code over those docs.
+`docs/technical/ARCHITECTURE_AUDIT.md` still describes the pre-refactor `backend/` + `frontend/` tree and `.html` URLs. Code now lives at the repo root (`src/`, `public/`, etc.) and pages are `.php`. Trust the code over that audit. Onboarding for humans is `README.md` + `docs/technical/HOW_TO_RUN.md`.

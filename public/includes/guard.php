@@ -15,7 +15,7 @@ if (!empty($requiredRole)) {
     $allowed = array_map('strtolower', is_array($requiredRole) ? $requiredRole : [$requiredRole]);
     $currentRole = strtolower((string) ($_SESSION['user']['role'] ?? ''));
     if (!in_array($currentRole, $allowed, true)) {
-        header('Location: /index.php');
+        header('Location: ' . \App\Auth\SessionAuth::homePath($currentRole));
         exit;
     }
 }

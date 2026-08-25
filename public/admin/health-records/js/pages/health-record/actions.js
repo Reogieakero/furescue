@@ -77,8 +77,13 @@ export function handleAction(actionEl) {
       paint();
       return;
     case "add-record":
-      ui.editing = !ui.editing;
-      ui.mode = ui.editing ? "add" : null;
+      if (ui.editing && ui.mode === "add") {
+        ui.editing = false;
+        ui.mode = null;
+      } else {
+        ui.editing = true;
+        ui.mode = "add";
+      }
       ui.openForm = null;
       ui.vaxSelecting = false;
       paint();

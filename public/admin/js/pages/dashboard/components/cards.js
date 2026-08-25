@@ -1,18 +1,12 @@
 import { state } from "../state.js";
-import { shortId, initials, timeAgo, titleCase } from "../helpers.js";
-import {
-  ChevronRight,
-  EmptyState,
-  rescuerAvatar,
-  TableHead,
-  slicePage,
-  paginationBar,
-} from "./util.js";
+import { timeAgo } from "../helpers.js";
+import { createIcons, icons } from "lucide";
+import { ChevronRight, EmptyState, rescuerAvatar } from "./util.js";
 import { Button } from "../../../../../js/components/ui/button.js";
-import { Select } from "../../../../../js/components/ui/select.js";
-import { PaginationBar } from "../../../../../js/components/ui/pagination.js";
 import { AttentionQueue, mapHealthUpdate } from "./queues.js";
-import { ActivityTable } from "./activity.js";
+import { GisRow } from "./gis.js";
+import { RecentReportsCard } from "./recent-reports.js";
+import { HealthTrendRow } from "./health-overview.js";
 import { markNotificationRead } from "../../../lib/admin-data.js";
 import { setNavBadge } from "../../../../../js/lib/swr.js";
 
@@ -110,32 +104,6 @@ export function RescuersCard() {
   </div>`;
 }
 
-export function MapCard() {
-  return `
-  <div class="panel" id="case-density-panel">
-    <div class="panel-head">
-      <div class="panel-title-wrap"><i data-lucide="map"></i><h2 class="panel-title">Case density &middot; City of Mati</h2></div>
-      <div class="map-tools">
-        <span class="map-label">Heat intensity</span>
-        ${Select({
-          id: "heat-intensity",
-          value: "medium",
-          placeholder: "Heat intensity",
-          options: [
-            { value: "low", label: "Low" },
-            { value: "medium", label: "Medium" },
-            { value: "high", label: "High" },
-          ],
-        })}
-        <button type="button" id="map-expand" class="map-expand" aria-label="Expand map" title="Expand map"><i data-lucide="maximize"></i></button>
-        <a href="/admin/cases/" class="btn-link">Open full map ${ChevronRight()}</a>
-      </div>
-    </div>
-    <div id="case-density-map" class="map-canvas map-canvas--leaflet"></div>
-    <div class="map-foot"><span id="heat-count">0</span> Active pins &middot; Live</div>
-  </div>`;
-}
-
 export function ChartCard() {
   const bars = state.chart.map(
     (d) => `
@@ -168,13 +136,18 @@ export function ElearningCard() {
     ${EmptyState({ icon: "book-open", text: "No records." })}
   </div>`;
   }
-  const slideHtml = (m) => `
+  const slideHtml = (m) => {
+    const slideHref = m.id
+      ? `/admin/elearning/?id=${encodeURIComponent(m.id)}`
+      : "/admin/elearning/";
+    return `
     <div class="carousel-slide carousel-slide--elearn">
       <span class="ec-category">${m.category || "Module"}</span>
       <h3 class="ec-title">${m.title || "Untitled module"}</h3>
       <p class="ec-meta">${timeAgo(m.created_at)} &middot; Published</p>
-      <a href="#" class="btn-link ec-link">Read module ${ChevronRight()}</a>
+      <a href="${slideHref}" class="btn-link ec-link">Read module ${ChevronRight()}</a>
     </div>`;
+  };
   const dotsHtml = list
     .map((_, i) => `<button class="carousel-dot${i === 0 ? " is-active" : ""}" data-i="${i}" aria-label="Slide ${i + 1}"></button>`)
     .join("");
@@ -187,7 +160,7 @@ export function ElearningCard() {
       </div>
       <div class="carousel-dots">${dotsHtml}</div>
     </div>
-    ${Button({ text: "Manage content", variant: "outline", className: "w-full elearn-action" })}
+    ${Button({ text: "Manage content", variant: "outline", className: "w-full elearn-action", href: "/admin/elearning/" })}
   </div>`;
 }
 
@@ -247,13 +220,12 @@ export function AttentionRow() {
 
 export function DashboardSections() {
   return `
-  ${MapCard()}
+  ${GisRow()}
+  ${RecentReportsCard()}
+  ${HealthTrendRow()}
+  ${AttentionRow()}
   <div class="cols cols--two">
-    ${ChartCard()}
     ${ElearningCard()}
-  </div>
-  <div class="cols">
-    <div class="col-main">${ActivityTable()}</div>
-    <div class="col-side">${AuditLogCard()}</div>
+    ${AuditLogCard()}
   </div>`;
 }

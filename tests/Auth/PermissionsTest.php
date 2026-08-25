@@ -40,8 +40,13 @@ class PermissionsTest extends TestCase
         $this->assertContains('animals.read', $result);
         $this->assertContains('notifications.read', $result);
         $this->assertContains('adoptions.apply', $result);
+        $this->assertContains('adoptions.listings.create', $result);
+        $this->assertContains('messages.read', $result);
+        $this->assertContains('messages.send', $result);
+        $this->assertContains('messages.mark_read', $result);
         $this->assertNotContains('reports.read', $result);
         $this->assertNotContains('users.approve_rescuers', $result);
+        $this->assertNotContains('adoptions.listings.approve', $result);
     }
 
     public function testExtrasMergeAndDeduplicate(): void

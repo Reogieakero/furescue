@@ -7,6 +7,8 @@ import { Spinner } from "/js/components/ui/spinner.js";
 import { state, reloadData, saveFilterPref } from "./state.js";
 import { rerenderAll, renderCaseList } from "./components.js";
 import { shortId, titleCase } from "/admin/js/pages/dashboard/helpers.js";
+import { filteredCases } from "./components/list.js";
+import { datedCsvName, downloadCsv } from "/js/lib/csv.js";
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({
@@ -98,6 +100,30 @@ export function initCasesEvents() {
   const main = document.getElementById("app");
 
   main.addEventListener("click", async (e) => {
+    const exportBtn = e.target.closest("[data-export]");
+    if (exportBtn) {
+      const list = filteredCases();
+      if (!list.length) {
+        toast("No cases match the current filters.", { type: "error" });
+        return;
+      }
+      downloadCsv(
+        datedCsvName("cases"),
+        ["id", "status", "barangay", "animal", "rescuer", "created", "updated"],
+        list.map((c) => [
+          c.id,
+          c.statusRaw,
+          c.brgy,
+          c.animal,
+          (c.rescuer && c.rescuer.full_name) || "",
+          c.createdAt,
+          c.updatedAt,
+        ])
+      );
+      toast("CSV downloaded.", { type: "success" });
+      return;
+    }
+
     const tab = e.target.closest("button[data-filter]");
     if (tab) {
       state.filter = tab.dataset.filter;

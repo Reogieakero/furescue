@@ -66,7 +66,7 @@ class MessageController extends AbstractController
     {
         $v = new \App\Validation\Validator($req->body);
         $v->required('receiver_id')->string(36)
-            ->required('related_type')->in(['report','case','adoption'])
+            ->required('related_type')->in('related_type', ['report','case','adoption'])
             ->required('related_id')->string(36)
             ->required('message_text')->string(4000);
         if (!$v->passes()) {

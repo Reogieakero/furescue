@@ -2,7 +2,8 @@ import { createIcons, icons } from "lucide";
 import { Button } from "/js/components/ui/button.js";
 import { Spinner } from "/js/components/ui/spinner.js";
 import { updateAnimal } from "/admin/js/lib/admin-data.js";
-import { parsePhoto360 } from "../state.js";
+import { parsePhoto360, saveAnimalAssets } from "../state.js";
+import { bindProfileAssets, clientAssetError, profileAssetsFields, readProfileAssets } from "./profile-assets.js";
 import { resizeImage } from "./util.js";
 
 function esc(value) {
@@ -111,11 +112,12 @@ export function openEditAnimalDialog(animal) {
               <input type="file" id="ea-photo" accept="image/*" class="aa-photo-input" />
             </div>
 
-            <label class="dialog-label" for="ea-model3d">3D model URL <span class="dialog-hint">optional — .glb/.gltf/.obj</span></label>
-            <input class="dialog-input" id="ea-model3d" value="${esc(animal.model3d || "")}" autocomplete="off" />
-
-            <label class="dialog-label" for="ea-photo360">360° photo set <span class="dialog-hint">optional — JSON array of image URLs</span></label>
-            <textarea class="dialog-input aa-textarea" id="ea-photo360" rows="3">${esc(animal.photo360 || "")}</textarea>
+            ${profileAssetsFields({
+              prefix: "ea",
+              modelUrl: animal.model3d || "",
+              photo360: animal.photo360 || "",
+              showRemove: true,
+            })}
 
             <p class="dialog-error" id="ea-error" hidden></p>
           </div>
@@ -127,6 +129,7 @@ export function openEditAnimalDialog(animal) {
       </div>`;
 
     document.body.appendChild(overlay);
+    bindProfileAssets(overlay, "ea");
     createIcons({ icons });
 
     const nameEl = overlay.querySelector("#ea-name");
@@ -189,27 +192,52 @@ export function openEditAnimalDialog(animal) {
     const submit = async () => {
       const name = nameEl.value.trim();
       const age = ageEl && ageEl.value.trim() ? `${ageEl.value.trim()} ${form.ageUnit}` : null;
+      const assets = readProfileAssets(overlay, "ea");
+      const assetErr = clientAssetError(assets);
+      if (assetErr) {
+        errorEl.textContent = assetErr;
+        errorEl.hidden = false;
+        return;
+      }
       const body = {
         name,
         age_estimate: age,
         color_markings: colorEl ? colorEl.value.trim() : null,
         adoption_status: form.status,
-        model_3d_url: overlay.querySelector("#ea-model3d").value.trim() || null,
       };
-      const photo360Text = overlay.querySelector("#ea-photo360").value;
-      try {
-        body.photo_360_set = parsePhoto360(photo360Text);
-      } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.hidden = false;
-        return;
+      if (!assets.modelFile && !assets.removeModel) {
+        const pasted = assets.modelUrl;
+        if (pasted !== (animal.model3d || "")) {
+          if (!pasted) assets.removeModel = true;
+          else body.model_3d_url = pasted;
+        }
+      }
+      if (!assets.photo360Files.length && !assets.remove360) {
+        const text = (assets.photo360Text || "").trim();
+        const prev = (animal.photo360 || "").trim();
+        if (text !== prev) {
+          if (!text) {
+            assets.remove360 = true;
+          } else {
+            try {
+              body.photo_360_set = parsePhoto360(text);
+            } catch (err) {
+              errorEl.textContent = err.message;
+              errorEl.hidden = false;
+              return;
+            }
+          }
+        }
       }
       if (form.photo && form.photo !== animal.photo) body.photo_urls = [form.photo];
       const okBtn = overlay.querySelector('[data-act="ok"]');
       okBtn.disabled = true;
       okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Saving…</span>`;
       try {
-        const updated = await updateAnimal(animal.id, body);
+        let updated = animal;
+        const uploaded = await saveAnimalAssets(animal.id, assets);
+        if (uploaded) updated = uploaded;
+        updated = (await updateAnimal(animal.id, body)) || updated;
         overlay.remove();
         resolve(updated || animal);
       } catch (err) {

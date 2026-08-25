@@ -66,6 +66,7 @@ $stmt = $pdo->prepare(
             GROUP BY animal_id
         ) v2 ON v2.animal_id = v1.animal_id AND v2.mx = v1.recorded_at
     ) v ON v.animal_id = a.id
+    WHERE a.deleted_at IS NULL
     ORDER BY a.created_at DESC"
 );
 $stmt->execute();
@@ -173,30 +174,6 @@ $hrDaysUntil = static function (?string $value): int {
     return (int) round(($ts - $today) / 86400);
 };
 
-// kpis.js overdue rule: new Date(r.nextCheckupDue).getTime() < Date.now().
-// new Date(null) === epoch (valid!) -> always overdue; '' / unparsable -> NaN -> not overdue.
-$hrOverdueNow = static function (?string $value): bool {
-    if ($value === null) {
-        return true;
-    }
-    if ($value === '') {
-        return false;
-    }
-    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $value)) {
-        $p = date_parse_from_format('Y-m-d', (string) $value);
-        if ($p === false || $p['error_count'] > 0) {
-            return false;
-        }
-        $ts = gmmktime(0, 0, 0, (int) $p['month'], (int) $p['day'], (int) $p['year']); // ISO dates parse as UTC in JS
-    } else {
-        $ts = strtotime((string) $value);
-        if ($ts === false) {
-            return false;
-        }
-    }
-    return $ts * 1000 < (int) round(microtime(true) * 1000);
-};
-
 $hrCap = static fn(?string $s): string => ($s !== null && $s !== '')
     ? mb_strtoupper(mb_substr($s, 0, 1, 'UTF-8'), 'UTF-8') . mb_substr($s, 1, null, 'UTF-8')
     : (string) $s;
@@ -236,33 +213,70 @@ $hrShortId = static fn(mixed $id): string => !$id ? '—' : '#' . strtoupper(sub
 // ---- visibleRecords() under the default view == all records ---------------
 $visible = $records;
 
-// ---- KPI strip (kpis.js buildKpis over default filters) --------------------
-$totalCount = count($visible);
-$completeCount = count(array_filter($visible, static fn($r) => $r['vaccinationStatus'] === 'complete'));
-$partialCount = count(array_filter($visible, static fn($r) => $r['vaccinationStatus'] === 'partial'));
-$kpiOverdue = count(array_filter($visible, static fn($r) => $hrOverdueNow($r['nextCheckupDue'])));
-$underCount = count(array_filter($visible, static fn($r) => $r['healthStatus'] === 'not_healthy'));
-$pct = $totalCount ? js_round(($completeCount / $totalCount) * 100) : 0;
-$hrList = array_filter($visible, static fn($r) => is_int($r['heartRateBpm']) || is_float($r['heartRateBpm']));
-$avgHeartRate = count($hrList)
-    ? js_round(array_sum(array_map(static fn($r) => (float) $r['heartRateBpm'], $hrList)) / count($hrList))
-    : 0;
-
-$hrKpiData = [
-    ['icon' => 'clipboard-list', 'value' => (string) $totalCount, 'label' => 'Records', 'desc' => 'Filtered animal health records in view.', 'note' => null, 'dark' => false],
-    ['icon' => 'shield-check', 'value' => (string) $completeCount, 'label' => 'Fully vaccinated', 'desc' => 'Complete vaccination coverage within the current filter.', 'note' => ['text' => '+' . $pct . '%', 'cls' => 'kpi-note--accent'], 'dark' => false],
-    ['icon' => 'syringe', 'value' => (string) $partialCount, 'label' => 'Partially vaccinated', 'desc' => 'Animals with an incomplete vaccination course.', 'note' => null, 'dark' => false],
-    ['icon' => 'alert-triangle', 'value' => (string) $kpiOverdue, 'label' => 'Overdue checkups', 'desc' => 'Checkups whose due date has passed.', 'note' => $kpiOverdue ? ['text' => 'Action', 'cls' => 'kpi-note--coral'] : null, 'dark' => false],
-    ['icon' => 'stethoscope', 'value' => (string) $underCount, 'label' => 'Under treatment', 'desc' => 'Animals flagged not healthy and being monitored.', 'note' => null, 'dark' => true],
-    ['icon' => 'heart-pulse', 'value' => (string) $avgHeartRate, 'label' => 'Avg heart rate', 'desc' => 'Mean bpm across the filtered records.', 'note' => null, 'dark' => false],
-];
-// ---- recordCounts() over the FULL dataset (filter tab badges) --------------
+// ---- recordCounts() over the FULL dataset (filter tab badges + KPIs) -------
 $countsAll = count($records);
 $countsComplete = count(array_filter($records, static fn($r) => $r['vaccinationStatus'] === 'complete'));
 $countsPartial = count(array_filter($records, static fn($r) => $r['vaccinationStatus'] === 'partial'));
 $countsNone = count(array_filter($records, static fn($r) => $r['vaccinationStatus'] === 'none'));
 $countsOverdue = count(array_filter($records, static fn($r) => $hrDaysUntil($r['nextCheckupDue']) < 0));
 $countsTreatment = count(array_filter($records, static fn($r) => $r['healthStatus'] === 'not_healthy'));
+$countsDueSoon = count(array_filter($records, static function ($r) use ($hrDaysUntil): bool {
+    $due = $r['nextCheckupDue'] ?? null;
+    if ($due === null || $due === '') {
+        return false;
+    }
+    $d = $hrDaysUntil((string) $due);
+    return $d >= 0 && $d <= 14;
+}));
+$pctComplete = $countsAll ? js_round(($countsComplete / $countsAll) * 100) : 0;
+
+$hrKpiData = [
+    [
+        'icon' => 'alert-triangle',
+        'value' => (string) $countsOverdue,
+        'label' => 'Overdue',
+        'tone' => 'coral',
+        'filter' => 'overdue',
+        'trend' => $countsOverdue ? ['text' => 'Needs attention', 'tone' => 'down'] : null,
+        'desc' => 'Checkups whose due date has already passed.',
+    ],
+    [
+        'icon' => 'calendar-clock',
+        'value' => (string) $countsDueSoon,
+        'label' => 'Due soon',
+        'tone' => 'amber',
+        'filter' => null,
+        'trend' => ['text' => 'Next 14 days', 'tone' => 'neutral'],
+        'desc' => 'Checkups due today or within the next 14 days.',
+    ],
+    [
+        'icon' => 'shield-check',
+        'value' => (string) $countsComplete,
+        'label' => 'Current',
+        'tone' => 'jungle',
+        'filter' => 'complete',
+        'trend' => ['text' => $pctComplete . '% of records', 'tone' => 'neutral'],
+        'desc' => 'Animals with complete vaccination coverage.',
+    ],
+    [
+        'icon' => 'clipboard-x',
+        'value' => (string) $countsNone,
+        'label' => 'Missing vaccines',
+        'tone' => 'ink',
+        'filter' => 'none',
+        'trend' => null,
+        'desc' => 'Animals with no vaccination on file.',
+    ],
+    [
+        'icon' => 'stethoscope',
+        'value' => (string) $countsTreatment,
+        'label' => 'In treatment',
+        'tone' => 'sky',
+        'filter' => 'under_treatment',
+        'trend' => null,
+        'desc' => 'Animals flagged not healthy and being monitored.',
+    ],
+];
 
 $hrFilters = [
     ['key' => 'all', 'label' => 'All', 'count' => $countsAll],

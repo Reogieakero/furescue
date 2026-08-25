@@ -29,12 +29,19 @@ $rangeLabel = $ranged ? "{$start} to {$end}" : 'Last 30 adoption days · 50 late
     </div>
   </div>
 <?= kpi_grid_html([
-    ['icon' => 'map-pin', 'value' => overview_value($overviewRows, 'reports'), 'label' => 'Total reports'],
-    ['icon' => 'badge-check', 'value' => overview_value($overviewRows, 'reports_verified'), 'label' => 'Reports verified'],
-    ['icon' => 'check-circle-2', 'value' => overview_value($overviewRows, 'cases_resolved'), 'label' => 'Cases resolved', 'dark' => true],
-    ['icon' => 'home', 'value' => overview_value($overviewRows, 'animals_adopted'), 'label' => 'Animals adopted'],
-    ['icon' => 'paw-print', 'value' => overview_value($overviewRows, 'adoptions_pending'), 'label' => 'Adoptions pending', 'note' => overview_value($overviewRows, 'adoptions_pending') ? ['text' => 'Needs Review', 'cls' => 'kpi-note--coral'] : null],
-    ['icon' => 'siren', 'value' => overview_value($overviewRows, 'rescuers_on_duty'), 'label' => 'Rescuers on duty'],
+    ['icon' => 'map-pin', 'value' => overview_value($overviewRows, 'reports'), 'label' => 'Total reports', 'tone' => 'jungle'],
+    ['icon' => 'badge-check', 'value' => overview_value($overviewRows, 'reports_verified'), 'label' => 'Reports verified', 'tone' => 'ink'],
+    ['icon' => 'check-circle-2', 'value' => overview_value($overviewRows, 'cases_resolved'), 'label' => 'Cases resolved', 'tone' => 'jungle'],
+    ['icon' => 'home', 'value' => overview_value($overviewRows, 'animals_adopted'), 'label' => 'Animals adopted', 'tone' => 'ink'],
+    [
+        'icon' => 'paw-print',
+        'value' => overview_value($overviewRows, 'adoptions_pending'),
+        'label' => 'Adoptions pending',
+        'tone' => 'coral',
+        'trend' => overview_value($overviewRows, 'adoptions_pending') ? 'Needs Review' : '',
+        'trendTone' => 'down',
+    ],
+    ['icon' => 'siren', 'value' => overview_value($overviewRows, 'rescuers_on_duty'), 'label' => 'Rescuers on duty', 'tone' => 'sky'],
 ]) ?>
 
   <div class="panel panel--padded analytics-range">

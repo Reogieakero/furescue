@@ -1,33 +1,51 @@
 import { state } from "../state.js";
+import { trendLabel } from "../insights.js";
+import { KpiGrid as renderKpiGrid } from "../../../../../js/components/kpi-card.js";
 
 function buildKpis() {
-  const onDuty = state.rescuers.filter((u) => (u.duty_status || "off_duty") === "on_duty").length;
-  const resolved = state.activity.filter((c) => c.status === "resolved").length;
+  const pending = state.reportsPending.total || state.overview.reports_pending || 0;
+  const inProgress = state.overview.cases_in_progress ?? state.activity.filter((c) => c.status === "assigned" || c.status === "in_progress").length;
+  const resolved = state.overview.cases_resolved ?? state.activity.filter((c) => c.status === "resolved").length;
+  const reportsTrend = trendLabel(state.overview.reports_today || 0);
+  const pendingTrend = trendLabel(state.overview.pending_today || 0);
+  const progressTrend = trendLabel(state.overview.in_progress_today || 0);
+  const resolvedTrend = trendLabel(state.overview.resolved_today || 0);
   return [
-    { icon: "map-pin", value: state.reportsTotal, label: "Total reports", note: null },
-    { icon: "badge-check", value: state.reportsPending.total, label: "Pending verify", note: state.reportsPending.total ? { text: "Needs You", cls: "kpi-note--coral" } : null },
-    { icon: "siren", value: onDuty, label: "Rescuers on duty", note: null },
-    { icon: "heart-pulse", value: state.healthUpdates.total, label: "Health updates", note: state.healthUpdates.total ? { text: "Recent", cls: "kpi-note--muted" } : null },
-    { icon: "home", value: state.adoptionsPending.total, label: "Pending adoptions" },
-    { icon: "check-circle-2", value: resolved, label: "Resolved cases", dark: true },
+    {
+      icon: "folder-kanban",
+      tone: "jungle",
+      value: state.reportsTotal || state.overview.reports || 0,
+      label: "Total Reports",
+      trend: reportsTrend.text,
+      trendTone: reportsTrend.tone,
+    },
+    {
+      icon: "file-warning",
+      tone: "coral",
+      value: pending,
+      label: "Pending Reports",
+      trend: pendingTrend.text,
+      trendTone: pendingTrend.tone,
+    },
+    {
+      icon: "refresh-cw",
+      tone: "sky",
+      value: inProgress,
+      label: "In Progress",
+      trend: progressTrend.text,
+      trendTone: progressTrend.tone,
+    },
+    {
+      icon: "check-circle-2",
+      tone: "amber",
+      value: resolved,
+      label: "Resolved",
+      trend: resolvedTrend.text,
+      trendTone: resolvedTrend.tone,
+    },
   ];
 }
 
-function KpiTile(k) {
-  const note = k.note
-    ? `<span class="kpi-note ${k.note.cls}">${k.note.icon ? `<i data-lucide="${k.note.icon}"></i>` : ""}${k.note.text}</span>`
-    : "";
-  return `
-  <div class="kpi-tile${k.dark ? " kpi-tile--dark" : ""}">
-    <div class="kpi-top">
-      <div class="kpi-icon"><i data-lucide="${k.icon}"></i></div>
-      ${note}
-    </div>
-    <div class="kpi-value">${k.value}</div>
-    <div class="kpi-label">${k.label}</div>
-  </div>`;
-}
-
 export function KpiGrid() {
-  return `<div class="kpi-grid" id="kpi-grid">${buildKpis().map(KpiTile).join("")}</div>`;
+  return renderKpiGrid({ items: buildKpis(), id: "kpi-grid" });
 }

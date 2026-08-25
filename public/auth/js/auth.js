@@ -1,5 +1,5 @@
 import { createIcons, icons } from "lucide";
-import { apiFetchFull, setSession } from "../../js/lib/api.js";
+import { apiFetchFull, homePathForRole, setSession } from "../../js/lib/api.js";
 
 function initPasswordToggle() {
   const toggle = document.getElementById("toggle-pw");
@@ -29,7 +29,7 @@ function initInlineValidation() {
 }
 
 function destinationFor(user) {
-  return user && user.role === "admin" ? "/admin/index.php" : "/index.php";
+  return homePathForRole(user);
 }
 
 let gsiPromise = null;
@@ -158,7 +158,7 @@ function initSignupForm() {
         },
       });
       setSession(payload.data);
-      window.location.href = "/index.php";
+      window.location.href = destinationFor(payload.data && payload.data.user);
     } catch (err) {
       if (btn) btn.disabled = false;
       showFormError(

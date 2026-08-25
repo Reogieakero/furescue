@@ -110,43 +110,50 @@ $pageHead = '
       <p class="page-sub">Manage rescuers, duty status, and applications.</p>
     </div>
     <div class="page-head-actions">
-      ' . $rescuersButton('Export CSV', 'outline', 'default', 'download') . '
+      ' . $rescuersButton('Export CSV', 'outline', 'default', 'download', 'data-export="csv"') . '
     </div>
   </div>';
 
 // KpiTile() × buildKpis()
 $kpiTiles = '';
 $kpiData = [
-    ['icon' => 'users', 'value' => $totalCount, 'label' => 'Total rescuers', 'note' => null],
-    ['icon' => 'badge-check', 'value' => count($activeRows), 'label' => 'Active', 'note' => null],
+    ['icon' => 'users', 'value' => $totalCount, 'label' => 'Total rescuers', 'tone' => 'jungle', 'trend' => '', 'trendTone' => 'neutral'],
+    ['icon' => 'badge-check', 'value' => count($activeRows), 'label' => 'Active', 'tone' => 'jungle', 'trend' => '', 'trendTone' => 'neutral'],
     [
         'icon' => 'siren',
         'value' => $onDutyCount,
         'label' => 'On duty',
-        'note' => $onDutyCount > 0 ? ['text' => 'On duty', 'cls' => 'kpi-note--accent'] : null,
+        'tone' => 'sky',
+        'trend' => $onDutyCount > 0 ? 'On duty' : '',
+        'trendTone' => 'up',
     ],
     [
         'icon' => 'clock',
         'value' => $pendingCount,
         'label' => 'Pending',
-        'note' => $pendingCount > 0 ? ['text' => 'Needs You', 'cls' => 'kpi-note--coral'] : null,
+        'tone' => 'coral',
+        'trend' => $pendingCount > 0 ? 'Needs You' : '',
+        'trendTone' => 'down',
     ],
-    ['icon' => 'slash', 'value' => $suspendedCount, 'label' => 'Suspended', 'note' => null],
+    ['icon' => 'slash', 'value' => $suspendedCount, 'label' => 'Suspended', 'tone' => 'amber', 'trend' => '', 'trendTone' => 'neutral'],
 ];
 foreach ($kpiData as $k) {
-    $note = '';
-    if (!empty($k['note'])) {
-        $note = '<span class="kpi-note ' . e($k['note']['cls']) . '">' . e($k['note']['text']) . '</span>';
-    }
+    $label = (string) $k['label'];
+    $value = (string) $k['value'];
+    $aria = $label . ': ' . $value;
+    $trend = (string) ($k['trend'] ?? '');
+    $trendHtml = $trend !== ''
+        ? '<p class="kpi-card__trend kpi-card__trend--' . e((string) ($k['trendTone'] ?? 'neutral')) . '">' . e($trend) . '</p>'
+        : '';
     $kpiTiles .= '
-  <div class="kpi-tile">
-    <div class="kpi-top">
-      <div class="kpi-icon"><i data-lucide="' . e($k['icon']) . '"></i></div>
-      ' . $note . '
+  <article class="kpi-card" aria-label="' . e($aria) . '">
+    <div class="kpi-card__icon kpi-card__icon--' . e((string) $k['tone']) . '"><i data-lucide="' . e((string) $k['icon']) . '"></i></div>
+    <div class="kpi-card__body">
+      <p class="kpi-card__label">' . e($label) . '</p>
+      <p class="kpi-card__value">' . e($value) . '</p>
+      ' . $trendHtml . '
     </div>
-    <div class="kpi-value">' . e($k['value']) . '</div>
-    <div class="kpi-label">' . e($k['label']) . '</div>
-  </div>';
+  </article>';
 }
 $kpiGrid = '<div id="rescuer-kpis" class="kpi-grid">' . $kpiTiles . '</div>';
 
@@ -278,7 +285,7 @@ $pageDescription = 'FurEscue admin rescuers — manage rescuers, duty status, an
 $pageCss = [
     '/admin/css/admin.css',
 ];
-$fontsHref = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
+$fontsHref = 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
 require __DIR__ . '/../../includes/site-head.php';
 ?>
   <body>

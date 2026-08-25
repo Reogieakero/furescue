@@ -1,5 +1,7 @@
 <?php
 
+use App\Auth\SessionAuth;
+
 $navLinks = [
     ['label' => 'Home', 'href' => '#home'],
     ['label' => 'Who It Helps', 'href' => '#audiences'],
@@ -15,6 +17,17 @@ $navLinkItems = static function (array $links): string {
     return $out;
 };
 
+$navUser = SessionAuth::user();
+$navRole = (string) ($navUser['role'] ?? '');
+$navHomeHref = htmlspecialchars(SessionAuth::homePath($navRole), ENT_QUOTES, 'UTF-8');
+$navHomeLabel = htmlspecialchars(SessionAuth::homeLabel($navRole), ENT_QUOTES, 'UTF-8');
+
+$navActionsMarkup = $navUser
+    ? '<a href="' . $navHomeHref . '" class="btn btn--solid btn--sm"><span>' . $navHomeLabel . '</span></a>'
+      . '<a href="/auth/logout.php" class="btn btn--ghost btn--sm"><span>Log out</span></a>'
+    : '<a href="/auth/login.php" class="btn btn--ghost btn--sm"><span>Log in</span></a>'
+      . '<a href="/auth/signup.php" class="btn btn--solid btn--sm"><span>Get Started</span></a>';
+
 $navLinkMarkup = $navLinkItems($navLinks);
 ?>
 <header id="navbar" class="nav">
@@ -28,9 +41,8 @@ $navLinkMarkup = $navLinkItems($navLinks);
       <?= $navLinkMarkup ?>
     </nav>
 
-<div class="nav-actions">
-      <a href="/auth/login.php" class="btn btn--ghost btn--sm"><span>Log in</span></a>
-      <a href="/auth/login.php" class="btn btn--solid btn--sm"><span>Get Started</span></a>
+    <div class="nav-actions">
+      <?= $navActionsMarkup ?>
     </div>
 
     <button id="menu-toggle" class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
@@ -44,9 +56,8 @@ $navLinkMarkup = $navLinkItems($navLinks);
     <nav class="container mobile-menu-links">
       <?= $navLinkMarkup ?>
     </nav>
-<div class="container mobile-menu-actions">
-      <a href="/auth/login.php" class="btn btn--ghost btn--sm"><span>Log in</span></a>
-      <a href="/auth/login.php" class="btn btn--solid btn--sm"><span>Get Started</span></a>
+    <div class="container mobile-menu-actions">
+      <?= $navActionsMarkup ?>
     </div>
   </div>
 </header>

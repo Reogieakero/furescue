@@ -85,7 +85,7 @@ class ElearningController extends AbstractController
 
     public function progress(Request $req): void
     {
-        $rows = $this->repo('elearning_progress')->all(['resident_id' => $req->user['id']], 'created_at', 'DESC');
+        $rows = $this->repo('elearning_progress')->all(['resident_id' => $req->user['id']], 'completed_at', 'DESC');
         Response::success(['progress' => $rows]);
     }
 

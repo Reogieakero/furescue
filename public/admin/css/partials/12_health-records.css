@@ -1,6 +1,6 @@
 /* Health Records dashboard — new vocabulary only.
-   Layout primitives (.panel, .cols, .kpi-grid, .table, .status-dot…)
-   come from the earlier partials. */
+   Layout primitives (.panel, .cols, .table, .status-dot…)
+   come from the earlier partials. Shared KPI cards live in public/css/input.css. */
 
 .hr-chart {
   position: relative;

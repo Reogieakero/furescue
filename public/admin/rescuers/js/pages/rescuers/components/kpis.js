@@ -1,3 +1,5 @@
+import { KpiCard } from "/js/components/kpi-card.js";
+import { esc } from "/js/lib/format.js";
 import { state } from "../state.js";
 
 export function rescuerCounts() {
@@ -17,35 +19,43 @@ export function rescuerCounts() {
 export function buildKpis() {
   const c = rescuerCounts();
   return [
-    { icon: "users", value: c.total, label: "Total rescuers", note: null },
-    { icon: "badge-check", value: c.active, label: "Active", note: null },
+    { icon: "users", value: c.total, label: "Total rescuers", tone: "jungle" },
+    { icon: "badge-check", value: c.active, label: "Active", tone: "jungle" },
     {
       icon: "siren",
       value: c.onDuty,
       label: "On duty",
-      note: c.onDuty ? { text: "On duty", cls: "kpi-note--accent" } : null,
+      tone: "sky",
+      trend: c.onDuty ? "On duty" : "",
+      trendTone: "up",
     },
     {
       icon: "clock",
       value: c.pending,
       label: "Pending",
-      note: c.pending ? { text: "Needs You", cls: "kpi-note--coral" } : null,
+      tone: "coral",
+      trend: c.pending ? "Needs You" : "",
+      trendTone: "down",
     },
-    { icon: "slash", value: c.suspended, label: "Suspended", note: null },
+    { icon: "slash", value: c.suspended, label: "Suspended", tone: "amber" },
   ];
 }
 
+export function toKpiCardProps(k) {
+  const aria = k.desc ? `${k.label}: ${k.value}. ${k.desc}` : `${k.label}: ${k.value}`;
+  const extra = [`aria-label="${esc(aria)}"`];
+  if (k.desc) extra.push(`title="${esc(k.desc)}"`);
+  return {
+    icon: k.icon,
+    tone: k.tone,
+    label: k.label,
+    value: k.value,
+    trend: k.trend || "",
+    trendTone: k.trendTone || "neutral",
+    attrs: extra.join(" "),
+  };
+}
+
 export function KpiTile(k) {
-  const note = k.note
-    ? `<span class="kpi-note ${k.note.cls}">${k.note.icon ? `<i data-lucide="${k.note.icon}"></i>` : ""}${k.note.text}</span>`
-    : "";
-  return `
-  <div class="kpi-tile${k.dark ? " kpi-tile--dark" : ""}">
-    <div class="kpi-top">
-      <div class="kpi-icon"><i data-lucide="${k.icon}"></i></div>
-      ${note}
-    </div>
-    <div class="kpi-value">${k.value}</div>
-    <div class="kpi-label">${k.label}</div>
-  </div>`;
+  return KpiCard(toKpiCardProps(k));
 }

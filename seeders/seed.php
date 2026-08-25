@@ -449,6 +449,79 @@ echo "Reports: " . $pdo->query("SELECT COUNT(*) FROM reports")->fetchColumn() . 
 echo "Animals: " . $pdo->query("SELECT COUNT(*) FROM animals")->fetchColumn() . "\n";
 echo "Cases: " . $pdo->query("SELECT COUNT(*) FROM cases")->fetchColumn() . "\n";
 
+$demoGlb = '/uploads/demo/animal-profile.glb';
+$demoPhoto = '/uploads/demo/golden-retriever.png';
+$demoPhotoSrc = dirname(__DIR__) . '/images/pngtree-golden-retriever-dog-pictures-png-image_15147078.png';
+$demoPhotoDest = dirname(__DIR__) . '/public/uploads/demo/golden-retriever.png';
+if (is_file($demoPhotoSrc)) {
+    $demoDir = dirname($demoPhotoDest);
+    if (!is_dir($demoDir)) {
+        mkdir($demoDir, 0755, true);
+    }
+    copy($demoPhotoSrc, $demoPhotoDest);
+}
+$newest = $pdo->query(
+    "SELECT id, model_3d_url FROM animals WHERE adoption_status = 'available' AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 12"
+)->fetchAll(PDO::FETCH_ASSOC);
+$haveInNewest = 0;
+foreach ($newest as $row) {
+    if (($row['model_3d_url'] ?? '') === $demoGlb) {
+        $haveInNewest++;
+    }
+}
+$needGlb = max(0, 2 - $haveInNewest);
+$updGlb = $pdo->prepare('UPDATE animals SET model_3d_url = ? WHERE id = ? AND (model_3d_url IS NULL OR model_3d_url = \'\')');
+foreach ($newest as $row) {
+    if ($needGlb <= 0) {
+        break;
+    }
+    if (($row['model_3d_url'] ?? '') === '') {
+        $updGlb->execute([$demoGlb, $row['id']]);
+        $needGlb--;
+    }
+}
+$onGalleryPage = 0;
+foreach ($pdo->query(
+    "SELECT model_3d_url FROM animals WHERE adoption_status = 'available' AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 12"
+) as $row) {
+    if (($row['model_3d_url'] ?? '') === $demoGlb) {
+        $onGalleryPage++;
+    }
+}
+echo "3D demo models on first gallery page: {$onGalleryPage}\n";
+
+$photoJson = json_encode([$demoPhoto], JSON_UNESCAPED_SLASHES);
+$updPhoto = $pdo->prepare(
+    "UPDATE animals SET photo_urls = ? WHERE model_3d_url = ? AND (photo_urls IS NULL OR photo_urls = '' OR photo_urls = 'null' OR photo_urls = '[]')"
+);
+$updPhoto->execute([$photoJson, $demoGlb]);
+echo "3D demo animals given retriever photo: " . $updPhoto->rowCount() . "\n";
+
+$demo360Rel = '/uploads/demo/360-retriever';
+$demo360Src = dirname(__DIR__) . '/images/360-retriever';
+$demo360Dest = dirname(__DIR__) . '/public/uploads/demo/360-retriever';
+if (!is_dir($demo360Dest)) {
+    mkdir($demo360Dest, 0755, true);
+}
+$demo360Urls = [];
+for ($frame = 1; $frame <= 8; $frame++) {
+    $name = sprintf('%02d.png', $frame);
+    $from = $demo360Src . DIRECTORY_SEPARATOR . $name;
+    $to = $demo360Dest . DIRECTORY_SEPARATOR . $name;
+    if (is_file($from)) {
+        copy($from, $to);
+        $demo360Urls[] = $demo360Rel . '/' . $name;
+    }
+}
+if (count($demo360Urls) >= 4) {
+    $spinJson = json_encode($demo360Urls, JSON_UNESCAPED_SLASHES);
+    $updSpin = $pdo->prepare(
+        "UPDATE animals SET photo_360_set = ? WHERE model_3d_url = ? AND (photo_360_set IS NULL OR photo_360_set = '' OR photo_360_set = 'null' OR photo_360_set = '[]')"
+    );
+    $updSpin->execute([$spinJson, $demoGlb]);
+    echo "3D demo animals given 360 photo set: " . $updSpin->rowCount() . "\n";
+}
+
 $totalAnimals = (int) $pdo->query("SELECT COUNT(*) FROM animals")->fetchColumn();
 $listedAnimals = (int) $pdo->query("SELECT COUNT(*) FROM adoption_listings")->fetchColumn();
 $targetListings = max(0, (int) ($totalAnimals * 0.4) - $listedAnimals);
@@ -567,7 +640,8 @@ echo "  reports: " . $count("SELECT COUNT(*) FROM reports")
     . ", pending_verification " . $count("SELECT COUNT(*) FROM reports WHERE status = 'pending_verification'") . ")\n";
 echo "  animals: " . $count("SELECT COUNT(*) FROM animals")
     . ", cases: " . $count("SELECT COUNT(*) FROM cases")
-    . ", adoptions: " . $count("SELECT COUNT(*) FROM adoptions") . "\n";
+    . ", adoptions: " . $count("SELECT COUNT(*) FROM adoptions")
+    . ", 3D demo: " . $count("SELECT COUNT(*) FROM animals WHERE adoption_status = 'available' AND deleted_at IS NULL AND model_3d_url = '/uploads/demo/animal-profile.glb'") . "\n";
 echo "  e-learning modules: " . $count("SELECT COUNT(*) FROM elearning_modules") . "\n";
 echo "  notifications: " . $count("SELECT COUNT(*) FROM notifications") . "\n";
 echo "  messages: " . $count("SELECT COUNT(*) FROM messages") . "\n";

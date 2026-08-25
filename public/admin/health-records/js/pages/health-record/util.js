@@ -33,7 +33,8 @@ export const SPECIES_VACCINES = {
 };
 
 export function vaccineOptionList(species) {
-  return (SPECIES_VACCINES[species] || []).map((v) => ({ value: v, label: v }));
+  const key = String(species || "").toLowerCase();
+  return (SPECIES_VACCINES[key] || []).map((v) => ({ value: v, label: v }));
 }
 
 export const STATUS_OPTIONS = [

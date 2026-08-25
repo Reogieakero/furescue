@@ -28,14 +28,23 @@ class GeoService
 
     public function heatmapPoints(?string $status = null): array
     {
-        $status = $status ?: 'verified';
-        $stmt = Database::connect()->prepare(
-            "SELECT id, latitude, longitude, animal_description, status, created_at
-             FROM reports
-             WHERE validation_status = 'validated' AND status = ?
-             ORDER BY created_at DESC"
-        );
-        $stmt->execute([$status]);
+        $sql = "SELECT r.id, r.latitude, r.longitude, r.animal_description, r.status,
+                       r.address_text, r.created_at, r.resident_id, r.validation_status,
+                       u.full_name AS resident_name,
+                       c.status AS case_status, c.id AS case_id
+                FROM reports r
+                LEFT JOIN users u ON u.id = r.resident_id
+                LEFT JOIN cases c ON c.report_id = r.id
+                WHERE r.latitude IS NOT NULL AND r.longitude IS NOT NULL";
+        $args = [];
+        if ($status !== 'all') {
+            $status = $status ?: 'verified';
+            $sql .= " AND r.validation_status = 'validated' AND r.status = ?";
+            $args[] = $status;
+        }
+        $sql .= " ORDER BY r.created_at DESC LIMIT 500";
+        $stmt = Database::connect()->prepare($sql);
+        $stmt->execute($args);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

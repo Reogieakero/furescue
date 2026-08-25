@@ -17,28 +17,6 @@ function overview_value(array $rows, string $key): int
     return 0;
 }
 
-function kpi_grid_html(array $tiles): string
-{
-    $out = '<div class="kpi-grid">';
-    foreach ($tiles as $k) {
-        $note = '';
-        if (!empty($k['note'])) {
-            $note = '<span class="kpi-note ' . e($k['note']['cls']) . '">' . e($k['note']['text']) . '</span>';
-        }
-        $tileCls = 'kpi-tile' . (!empty($k['dark']) ? ' kpi-tile--dark' : '');
-        $out .= "
-  <div class=\"{$tileCls}\">
-    <div class=\"kpi-top\">
-      <div class=\"kpi-icon\"><i data-lucide=\"" . e($k['icon']) . "\"></i></div>
-      {$note}
-    </div>
-    <div class=\"kpi-value\">" . e($k['value']) . "</div>
-    <div class=\"kpi-label\">" . e($k['label']) . '</div>
-  </div>';
-    }
-    return $out . '</div>';
-}
-
 function overview_rows_html(array $rows): string
 {
     $html = '';

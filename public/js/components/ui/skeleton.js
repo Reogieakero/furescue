@@ -32,12 +32,14 @@ export function SkeletonTable({ rows = 6, cols = 4 } = {}) {
 
 function SkeletonKpi() {
   return `
-  <div class="panel kpi-tile">
-    <div class="panel-body" style="display:flex;flex-direction:column;gap:0.75rem">
-      ${block({ h: "2.5rem", w: "55%", rounded: "0.75rem" })}
-      ${block({ h: "0.85rem", w: "70%" })}
+  <article class="kpi-card" aria-hidden="true">
+    <div class="kpi-card__icon kpi-card__icon--ink">${block({ h: "1.125rem", w: "1.125rem", rounded: "0.25rem" })}</div>
+    <div class="kpi-card__body">
+      ${block({ h: "0.7rem", w: "72%" })}
+      ${block({ h: "1.5rem", w: "42%", rounded: "0.4rem" })}
+      ${block({ h: "0.7rem", w: "58%" })}
     </div>
-  </div>`;
+  </article>`;
 }
 
 function skTitle() {
@@ -101,7 +103,7 @@ export function SkeletonDashboard() {
       <div class="col-side">${skPanel({ headW: "40%", body: SkeletonText({ lines: 4 }) })}</div>
     </div>`;
 
-  return [skPageHead(), skKpiGrid(6), attention, sections].join("");
+  return [skPageHead(), skKpiGrid(4), attention, sections].join("");
 }
 
 export function SkeletonCases() {

@@ -3,14 +3,14 @@ import { Button } from "../../../../../js/components/ui/button.js";
 import { SkeletonDashboard } from "../../../../../js/components/ui/skeleton.js";
 import { state } from "../state.js";
 import { KpiGrid } from "./kpis.js";
-import { AttentionRow, DashboardSections } from "./cards.js";
+import { DashboardSections } from "./cards.js";
 
 function Greeting(user) {
   const name = (user && user.full_name) || "Admin";
   return `
   <div class="greeting">
     <div>
-      <span class="stamp stamp--coral">Command Center</span>
+      <p class="dash-kicker">Command Center</p>
       <h1 class="greeting-title">Good morning, ${name}</h1>
       <p class="greeting-sub" id="greeting-sub">${state.decisionCount} items need a decision today across reports, rescuers, health records, and adoptions.</p>
     </div>
@@ -42,6 +42,6 @@ export function DashboardPage(user, { loading = false } = {}) {
       health: state.healthUpdates.total,
       applications: state.adoptionsPending.total,
     },
-    children: [Greeting(user), KpiGrid(), AttentionRow(), DashboardSections()].join(""),
+    children: `<div class="dash">${[Greeting(user), KpiGrid(), DashboardSections()].join("")}</div>`,
   });
 }

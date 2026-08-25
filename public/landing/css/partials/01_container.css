@@ -20,11 +20,11 @@
 .section-band {
   background: linear-gradient(
     135deg,
-    hsl(var(--night)),
-    hsl(var(--night)) 45%,
-    #000
+    hsl(var(--jungle)),
+    hsl(var(--jungle)) 45%,
+    hsl(var(--primary))
   );
-  color: #fff;
+  color: hsl(var(--primary-foreground));
 }
 
 .section-head {

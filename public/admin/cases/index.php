@@ -119,34 +119,37 @@ $pageHeadHtml = '
       <p class="page-sub">Track active rescues, assign rescuers, and follow each case to resolution.</p>
     </div>
     <div class="page-head-actions">
-      ' . button_html('Export CSV', 'outline', icon: 'download') . '
+      ' . button_html('Export CSV', 'outline', icon: 'download', attrs: 'data-export="csv"') . '
     </div>
   </div>';
 
 $kpiData = [
-    ['icon' => 'clipboard-list', 'value' => $cAll, 'label' => 'Total cases', 'note' => null, 'dark' => false, 'desc' => 'Every case in the system, all statuses included.'],
-    ['icon' => 'folder-open', 'value' => $cOpen, 'label' => 'Open', 'note' => $cOpen > 0 ? ['text' => 'Intake', 'cls' => 'kpi-note--coral'] : null, 'dark' => false, 'desc' => 'Newly reported cases not yet assigned to a rescuer.'],
-    ['icon' => 'user-plus', 'value' => $cAssigned, 'label' => 'Assigned', 'note' => null, 'dark' => false, 'desc' => 'Assigned to a rescuer, awaiting their acceptance.'],
-    ['icon' => 'activity', 'value' => $cInProgress, 'label' => 'In progress', 'note' => null, 'dark' => true, 'desc' => 'Rescues that are actively underway.'],
-    ['icon' => 'check-circle-2', 'value' => $cResolved, 'label' => 'Resolved', 'note' => null, 'dark' => false, 'desc' => 'Cases successfully completed and closed.'],
+    ['icon' => 'clipboard-list', 'value' => $cAll, 'label' => 'Total cases', 'tone' => 'jungle', 'trend' => '', 'trendTone' => 'neutral', 'desc' => 'Every case in the system, all statuses included.'],
+    ['icon' => 'folder-open', 'value' => $cOpen, 'label' => 'Open', 'tone' => 'coral', 'trend' => $cOpen > 0 ? 'Intake' : '', 'trendTone' => 'down', 'desc' => 'Newly reported cases not yet assigned to a rescuer.'],
+    ['icon' => 'user-plus', 'value' => $cAssigned, 'label' => 'Assigned', 'tone' => 'sky', 'trend' => '', 'trendTone' => 'neutral', 'desc' => 'Assigned to a rescuer, awaiting their acceptance.'],
+    ['icon' => 'activity', 'value' => $cInProgress, 'label' => 'In progress', 'tone' => 'sky', 'trend' => '', 'trendTone' => 'neutral', 'desc' => 'Rescues that are actively underway.'],
+    ['icon' => 'check-circle-2', 'value' => $cResolved, 'label' => 'Resolved', 'tone' => 'jungle', 'trend' => '', 'trendTone' => 'neutral', 'desc' => 'Cases successfully completed and closed.'],
 ];
 $kpiTiles = '';
 foreach ($kpiData as $k) {
-    $note = '';
-    if (!empty($k['note'])) {
-        $note = '<span class="kpi-note ' . e($k['note']['cls']) . '">' . e($k['note']['text']) . '</span>';
-    }
-    $tileCls = 'kpi-tile' . (!empty($k['dark']) ? ' kpi-tile--dark' : '');
-    $kpiTiles .= "
-  <div class=\"{$tileCls}\">
-    <div class=\"kpi-top\">
-      <div class=\"kpi-icon\"><i data-lucide=\"{$k['icon']}\"></i></div>
-      {$note}
+    $label = (string) $k['label'];
+    $value = (string) $k['value'];
+    $desc = (string) ($k['desc'] ?? '');
+    $aria = $label . ': ' . $value . ($desc !== '' ? '. ' . $desc : '');
+    $title = $desc !== '' ? ' title="' . e($desc) . '"' : '';
+    $trend = (string) ($k['trend'] ?? '');
+    $trendHtml = $trend !== ''
+        ? '<p class="kpi-card__trend kpi-card__trend--' . e((string) ($k['trendTone'] ?? 'neutral')) . '">' . e($trend) . '</p>'
+        : '';
+    $kpiTiles .= '
+  <article class="kpi-card" aria-label="' . e($aria) . '"' . $title . '>
+    <div class="kpi-card__icon kpi-card__icon--' . e((string) $k['tone']) . '"><i data-lucide="' . e((string) $k['icon']) . '"></i></div>
+    <div class="kpi-card__body">
+      <p class="kpi-card__label">' . e($label) . '</p>
+      <p class="kpi-card__value">' . e($value) . '</p>
+      ' . $trendHtml . '
     </div>
-    <div class=\"kpi-value\">" . e($k['value']) . "</div>
-    <div class=\"kpi-label\">" . e($k['label']) . '</div>
-    <div class="kpi-desc">' . e($k['desc']) . '</div>
-  </div>';
+  </article>';
 }
 
 $legendRows = '';
@@ -356,9 +359,10 @@ $pageTitle = 'FurEscue — Cases';
 $pageDescription = 'FurEscue admin cases — track active rescues, assign rescuers and follow case activity for City of Mati.';
 $pageCss = [
     '/admin/css/admin.css',
+    '/admin/cases/css/kpis.css',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
 ];
-$fontsHref = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
+$fontsHref = 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
 $importMapExtras = ['chart.js' => 'https://esm.sh/chart.js@4.4.4/auto'];
 require __DIR__ . '/../../includes/site-head.php';
 ?>

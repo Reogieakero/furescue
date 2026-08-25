@@ -27,7 +27,7 @@ $uid = (string) $_SESSION['user']['id'];
 
 $animalRepo = new Repository($pdo, 'animals');
 $animal = $animalRepo->find($recordIdParam);
-if ($animal === null) {
+if ($animal === null || !empty($animal['deleted_at'])) {
     header('Location: /admin/health-records/');
     exit;
 }

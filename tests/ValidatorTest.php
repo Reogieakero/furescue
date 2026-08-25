@@ -36,6 +36,20 @@ class ValidatorTest extends TestCase
         $this->assertFalse($v->passes());
     }
 
+    public function testInAcceptsAllowedRelatedType(): void
+    {
+        $v = new Validator(['related_type' => 'adoption']);
+        $v->required('related_type')->in('related_type', ['report', 'case', 'adoption']);
+        $this->assertTrue($v->passes());
+    }
+
+    public function testInRejectsUnknownRelatedType(): void
+    {
+        $v = new Validator(['related_type' => 'listing']);
+        $v->required('related_type')->in('related_type', ['report', 'case', 'adoption']);
+        $this->assertFalse($v->passes());
+    }
+
     public function testLatitudeOutOfRange(): void
     {
         $v = new Validator(['lat' => 200]);

@@ -1,0 +1,13 @@
+/* Cases 5-up beside the status donut — page-specific, not the shared auto-fit grid. */
+@media (min-width: 1024px) {
+  .case-kpis .kpi-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+    height: 100%;
+    margin-bottom: 0;
+  }
+
+  .case-kpis .kpi-card {
+    height: 100%;
+  }
+}

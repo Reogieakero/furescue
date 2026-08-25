@@ -10,18 +10,34 @@ import { vaccineOptionList, selectField, STATUS_OPTIONS } from "../util.js";
 import { maybeNotifyAdoptionReady } from "../adoption-toast.js";
 import { esc } from "../../health-records/components/util.js";
 
-function mapRecordToLegacyDetails(v) {
+function toApiRecord(v) {
   return {
     vaccine: v.vaccine ?? null,
-    dateGiven: v.administered_date ?? null,
-    nextDue: v.next_due ?? null,
+    administered_date: v.administered_date ?? v.dateGiven ?? v.date ?? null,
+    next_due: v.next_due ?? v.nextDue ?? null,
     status: v.status ?? null,
-    doseNumber: v.dose_number ?? null,
+    dose_number: v.dose_number ?? v.doseNumber ?? null,
     manufacturer: v.manufacturer ?? null,
-    productName: v.product_name ?? null,
-    batchNumber: v.batch_number ?? null,
+    product_name: v.product_name ?? v.productName ?? null,
+    batch_number: v.batch_number ?? v.batchNumber ?? null,
     route: v.route ?? null,
     notes: v.notes ?? null,
+  };
+}
+
+function mapRecordToLegacyDetails(v) {
+  const rec = toApiRecord(v);
+  return {
+    vaccine: rec.vaccine,
+    dateGiven: rec.administered_date,
+    nextDue: rec.next_due,
+    status: rec.status,
+    doseNumber: rec.dose_number,
+    manufacturer: rec.manufacturer,
+    productName: rec.product_name,
+    batchNumber: rec.batch_number,
+    route: rec.route,
+    notes: rec.notes,
   };
 }
 
@@ -60,18 +76,7 @@ export async function deleteSelectedVaccinations() {
   const performDelete = async () => {
     const removeIdx = new Set(checks.map((c) => parseInt(c.getAttribute("data-idx") || "0", 10)));
     const remaining = (record.vaccinations || []).filter((_, i) => !removeIdx.has(i));
-    const records = remaining.map((v) => ({
-      vaccine: v.vaccine,
-      administered_date: v.dateGiven || null,
-      next_due: v.nextDue || null,
-      status: v.status || null,
-      dose_number: v.doseNumber || null,
-      manufacturer: v.manufacturer || null,
-      product_name: v.productName || null,
-      batch_number: v.batchNumber || null,
-      route: v.route || null,
-      notes: v.notes || null,
-    }));
+    const records = remaining.map(toApiRecord);
     const details = records.map(mapRecordToLegacyDetails);
     okBtn.disabled = true;
     okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Deleting…</span>`;
@@ -177,9 +182,9 @@ export function openVaccinationDialog(editIdx = null) {
     try {
       let records;
       if (editing && Array.isArray(record.vaccinations)) {
-        records = record.vaccinations.map((v, i) => (i === editIdx ? entry : v));
+        records = record.vaccinations.map((v, i) => toApiRecord(i === editIdx ? entry : v));
       } else {
-        records = [...(record.vaccinations || []), entry];
+        records = [...(record.vaccinations || []).map(toApiRecord), entry];
       }
       const details = records.map(mapRecordToLegacyDetails);
       await upsertAnimalVaccinations(record.id, records, details);

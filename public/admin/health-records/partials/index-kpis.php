@@ -2,20 +2,30 @@
 
 $hrKpis = '';
 foreach ($hrKpiData as $k) {
-    $note = '';
-    if (!empty($k['note'])) {
-        $note = '<span class="kpi-note ' . e($k['note']['cls']) . '">' . e($k['note']['text']) . '</span>';
+    $label = (string) $k['label'];
+    $value = (string) $k['value'];
+    $aria = $label . ': ' . $value;
+    if (!empty($k['desc'])) {
+        $aria .= '. ' . (string) $k['desc'];
     }
-    $tileCls = 'kpi-tile' . (!empty($k['dark']) ? ' kpi-tile--dark' : '');
-    $hrKpis .= "
-  <div class=\"{$tileCls}\">
-    <div class=\"kpi-top\">
-      <div class=\"kpi-icon\"><i data-lucide=\"{$k['icon']}\"></i></div>
-      {$note}
+    $title = !empty($k['desc']) ? ' title="' . e((string) $k['desc']) . '"' : '';
+    $trend = '';
+    if (!empty($k['trend']['text'])) {
+        $trend = '<p class="kpi-card__trend kpi-card__trend--' . e((string) ($k['trend']['tone'] ?? 'neutral')) . '">' . e((string) $k['trend']['text']) . '</p>';
+    }
+    $filter = $k['filter'] ?? null;
+    $tag = $filter ? 'button' : 'article';
+    $extraClass = $filter ? ' kpi-card--interactive' : '';
+    $typeAttr = $filter ? ' type="button"' : '';
+    $filterAttr = $filter ? ' data-filter="' . e((string) $filter) . '"' : '';
+    $hrKpis .= '
+  <' . $tag . ' class="kpi-card' . $extraClass . '"' . $typeAttr . $filterAttr . ' aria-label="' . e($aria) . '"' . $title . '>
+    <div class="kpi-card__icon kpi-card__icon--' . e((string) $k['tone']) . '" aria-hidden="true"><i data-lucide="' . e((string) $k['icon']) . '"></i></div>
+    <div class="kpi-card__body">
+      <p class="kpi-card__label">' . e($label) . '</p>
+      <p class="kpi-card__value">' . e($value) . '</p>
+      ' . $trend . '
     </div>
-    <div class=\"kpi-value\">" . e($k['value']) . "</div>
-    <div class=\"kpi-label\">" . e($k['label']) . "</div>
-    <div class=\"kpi-desc\">" . e($k['desc']) . '</div>
-  </div>';
+  </' . $tag . '>';
 }
 $hrKpisHtml = "<div class=\"kpi-grid\">{$hrKpis}</div>";

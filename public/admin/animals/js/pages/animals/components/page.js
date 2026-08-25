@@ -4,6 +4,7 @@ import { Button } from "/js/components/ui/button.js";
 import { state } from "../state.js";
 import { AnimalGrid } from "./grid.js";
 import { SidePanel } from "./side.js";
+import { AnimalKpis, renderAnimalKpis } from "./kpis.js";
 
 function PageHead() {
   return `
@@ -15,7 +16,7 @@ function PageHead() {
     </div>
     <div class="page-head-actions">
       ${Button({ text: "Add animal", variant: "default", icon: "plus", attrs: 'data-act="open-add"' })}
-      ${Button({ text: "Export CSV", variant: "outline", icon: "download" })}
+      ${Button({ text: "Export CSV", variant: "outline", icon: "download", attrs: 'data-export="csv"' })}
     </div>
   </div>`;
 }
@@ -27,16 +28,20 @@ export function AnimalsPage(user) {
     badges: { animals: state.animals.length },
     activeNav: "animals",
     children: [
-      PageHead(),
-      `<div class="animal-split">
-        <div class="animal-grid-col">${AnimalGrid()}</div>
-        <div id="animal-side" class="animal-side-col">${SidePanel()}</div>
+      `<div class="animals-list">
+        ${PageHead()}
+        ${AnimalKpis()}
+        <div class="animal-split">
+          <div class="animal-grid-col">${AnimalGrid()}</div>
+          <div id="animal-side" class="animal-side-col">${SidePanel()}</div>
+        </div>
       </div>`,
     ].join(""),
   });
 }
 
 export function rerenderAll() {
+  renderAnimalKpis();
   const side = document.getElementById("animal-side");
   if (side) {
     side.innerHTML = SidePanel();

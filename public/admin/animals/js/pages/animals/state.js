@@ -1,4 +1,5 @@
 import * as api from "/admin/js/lib/admin-data.js";
+import { apiFetchFull, apiUpload } from "/js/lib/api.js";
 import { safe } from "/admin/js/pages/dashboard/helpers.js";
 
 const STATUS_LABELS = {
@@ -131,24 +132,79 @@ export function parsePhoto360(text) {
   return parsed;
 }
 
+export async function uploadAnimalModel3d(id, file) {
+  const fd = new FormData();
+  fd.append("file", file);
+  const p = await apiUpload(`/animals/${encodeURIComponent(id)}/model-3d`, fd);
+  return p && p.data ? p.data.animal : null;
+}
+
+export async function uploadAnimalPhoto360(id, files) {
+  const fd = new FormData();
+  for (const file of files) fd.append("photos[]", file);
+  const p = await apiUpload(`/animals/${encodeURIComponent(id)}/photo-360`, fd);
+  return p && p.data ? p.data.animal : null;
+}
+
+export async function deleteAnimalModel3d(id) {
+  const p = await apiFetchFull(`/animals/${encodeURIComponent(id)}/model-3d`, { method: "DELETE" });
+  return p && p.data ? p.data.animal : null;
+}
+
+export async function deleteAnimalPhoto360(id) {
+  const p = await apiFetchFull(`/animals/${encodeURIComponent(id)}/photo-360`, { method: "DELETE" });
+  return p && p.data ? p.data.animal : null;
+}
+
+export async function saveAnimalAssets(id, assets) {
+  let raw = null;
+  if (assets.removeModel && !assets.modelFile) {
+    raw = (await deleteAnimalModel3d(id)) || raw;
+  }
+  if (assets.modelFile) {
+    raw = (await uploadAnimalModel3d(id, assets.modelFile)) || raw;
+  }
+  if (assets.remove360 && !(assets.photo360Files && assets.photo360Files.length)) {
+    raw = (await deleteAnimalPhoto360(id)) || raw;
+  }
+  if (assets.photo360Files && assets.photo360Files.length) {
+    raw = (await uploadAnimalPhoto360(id, assets.photo360Files)) || raw;
+  }
+  return raw;
+}
+
 export async function addAnimal(data) {
-  const created = await api.createAnimal({
-    name: data.name || null,
-    species: data.species,
-    breed_type: data.breed,
-    sex: data.sex,
-    age_estimate: data.age || null,
-    birth_date: data.birthDate || null,
-    color_markings: data.color || null,
-    adoption_status: data.status,
-    description: data.description || null,
-    photo_urls: data.photo ? [data.photo] : null,
-    model_3d_url: data.model3d ? data.model3d : null,
-    photo_360_set: data.photo360Urls || null,
-  });
-  const animal = normalize(created);
+  let raw;
+  if (data.id) {
+    const p = await apiFetchFull(`/animals/${encodeURIComponent(data.id)}`);
+    raw = p && p.data && p.data.animal ? p.data.animal : { id: data.id };
+  } else {
+    raw = await api.createAnimal({
+      name: data.name || null,
+      species: data.species,
+      breed_type: data.breed,
+      sex: data.sex,
+      age_estimate: data.age || null,
+      birth_date: data.birthDate || null,
+      color_markings: data.color || null,
+      adoption_status: data.status,
+      description: data.description || null,
+      photo_urls: data.photo ? [data.photo] : null,
+      model_3d_url: data.modelFile ? null : data.model3d ? data.model3d : null,
+      photo_360_set: data.photo360Files && data.photo360Files.length ? null : data.photo360Urls || null,
+    });
+  }
+  const id = data.id || (raw && raw.id);
+  try {
+    const uploaded = await saveAnimalAssets(id, data);
+    if (uploaded) raw = uploaded;
+  } catch (err) {
+    err.animalId = id;
+    throw err;
+  }
+  const animal = normalize(raw);
   animal.isNew = true;
-  state.animals = [animal, ...state.animals];
+  state.animals = [animal, ...state.animals.filter((a) => a.id !== animal.id)];
   return animal;
 }
 
@@ -160,6 +216,7 @@ export function animalCounts() {
     Pending: count("Pending"),
     Adopted: count("Adopted"),
     "Not listed": count("Not listed"),
+    noMedical: state.animals.filter((a) => !a.hasMedical).length,
   };
 }
 

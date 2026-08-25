@@ -27,7 +27,7 @@ function cmp(a, b) {
   return 0;
 }
 
-function filteredCases() {
+export function filteredCases() {
   const q = state.query.trim().toLowerCase();
   let list = state.cases.map(enrich);
   if (state.filter !== "all") list = list.filter((c) => c.statusRaw === state.filter);

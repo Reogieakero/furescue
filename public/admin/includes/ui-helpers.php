@@ -126,6 +126,37 @@ function empty_state(string $icon = 'inbox', string $text = 'No records.'): stri
     return '<div class="empty-state"><i data-lucide="' . e($icon) . '"></i><span>' . e($text) . '</span></div>';
 }
 
+function kpi_card_html(array $k): string
+{
+    $label = (string) ($k['label'] ?? '');
+    $value = (string) ($k['value'] ?? '');
+    $tone = (string) ($k['tone'] ?? 'jungle');
+    $icon = (string) ($k['icon'] ?? 'activity');
+    $trend = (string) ($k['trend'] ?? '');
+    $trendHtml = $trend !== ''
+        ? '<p class="kpi-card__trend kpi-card__trend--' . e((string) ($k['trendTone'] ?? 'neutral')) . '">' . e($trend) . '</p>'
+        : '';
+    return '
+  <article class="kpi-card" aria-label="' . e($label . ': ' . $value) . '">
+    <div class="kpi-card__icon kpi-card__icon--' . e($tone) . '" aria-hidden="true"><i data-lucide="' . e($icon) . '"></i></div>
+    <div class="kpi-card__body">
+      <p class="kpi-card__label">' . e($label) . '</p>
+      <p class="kpi-card__value">' . e($value) . '</p>
+      ' . $trendHtml . '
+    </div>
+  </article>';
+}
+
+function kpi_grid_html(array $tiles, string $id = ''): string
+{
+    $idAttr = $id !== '' ? ' id="' . e($id) . '"' : '';
+    $inner = '';
+    foreach ($tiles as $k) {
+        $inner .= kpi_card_html($k);
+    }
+    return '<div class="kpi-grid"' . $idAttr . '>' . $inner . '</div>';
+}
+
 function chevron_right(): string
 {
     return '<i data-lucide="chevron-right" class="link-chevron"></i>';

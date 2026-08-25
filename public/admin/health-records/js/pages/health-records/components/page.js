@@ -27,7 +27,7 @@ function PageHead() {
       <p class="page-sub">Track vaccinations, checkups, conditions, and vitals across the shelter population.</p>
     </div>
     <div class="page-head-actions">
-      ${Button({ text: "Export CSV", variant: "outline", icon: "download" })}
+      ${Button({ text: "Export CSV", variant: "outline", icon: "download", attrs: 'data-export="csv"' })}
       <button type="button" class="btn-see-animals" data-animals-open><i data-lucide="paw-print"></i><span>See animals</span></button>
     </div>
   </div>`;
@@ -35,7 +35,7 @@ function PageHead() {
 
 function ControlsPanel() {
   return `
-  <div class="panel panel--padded">
+  <div class="panel hr-toolbar-panel">
     <div class="report-toolbar">
       <div class="q-tabs" id="hr-tabs">${FilterTabs()}</div>
       <div class="report-search">
@@ -67,13 +67,15 @@ export function HealthRecordsPage(user) {
     badges: { health: ATTENTION },
     activeNav: "health records",
     children: [
-      PageHead(),
-      ControlsPanel(),
-      `<div id="hr-kpis"></div>`,
-      `<div class="cols cols--vax"><div id="hr-vax-dog"></div><div id="hr-vax-cat"></div><div id="hr-conditions"></div></div>`,
-      `<div id="hr-trend"></div>`,
-      `<div class="cols cols--two hr-split-row"><div id="hr-stacked"></div><div id="hr-queue"></div></div>`,
-      `<div id="hr-records"></div>`,
+      `<div class="hr-list">
+        ${PageHead()}
+        <div id="hr-kpis">${KpiStrip()}</div>
+        ${ControlsPanel()}
+        <div class="cols cols--vax"><div id="hr-vax-dog"></div><div id="hr-vax-cat"></div><div id="hr-conditions"></div></div>
+        <div id="hr-trend"></div>
+        <div class="cols cols--two hr-split-row"><div id="hr-stacked"></div><div id="hr-queue"></div></div>
+        <div id="hr-records"></div>
+      </div>`,
     ].join(""),
   });
 }

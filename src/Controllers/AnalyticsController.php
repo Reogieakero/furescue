@@ -90,7 +90,36 @@ class AnalyticsController extends AbstractController
                 "d.status = 'on_duty' AND u.account_status = 'active' AND u.role = 'rescuer'"
             ),
             'residents' => $this->countWhere("users", "role = 'resident'"),
+            'cases_in_progress' => $this->countWhere("cases", "status IN ('assigned','in_progress')"),
+            'reports_pending' => $this->countWhere("reports", "status = 'pending_verification'"),
+            'reports_today' => $this->countWhere("reports", "DATE(created_at) = CURDATE()"),
+            'pending_today' => $this->countWhere("reports", "status = 'pending_verification' AND DATE(created_at) = CURDATE()"),
+            'in_progress_today' => $this->countWhere("cases", "status IN ('assigned','in_progress') AND DATE(updated_at) = CURDATE()"),
+            'resolved_today' => $this->countWhere("cases", "status = 'resolved' AND DATE(updated_at) = CURDATE()"),
+            'reports_monthly' => $this->reportsMonthly(),
         ];
+    }
+
+    private function reportsMonthly(): array
+    {
+        $stmt = $this->pdo->query(
+            "SELECT DATE_FORMAT(created_at, '%Y-%m') AS ym, COUNT(*) AS c
+             FROM reports
+             WHERE created_at >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 5 MONTH), '%Y-%m-01')
+             GROUP BY ym
+             ORDER BY ym"
+        );
+        $map = [];
+        foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+            $map[(string) $row['ym']] = (int) $row['c'];
+        }
+        $out = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $dt = new \DateTimeImmutable("first day of -{$i} months");
+            $ym = $dt->format('Y-m');
+            $out[] = ['month' => $dt->format('M'), 'count' => $map[$ym] ?? 0];
+        }
+        return $out;
     }
 
     private function adoptionTrendRows(Request $req): array

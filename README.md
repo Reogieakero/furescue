@@ -7,33 +7,50 @@ A web-based animal rescue and adoption management system for **Mati City**. It c
 | Layer | Technology |
 |-------|------------|
 | Backend | Vanilla PHP 8.1+ REST API (PDO + MySQL), custom router, JWT auth |
-| Frontend | Static HTML + ES modules, Tailwind CSS |
+| Frontend | PHP-rendered pages + ES-module islands, Tailwind CSS |
 | Maps | Leaflet + leaflet.heat (heatmap of reported cases) |
 | Testing | PHPUnit |
 
 ## Quick Start
 
-Full setup guide: [docs/technical/HOW_TO_RUN.md](docs/technical/HOW_TO_RUN.md)
+Full setup (PHP extensions, MySQL user, `.env`, troubleshooting, demo accounts): **[docs/technical/HOW_TO_RUN.md](docs/technical/HOW_TO_RUN.md)**.
+
+You need **PHP 8.1+** (with `pdo_mysql`, `mysqli`, `openssl`, `mbstring`, `curl`), **MySQL 8.0.13+**, **Composer**, and **Node.js 18+**. Then from the repo root:
+
+```bat
+copy .env.example .env
+```
+
+Edit `.env` and set `DB_DRIVER=mysql` plus your MySQL credentials (create the `furescue` database first — SQL is in HOW_TO_RUN). Then:
 
 ```bat
 composer install
 php bin\migrate.php
 php seeders\seed.php
+npm install
+npm run build
 php -S 127.0.0.1:8000 -t public public\index.php
 ```
 
-Then in a second terminal: `npm install && npm run build`
+Open:
 
-Open http://127.0.0.1:8000/landing/index.html — demo accounts are listed in HOW_TO_RUN.
+| Page | URL |
+|------|-----|
+| Landing | http://127.0.0.1:8000/ |
+| Login | http://127.0.0.1:8000/auth/login.php |
+| Admin | http://127.0.0.1:8000/admin/ |
+
+Seeded password for every demo account: **`Password123!`**. Admin: `admin@furescue.local`.
 
 ## Repository Layout
 
 ```
-backend/          PHP REST API source (src/, tests/)
-public/           Web root — static pages, CSS, uploads
+src/              PHP API (controllers, services, auth, routes)
+public/           Web root — PHP pages, CSS, JS, uploads
 bin/              CLI tools (migrations)
 migrations/       SQL schema migrations
 seeders/          Demo data seeder
+tests/            PHPUnit unit tests
 docs/             Project documentation
 ```
 
@@ -55,6 +72,5 @@ docs/             Project documentation
 |----------|----------|
 | [ARCHITECTURE_AUDIT.md](docs/technical/ARCHITECTURE_AUDIT.md) | Facts observed in the repository (stack, routing, auth, etc.) |
 | [FEATURES.md](docs/technical/FEATURES.md) | Feature inventory (as built) — what is implemented per feature area, with evidence |
-| [IMPLEMENTATION_AUDIT.md](docs/technical/IMPLEMENTATION_AUDIT.md) | Traceability: study objectives & requirements vs. implementation status |
 | [HOW_TO_RUN.md](docs/technical/HOW_TO_RUN.md) | Install, configure, migrate, seed, and run |
 | [SYSTEM_REPORT.md](docs/technical/SYSTEM_REPORT.md) | System report |

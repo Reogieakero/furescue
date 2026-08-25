@@ -26,7 +26,7 @@ export function AnimalGrid() {
   const list = visibleAnimals();
   const grid = list.length
     ? list.map(AnimalCard).join("")
-    : `<div class="animal-empty"><i data-lucide="paw-print"></i><p>No animals match your filters.</p></div>`;
+    : `<div class="animal-empty empty-state"><i data-lucide="paw-print"></i><span>No animals match your filters.</span></div>`;
   return `
   <div class="panel animal-panel">
     <div class="panel-head">
@@ -34,14 +34,14 @@ export function AnimalGrid() {
         <i data-lucide="paw-print"></i>
         <h2 class="panel-title">Animals <span class="animal-count" id="animal-total-badge">${state.animals.length}</span></h2>
       </div>
-      <div class="animal-grid-tools">
-        <div class="report-search animal-search">
-          <i data-lucide="search"></i>
-          <input id="animal-search" type="text" placeholder="Search name, species, breed, ID…" value="${esc(state.query)}">
-        </div>
+    </div>
+    <div class="report-toolbar animal-toolbar">
+      <div id="animal-filter-tabs" class="q-tabs">${FilterTabs()}</div>
+      <div class="report-search animal-search">
+        <i data-lucide="search"></i>
+        <input id="animal-search" type="text" placeholder="Search name, species, breed, ID…" value="${esc(state.query)}">
       </div>
     </div>
-    <div id="animal-filter-tabs" class="q-tabs">${FilterTabs()}</div>
     <div class="panel-body">
       <div id="animal-grid" class="animal-grid">${grid}</div>
       <div id="animal-selected-store" hidden>${state.selectedId || ""}</div>
@@ -73,7 +73,7 @@ export function renderAnimalGrid() {
   const list = visibleAnimals();
   grid.innerHTML = list.length
     ? list.map(AnimalCard).join("")
-    : `<div class="animal-empty"><i data-lucide="paw-print"></i><p>No animals match your filters.</p></div>`;
+    : `<div class="animal-empty empty-state"><i data-lucide="paw-print"></i><span>No animals match your filters.</span></div>`;
   const badge = document.getElementById("animal-total-badge");
   if (badge) badge.textContent = String(state.animals.length);
   const tabs = document.getElementById("animal-filter-tabs");
