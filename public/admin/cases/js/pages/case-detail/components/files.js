@@ -1,5 +1,4 @@
 import { Badge } from "/js/components/ui/badge.js";
-import { Button } from "/js/components/ui/button.js";
 import { esc, photos } from "./util.js";
 
 export function renderAttachments(caseData) {
@@ -37,10 +36,7 @@ export function renderProof(caseData) {
           )
           .join("")}</div>`
     : `<div class="empty-state"><i data-lucide="image-off"></i><span>No rescue proof uploaded.</span></div>`;
-  const addForm = `<div class="cd-proof-add">
-        <input id="cd-proof-input" class="cd-proof-input" type="url" placeholder="Paste proof photo URL…">
-        ${Button({ text: "Add", variant: "outline", size: "sm", icon: "plus", attrs: 'data-cd-action="add-proof"' })}
-      </div>`;
+  // Review-only: rescuers upload files; admins do not paste URLs.
   return `
     <div class="panel case-detail-panel">
       <div class="panel-head">
@@ -50,9 +46,6 @@ export function renderProof(caseData) {
         </div>
         ${proof && proof.length ? `<div class="cd-rescuer-meta">${Badge({ text: caseData.rescuer_name || "Rescuer", variant: "secondary", icon: "user" })}</div>` : ""}
       </div>
-      <div class="panel-body">
-        ${gallery}
-        ${addForm}
-      </div>
+      <div class="panel-body">${gallery}</div>
     </div>`;
 }

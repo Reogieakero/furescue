@@ -2,7 +2,7 @@ import { createIcons, icons } from "lucide";
 import { state, reloadData } from "../state.js";
 import { ReportTable, rerenderAll, attachReportTooltips, hideReportMapDrawer } from "../components.js";
 import { openReportDrawer, openTimelineDrawer } from "./drawer.js";
-import { runVerify, runDismiss, assignDialog, runCaseStatus } from "./actions.js";
+import { runVerify, runDismiss, assignDialog } from "./actions.js";
 import { filteredReports, enrich } from "../components/table.js";
 import { toast } from "/js/components/ui/toast.js";
 import { datedCsvName, downloadCsv } from "/js/lib/csv.js";
@@ -79,8 +79,10 @@ export function initReportsEvents() {
         });
         return;
       }
-      if (action === "progress") return runCaseStatus(caseId, id, "in_progress", "Mark in progress", "marked in progress");
-      if (action === "resolve") return runCaseStatus(caseId, id, "resolved", "Resolve case", "resolved");
+      if ((action === "progress" || action === "resolve") && caseId) {
+        window.location.href = `/admin/cases/case-detail.php?id=${encodeURIComponent(caseId)}`;
+        return;
+      }
       if (action === "timeline") {
         openTimelineDrawer(caseId, id);
         return;

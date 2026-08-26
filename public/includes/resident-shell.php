@@ -39,6 +39,9 @@ $residentUser = $residentUser ?? [];
 $activeNav = $activeNav ?? '';
 $navBadges = $navBadges ?? [];
 $residentShellTitle = $residentShellTitle ?? 'FurEscue';
+$navRole = strtolower((string) ($residentUser['role'] ?? ''));
+$isRescuer = $navRole === 'rescuer';
+$rsideTag = $isRescuer ? 'Rescue Portal' : 'Community Portal';
 
 $esc = static fn(mixed $v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 
@@ -46,11 +49,13 @@ $residentNavGroups = [
     [
         'label' => 'Overview',
         'items' => [
-            ['icon' => 'house', 'label' => 'Home', 'href' => '/index.php'],
+            ['icon' => 'house', 'label' => 'Home', 'href' => '/index.php', 'hideFor' => ['rescuer']],
+            ['icon' => 'clipboard-list', 'label' => 'My Cases', 'href' => '/cases/', 'roles' => ['rescuer']],
         ],
     ],
     [
         'label' => 'Community',
+        'residentOnly' => true,
         'items' => [
             ['icon' => 'map-pin-plus', 'label' => 'Report Animal', 'href' => '/report/'],
             ['icon' => 'clipboard-list', 'label' => 'My Reports', 'href' => '/reports/'],
@@ -58,6 +63,7 @@ $residentNavGroups = [
     ],
     [
         'label' => 'Adoption',
+        'residentOnly' => true,
         'items' => [
             ['icon' => 'heart', 'label' => 'Browse Animals', 'href' => '/animals/'],
             ['icon' => 'file-check', 'label' => 'My Adoptions', 'href' => '/adoptions/'],
@@ -77,6 +83,32 @@ $residentNavGroups = [
         ],
     ],
 ];
+
+$itemVisible = static function (array $item) use ($navRole): bool {
+    $roles = $item['roles'] ?? null;
+    if (is_array($roles)) {
+        return in_array($navRole, $roles, true);
+    }
+    $hideFor = $item['hideFor'] ?? null;
+    if (is_array($hideFor) && in_array($navRole, $hideFor, true)) {
+        return false;
+    }
+    return true;
+};
+
+$visibleNavGroups = [];
+foreach ($residentNavGroups as $group) {
+    if (!empty($group['residentOnly']) && $isRescuer) {
+        continue;
+    }
+    $items = array_values(array_filter($group['items'], $itemVisible));
+    if ($items === []) {
+        continue;
+    }
+    $group['items'] = $items;
+    $visibleNavGroups[] = $group;
+}
+$residentNavGroups = $visibleNavGroups;
 
 $residentNavItems = static function (array $items) use ($esc, $navBadges, $activeNav): string {
     $out = '';
@@ -116,7 +148,7 @@ $residentProfileName = trim((string) ($residentUser['full_name'] ?? '')) !== ''
     ? (string) $residentUser['full_name']
     : 'My Account';
 
-$residentChrome = static function () use ($esc, $residentGroupsHtml, $residentShellTitle, $residentAvatarSrc, $residentMenuBase, $residentProfileName, $residentUser): string {
+$residentChrome = static function () use ($esc, $residentGroupsHtml, $residentShellTitle, $residentAvatarSrc, $residentMenuBase, $residentProfileName, $residentUser, $rsideTag): string {
     $profileMenu = '
       <div id="profile-menu" data-dropdown class="relative">
         <button type="button" data-dropdown-trigger class="rtop-user" aria-haspopup="menu" aria-expanded="false" aria-label="Account menu">
@@ -143,7 +175,7 @@ $residentChrome = static function () use ($esc, $residentGroupsHtml, $residentSh
       <div class="rside-logo"><i data-lucide="paw-print"></i></div>
       <div>
         <div class="rside-brand">FurEscue</div>
-        <div class="rside-tag">Community Portal</div>
+        <div class="rside-tag">' . $esc($rsideTag) . '</div>
       </div>
     </div>
 

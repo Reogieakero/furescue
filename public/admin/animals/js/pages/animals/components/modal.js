@@ -1,20 +1,47 @@
 import { createIcons, icons } from "lucide";
 import { Button } from "/js/components/ui/button.js";
 import { Spinner } from "/js/components/ui/spinner.js";
-import { addAnimal, parsePhoto360 } from "../state.js";
+import { createAnimal, fetchCase, fetchReport, updateAnimal } from "/admin/js/lib/admin-data.js";
+import { addAnimal, parsePhoto360, setSelectedId } from "../state.js";
 import { bindProfileAssets, clientAssetError, profileAssetsFields, readProfileAssets } from "./profile-assets.js";
 import { esc, resizeImage, ageFromBirthDate } from "./util.js";
+import { shortId } from "/admin/js/pages/dashboard/helpers.js";
+
+const HEALTH_READY_HINT =
+  "Animal must have a vaccination record and vitals before it can be listed for adoption.";
 
 function tabsHtml(attr, options, active) {
   return options
-    .map(
-      (o) =>
-        `<button type="button" class="q-btn${o.value === active ? " is-active" : ""}" data-${attr}="${esc(o.value)}">${esc(o.label)}</button>`
-    )
+    .map((o) => {
+      const disabled = o.disabled ? " disabled aria-disabled=\"true\"" : "";
+      const title = o.title ? ` title="${esc(o.title)}"` : "";
+      const cls = `q-btn${o.value === active ? " is-active" : ""}${o.disabled ? " is-disabled" : ""}`;
+      return `<button type="button" class="${cls}" data-${attr}="${esc(o.value)}"${disabled}${title}>${esc(o.label)}</button>`;
+    })
     .join("");
 }
 
-export function openAddAnimalDialog() {
+function handoffCaseId(prefill = {}) {
+  return prefill.caseId || new URLSearchParams(window.location.search).get("from_case") || "";
+}
+
+async function loadHandoff(caseId) {
+  if (!caseId) return { caseId: "", description: "", source: "rescued_case" };
+  try {
+    const caseData = await fetchCase(caseId);
+    let description = "";
+    if (caseData && caseData.report_id) {
+      const report = await fetchReport(caseData.report_id);
+      description = (report && report.animal_description) || "";
+    }
+    return { caseId, description, source: "rescued_case" };
+  } catch {
+    return { caseId, description: "", source: "rescued_case" };
+  }
+}
+
+export function openAddAnimalDialog(prefill = {}) {
+  const caseId = handoffCaseId(prefill);
   return new Promise((resolve) => {
     const overlay = document.createElement("div");
     overlay.className = "dialog-overlay";
@@ -32,6 +59,8 @@ export function openAddAnimalDialog() {
       { value: "puspin", label: "Puspin" },
     ];
     const statusTabs = [
+      { value: "not_listed", label: "Not listed" },
+      { value: "available", label: "Ready for adoption", disabled: true, title: HEALTH_READY_HINT },
       { value: "pending", label: "Pending" },
       { value: "adopted", label: "Adopted" },
     ];
@@ -45,10 +74,12 @@ export function openAddAnimalDialog() {
       species: "dog",
       breed: "aspin",
       sex: "male",
-      status: "pending",
+      status: "not_listed",
       ageUnit: "yr",
       photo: null,
       pendingId: null,
+      source: "rescued_case",
+      description: prefill.description || "",
     };
 
     overlay.innerHTML = `
@@ -56,12 +87,15 @@ export function openAddAnimalDialog() {
         <div class="dialog-head">
           <div class="dialog-title-wrap">
             <i data-lucide="plus-circle" class="dialog-icon"></i>
-            <h3 class="dialog-title" id="add-animal-title">Add animal</h3>
+            <h3 class="dialog-title" id="add-animal-title">${caseId ? "Register animal" : "Add animal"}</h3>
           </div>
           <button type="button" class="dialog-x" aria-label="Close"><i data-lucide="x"></i></button>
         </div>
         <div class="dialog-body rescuer-modal-body">
           <div class="add-animal-form">
+            ${caseId ? `<p class="stamp stamp--sm stamp--muted">Source · Rescued case · ${esc(shortId(caseId))}</p>
+            <label class="dialog-label" for="aa-description">Report description</label>
+            <textarea class="dialog-input aa-textarea" id="aa-description" rows="3">${esc(form.description)}</textarea>` : ""}
             <label class="dialog-label" for="aa-name">Name <span class="dialog-req">*</span></label>
             <input class="dialog-input" id="aa-name" placeholder="e.g. Bantay" autocomplete="off" />
 
@@ -91,6 +125,7 @@ export function openAddAnimalDialog() {
 
             <label class="dialog-label">Status</label>
             <div class="q-tabs" id="aa-status-tabs">${tabsHtml("status", statusTabs, form.status)}</div>
+            <p class="health-ready-hint">Ready for adoption stays disabled until the animal has a vaccination and a vital.</p>
 
             <label class="dialog-label" for="aa-color">Color / markings</label>
             <input class="dialog-input" id="aa-color" placeholder="e.g. Brown with white patch" autocomplete="off" />
@@ -156,10 +191,18 @@ export function openAddAnimalDialog() {
     });
     statusTabsEl.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-status]");
-      if (!btn) return;
+      if (!btn || btn.disabled) return;
       form.status = btn.dataset.status;
       activate(statusTabsEl, "status", form.status);
     });
+    const descEl = overlay.querySelector("#aa-description");
+    if (caseId) {
+      loadHandoff(caseId).then((handoff) => {
+        form.source = handoff.source;
+        form.description = handoff.description;
+        if (descEl && !descEl.value.trim() && handoff.description) descEl.value = handoff.description;
+      });
+    }
     ageTabsEl.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-unit]");
       if (!btn) return;
@@ -238,6 +281,25 @@ export function openAddAnimalDialog() {
       okBtn.disabled = true;
       okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Adding…</span>`;
       try {
+        if (form.status === "available") form.status = "not_listed";
+        const description = descEl ? descEl.value.trim() : form.description || null;
+        if (caseId && !form.pendingId) {
+          const created = await createAnimal({
+            name,
+            species: form.species,
+            breed_type: form.breed,
+            sex: form.sex,
+            age_estimate: age,
+            birth_date: birthDate,
+            color_markings: colorEl ? colorEl.value.trim() : null,
+            adoption_status: "not_listed",
+            source: "rescued_case",
+            description,
+            photo_urls: form.photo ? [form.photo] : null,
+            case_id: caseId,
+          });
+          if (created && created.id) form.pendingId = created.id;
+        }
         const animal = await addAnimal({
           id: form.pendingId || null,
           name,
@@ -246,14 +308,27 @@ export function openAddAnimalDialog() {
           age,
           birthDate,
           sex: form.sex,
-          status: form.status,
+          status: form.status === "available" ? "not_listed" : form.status,
           color: colorEl ? colorEl.value.trim() : null,
           photo: form.photo,
           model3d: assets.modelFile ? "" : assets.modelUrl,
           photo360Urls,
           modelFile: assets.modelFile,
           photo360Files: assets.photo360Files,
+          description,
         });
+        if (caseId && animal && animal.id) {
+          try {
+            await updateAnimal(animal.id, { case_id: caseId });
+          } catch {
+            /* create() may already have linked case_id */
+          }
+          setSelectedId(animal.id);
+          overlay.remove();
+          resolve(animal);
+          window.location.href = "/admin/animals/";
+          return;
+        }
         overlay.remove();
         resolve(animal);
       } catch (err) {
@@ -279,4 +354,21 @@ export function openAddAnimalDialog() {
       }
     });
   });
+}
+
+let handoffOpened = false;
+
+function bootCaseHandoff() {
+  if (handoffOpened) return;
+  if (!window.location.pathname.includes("/admin/animals")) return;
+  const caseId = new URLSearchParams(window.location.search).get("from_case");
+  if (!caseId) return;
+  handoffOpened = true;
+  openAddAnimalDialog({ caseId });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => setTimeout(bootCaseHandoff, 0));
+} else {
+  setTimeout(bootCaseHandoff, 0);
 }

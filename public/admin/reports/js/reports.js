@@ -3,7 +3,7 @@ import { requireAuth, getSessionUser } from "/js/lib/api.js";
 import { bootstrapPageAuth } from "/js/lib/page-auth.js";
 import { initShell } from "/admin/js/layout/app-shell.js";
 import { ReportsPage, attachReportTooltips, initReportSort } from "./pages/reports/components.js";
-import { state, loadReports } from "./pages/reports/state.js";
+import { applyPageState, state, loadReports } from "./pages/reports/state.js";
 import { initReportsEvents } from "./pages/reports/workflow.js";
 import { initDropdownMenu } from "/js/components/ui/dropdown-menu.js";
 
@@ -41,10 +41,19 @@ function initPageInteractions() {
   attachReportTooltips();
 }
 
+function seedFromPageState() {
+  if (typeof window === "undefined" || !window.__PAGE_STATE__) return false;
+  bootstrapPageAuth();
+  Object.assign(state, window.__PAGE_STATE__);
+  applyPageState();
+  return true;
+}
+
+seedFromPageState();
+
 document.addEventListener("DOMContentLoaded", () => {
   if (window.__PAGE_STATE__) {
-    bootstrapPageAuth();
-    Object.assign(state, window.__PAGE_STATE__);
+    seedFromPageState();
     const app = document.getElementById("app");
     if (app && !app.childElementCount) {
       app.innerHTML = ReportsPage(getSessionUser(), { loading: false });

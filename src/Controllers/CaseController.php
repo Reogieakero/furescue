@@ -3,26 +3,28 @@
 namespace App\Controllers;
 
 use App\Database;
+use App\Entity\RescueCase;
 use App\Http\Request;
 use App\Http\Response;
 use App\Repositories\CaseRepository;
-use App\Repositories\ReportRepository;
 use App\Repositories\UserRepository;
+use App\Services\CaseProofUpload;
+use App\Services\CaseWorkflowService;
 use App\Services\NotificationService;
 use PDO;
 
 class CaseController extends AbstractController
 {
     private CaseRepository $cases;
-    private ReportRepository $reports;
     private UserRepository $users;
+    private CaseWorkflowService $workflow;
 
     public function __construct(PDO $pdo)
     {
         parent::__construct($pdo);
         $this->cases = new CaseRepository($pdo);
-        $this->reports = new ReportRepository($pdo);
         $this->users = new UserRepository($pdo);
+        $this->workflow = new CaseWorkflowService($pdo);
     }
 
     public function index(Request $req): void
@@ -70,7 +72,13 @@ class CaseController extends AbstractController
             Response::error('NOT_FOUND', 'Case not found', 404);
             return;
         }
-        Response::success(['case' => $case->toArray()]);
+        if (!$this->canAccessCase($req, $case)) {
+            Response::error('FORBIDDEN', 'Not your case', 403);
+            return;
+        }
+        $payload = $case->toArray();
+        $payload['animal_id'] = $this->lookupAnimalId($case->id());
+        Response::success(['case' => $payload]);
     }
 
     public function assign(Request $req): void
@@ -84,6 +92,10 @@ class CaseController extends AbstractController
         $case = $this->cases->find($req->params['id']);
         if (!$case) {
             Response::error('NOT_FOUND', 'Case not found', 404);
+            return;
+        }
+        if (!in_array($case->status(), ['open', 'assigned'], true)) {
+            Response::error('INVALID_STATUS', 'Case can only be assigned when open or assigned', 422);
             return;
         }
 
@@ -110,42 +122,35 @@ class CaseController extends AbstractController
         Response::success(['case' => $this->cases->find($case->id())->toArray()]);
     }
 
-    public function updateStatus(Request $req): void
+    public function accept(Request $req): void
     {
-        $v = new \App\Validation\Validator($req->body);
-        $v->required('status')->in('status', ['assigned','in_progress','resolved']);
-        if (!$v->passes()) {
-            Response::error('VALIDATION_ERROR', $v->firstError(), 400);
-            return;
-        }
-        $case = $this->cases->find($req->params['id']);
-        if (!$case) {
-            Response::error('NOT_FOUND', 'Case not found', 404);
-            return;
-        }
-        if (!in_array('cases.assign', $req->permissions, true) && $case->assignedRescuerId() !== $req->user['id']) {
-            Response::error('FORBIDDEN', 'Not your case', 403);
-            return;
-        }
+        $this->respondWorkflow(fn () => $this->workflow->accept($req->params['id'], $req->user));
+    }
 
-        $this->cases->update($case->id(), ['status' => $req->body['status']]);
-        $this->logActivity($case->id(), 'status_change', 'Status set to ' . $req->body['status'], $req->user['id'], $req->user['role']);
-
-        if ($req->body['status'] === 'resolved') {
-            $report = $this->reports->find($case->reportId());
-            if ($report) {
-                $this->reports->update($report->id(), ['status' => 'verified']);
-                $notif = new NotificationService($this->pdo);
-                $notif->notify($report->residentId(), 'case_resolved', 'Your reported case has been resolved.', 'case', $case->id());
-            }
-        }
-        Response::success(['case' => $this->cases->find($case->id())->toArray()]);
+    public function decline(Request $req): void
+    {
+        $this->respondWorkflow(fn () => $this->workflow->decline($req->params['id'], $req->user));
     }
 
     public function proof(Request $req): void
     {
+        $files = CaseProofUpload::collect($_FILES);
+        if ($files === [] && !empty($req->body['url'])) {
+            Response::error('VALIDATION_ERROR', 'Proof must be uploaded as multipart files, not a URL.', 400);
+            return;
+        }
+        $this->respondWorkflow(fn () => $this->workflow->addProof($req->params['id'], $req->user, $files));
+    }
+
+    public function resolve(Request $req): void
+    {
+        $this->respondWorkflow(fn () => $this->workflow->resolve($req->params['id'], $req->user));
+    }
+
+    public function updateStatus(Request $req): void
+    {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('url')->string('url', 2000);
+        $v->required('status')->in('status', ['assigned', 'in_progress', 'resolved']);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
@@ -155,22 +160,56 @@ class CaseController extends AbstractController
             Response::error('NOT_FOUND', 'Case not found', 404);
             return;
         }
-        $existing = json_decode((string) $case->resolutionPhotos(), true);
-        if (!is_array($existing)) {
-            $existing = [];
+        if (!$this->canAccessCase($req, $case)) {
+            Response::error('FORBIDDEN', 'Not your case', 403);
+            return;
         }
-        $existing[] = $req->body['url'];
-        $photos = array_values(array_unique($existing));
-        $this->cases->update($case->id(), ['resolution_photos' => json_encode($photos)]);
-        $this->logActivity($case->id(), 'proof_added', 'Resolution proof photo added', $req->user['id'], $req->user['role']);
-        Response::success(['proof' => $photos]);
+        $this->respondWorkflow(fn () => $this->workflow->rejectStatusPatch($req->body['status']));
     }
 
     public function activity(Request $req): void
     {
+        $case = $this->cases->find($req->params['id']);
+        if (!$case) {
+            Response::error('NOT_FOUND', 'Case not found', 404);
+            return;
+        }
+        if (!$this->canAccessCase($req, $case)) {
+            Response::error('FORBIDDEN', 'Not your case', 403);
+            return;
+        }
         $logRepo = $this->repo('case_activity_log', ['id','case_id','actor_id','actor_role','action','notes','created_at']);
         $rows = $logRepo->all(['case_id' => $req->params['id']], 'created_at', 'ASC');
         Response::success(['activity' => $rows]);
+    }
+
+    private function canAccessCase(Request $req, RescueCase $case): bool
+    {
+        if (($req->user['role'] ?? null) === 'admin' || in_array('cases.assign', $req->permissions, true)) {
+            return true;
+        }
+        return $case->assignedRescuerId() !== null && $case->assignedRescuerId() === ($req->user['id'] ?? null);
+    }
+
+    private function lookupAnimalId(string $caseId): ?string
+    {
+        try {
+            $stmt = $this->pdo->prepare('SELECT id FROM animals WHERE case_id = ? LIMIT 1');
+            $stmt->execute([$caseId]);
+            $id = $stmt->fetchColumn();
+            return $id !== false && $id !== null ? (string) $id : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    private function respondWorkflow(callable $fn): void
+    {
+        try {
+            Response::success($fn());
+        } catch (\App\Services\CaseWorkflowException $e) {
+            Response::error($e->errorCode(), $e->getMessage(), $e->httpStatus());
+        }
     }
 
     private function logActivity(string $caseId, string $action, ?string $notes, string $actorId, string $actorRole): void

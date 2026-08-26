@@ -12,6 +12,20 @@ export const state = {
   page: 1,
 };
 
+/** Copy PHP first-paint lists onto `state`. Safe to call more than once. */
+export function applyPageState(source = typeof window !== "undefined" ? window.__PAGE_STATE__ : null) {
+  if (!source || typeof source !== "object") return false;
+  if (source.overview != null && typeof source.overview === "object") {
+    state.overview = source.overview;
+  }
+  if (Array.isArray(source.reports)) state.reports = source.reports;
+  if (Array.isArray(source.cases)) state.cases = source.cases;
+  if (Array.isArray(source.rescuers)) state.rescuers = source.rescuers;
+  return Array.isArray(source.reports);
+}
+
+applyPageState();
+
 const EMPTY_OVERVIEW = {
   reports: 0,
   cases: 0,

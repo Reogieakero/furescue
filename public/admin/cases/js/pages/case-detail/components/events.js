@@ -1,5 +1,4 @@
 import { createIcons, icons } from "lucide";
-import { apiFetch } from "/js/lib/api.js";
 import * as api from "/admin/js/lib/admin-data.js";
 import { toast } from "/js/components/ui/toast.js";
 import { Button } from "/js/components/ui/button.js";
@@ -18,56 +17,9 @@ export function mountCaseDetail() {
   createIcons({ icons });
 }
 
-function proofFormHtml() {
-  return `<div class="cd-proof-add">
-        <input id="cd-proof-input" class="cd-proof-input" type="url" placeholder="Paste proof photo URL…">
-        ${Button({ text: "Add", variant: "outline", size: "sm", icon: "plus", attrs: 'data-cd-action="add-proof"' })}
-      </div>`;
-}
-
-function ensureProofForm(root) {
-  if (root.querySelector("#cd-proof-input")) return;
-  const panel = root.querySelector(".cd-col-rescuer .panel-body")
-    || Array.from(root.querySelectorAll(".case-detail-panel, .panel")).find((el) => {
-      const title = el.querySelector(".panel-title");
-      return title && /rescue proof/i.test(title.textContent || "");
-    })?.querySelector(".panel-body");
-  if (!panel) return;
-  panel.insertAdjacentHTML("beforeend", proofFormHtml());
-}
-
 function caseId() {
   return (state.caseData && state.caseData.id) || state.caseId
     || new URLSearchParams(window.location.search).get("id");
-}
-
-async function addProofPhoto() {
-  const input = document.getElementById("cd-proof-input");
-  const url = input && input.value.trim();
-  if (!url) {
-    toast("Enter a proof photo URL.", { type: "error" });
-    return;
-  }
-  const id = caseId();
-  if (!id) {
-    toast("No case specified.", { type: "error" });
-    return;
-  }
-  const exists = (state.proof || []).some((p) => p === url);
-  if (exists) {
-    toast("That photo is already added.", { type: "error" });
-    return;
-  }
-  try {
-    await apiFetch(`/cases/${id}/proof`, {
-      method: "POST",
-      body: { url },
-    });
-    toast("Proof photo added.");
-    await loadAndRemount();
-  } catch (e) {
-    toast(e.message || "Failed to add proof.", { type: "error" });
-  }
 }
 
 export function initCaseDetailEvents() {
@@ -76,7 +28,6 @@ export function initCaseDetailEvents() {
   }
   const root = document.getElementById("app");
   if (!root) return;
-  ensureProofForm(root);
   if (!root.dataset.cdEventsBound) {
     root.dataset.cdEventsBound = "1";
     root.addEventListener("click", async (e) => {
@@ -87,7 +38,6 @@ export function initCaseDetailEvents() {
       if (action === "resolve" && id) await resolveCase(id, state.caseData);
       if (action === "assign" && id) await assignCase(id, state.caseData && state.caseData.report_id);
       if (action === "location") renderLocation(state.caseData || {});
-      if (action === "add-proof") await addProofPhoto();
     });
   }
   createIcons({ icons });
@@ -104,7 +54,7 @@ async function loadAndRemount() {
 
 async function resolveCase(caseId, caseData) {
   try {
-    await api.updateCaseStatus(caseId, "resolved");
+    await api.resolveCase(caseId);
     toast("Case resolved.");
     await loadAndRemount();
   } catch (e) {

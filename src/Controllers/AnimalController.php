@@ -6,23 +6,27 @@ use App\Database;
 use App\Http\Request;
 use App\Http\Response;
 use App\Repositories\AnimalRepository;
+use App\Services\AdoptionEligibilityService;
 use PDO;
 
 class AnimalController extends AbstractController
 {
     private AnimalRepository $animals;
+    private AdoptionEligibilityService $eligibility;
+    private ?bool $hasCaseIdColumn = null;
 
     public function __construct(PDO $pdo)
     {
         parent::__construct($pdo);
         $this->animals = new AnimalRepository($pdo);
+        $this->eligibility = new AdoptionEligibilityService($pdo);
     }
 
     public function index(Request $req): void
     {
         $where = "WHERE deleted_at IS NULL";
         $params = [];
-        foreach (['species', 'breed_type', 'sex', 'adoption_status', 'source'] as $f) {
+        foreach (['species', 'breed_type', 'sex', 'adoption_status', 'source', 'case_id'] as $f) {
             if (!empty($req->query[$f])) {
                 $where .= " AND {$f} = ?";
                 $params[] = $req->query[$f];
@@ -39,7 +43,7 @@ class AnimalController extends AbstractController
         $total = (int) $countStmt->fetchColumn();
         $offset = ($page - 1) * $perPage;
         $stmt = $this->pdo->prepare(
-            "SELECT id,name,species,breed_type,sex,age_estimate,birth_date,color_markings,photo_urls,model_3d_url,photo_360_set,adoption_status,source,created_at
+            "SELECT id,name,species,breed_type,sex,age_estimate,birth_date,color_markings,photo_urls,model_3d_url,photo_360_set,adoption_status,source,case_id,created_at
              FROM animals {$where} ORDER BY created_at DESC LIMIT " . (int) $perPage . " OFFSET " . (int) $offset
         );
         $stmt->execute($params);
@@ -69,14 +73,27 @@ class AnimalController extends AbstractController
             ->optional('name')->string(100)
             ->optional('adoption_status')->in('adoption_status', ['not_listed', 'available', 'pending', 'adopted'])
             ->optional('source')->in('source', ['rescued_case', 'resident_listing'])
-            ->optional('description')->string(2000);
+            ->optional('description')->string(2000)
+            ->optional('case_id')->string(36);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
         }
 
+        $fromCase = $this->optionalCaseId($req->body);
+        $id = Database::uuidV4();
+        $adoptionStatus = $req->body['adoption_status'] ?? 'not_listed';
+        if ($fromCase !== null && $adoptionStatus !== 'available') {
+            $adoptionStatus = 'not_listed';
+        }
+
+        if ($adoptionStatus === 'available' && !$this->eligibility->isEligible($id)) {
+            $this->rejectNotHealthReady();
+            return;
+        }
+
         $data = [
-            'id' => Database::uuidV4(),
+            'id' => $id,
             'species' => $req->body['species'],
             'breed_type' => $req->body['breed_type'],
             'sex' => $req->body['sex'],
@@ -88,11 +105,17 @@ class AnimalController extends AbstractController
             'photo_urls' => isset($req->body['photo_urls']) ? json_encode($req->body['photo_urls']) : null,
             'model_3d_url' => $req->body['model_3d_url'] ?? null,
             'photo_360_set' => isset($req->body['photo_360_set']) ? json_encode($req->body['photo_360_set']) : null,
-            'adoption_status' => $req->body['adoption_status'] ?? 'not_listed',
-            'source' => $req->body['source'] ?? 'rescued_case',
+            'adoption_status' => $adoptionStatus,
+            'source' => $fromCase !== null ? 'rescued_case' : ($req->body['source'] ?? 'rescued_case'),
             'created_by' => $req->user['id'],
         ];
-        $id = $this->animals->create($data);
+        if ($fromCase !== null && $this->hasCaseIdColumn()) {
+            $data['case_id'] = $fromCase;
+        }
+        $this->animals->create($data);
+        if ($fromCase !== null) {
+            $this->attachCaseId($id, $fromCase);
+        }
         $created = $this->animals->find($id);
         Response::success(['animal' => $created->toArray()], 201);
     }
@@ -104,7 +127,7 @@ class AnimalController extends AbstractController
             Response::error('NOT_FOUND', 'Animal not found', 404);
             return;
         }
-        $allowed = ['name', 'age_estimate', 'birth_date', 'color_markings', 'description', 'photo_urls', 'model_3d_url', 'photo_360_set', 'adoption_status'];
+        $allowed = ['name', 'age_estimate', 'birth_date', 'color_markings', 'description', 'photo_urls', 'model_3d_url', 'photo_360_set', 'adoption_status', 'case_id'];
         $data = [];
         foreach ($allowed as $f) {
             if (array_key_exists($f, $req->body)) {
@@ -115,11 +138,22 @@ class AnimalController extends AbstractController
                 $data[$f] = $val;
             }
         }
-        if (empty($data)) {
+        $caseId = array_key_exists('case_id', $data) ? $data['case_id'] : null;
+        unset($data['case_id']);
+        if (empty($data) && ($caseId === null || $caseId === '')) {
             Response::error('VALIDATION_ERROR', 'No updatable fields', 400);
             return;
         }
-        $this->animals->update($animal->id(), $data);
+        if (($data['adoption_status'] ?? null) === 'available' && !$this->eligibility->isEligible($animal->id())) {
+            $this->rejectNotHealthReady();
+            return;
+        }
+        if (!empty($data)) {
+            $this->animals->update($animal->id(), $data);
+        }
+        if ($caseId !== null && $caseId !== '') {
+            $this->attachCaseId($animal->id(), (string) $caseId);
+        }
         $updated = $this->animals->find($animal->id());
         Response::success(['animal' => $updated->toArray()]);
     }
@@ -165,5 +199,49 @@ class AnimalController extends AbstractController
     {
         $rows = $this->repo('animal_field_status')->all(['animal_id' => $req->params['id']], 'logged_at', 'DESC');
         Response::success(['field_status' => $rows]);
+    }
+
+    private function rejectNotHealthReady(): void
+    {
+        Response::error(
+            AdoptionEligibilityService::ERROR_CODE,
+            AdoptionEligibilityService::ERROR_MESSAGE,
+            409
+        );
+    }
+
+    private function optionalCaseId(array $body): ?string
+    {
+        if (!array_key_exists('case_id', $body) || $body['case_id'] === null || $body['case_id'] === '') {
+            return null;
+        }
+        return (string) $body['case_id'];
+    }
+
+    private function hasCaseIdColumn(): bool
+    {
+        if ($this->hasCaseIdColumn !== null) {
+            return $this->hasCaseIdColumn;
+        }
+        try {
+            $this->pdo->query('SELECT case_id FROM animals LIMIT 0');
+            $this->hasCaseIdColumn = true;
+        } catch (\PDOException $e) {
+            $this->hasCaseIdColumn = false;
+        }
+        return $this->hasCaseIdColumn;
+    }
+
+    private function attachCaseId(string $animalId, string $caseId): void
+    {
+        if (!$this->hasCaseIdColumn()) {
+            return;
+        }
+        try {
+            $stmt = $this->pdo->prepare('UPDATE animals SET case_id = ? WHERE id = ?');
+            $stmt->execute([$caseId, $animalId]);
+        } catch (\PDOException $e) {
+            // Unique/FK failures are owned by Workstream E's migration; do not block create.
+        }
     }
 }

@@ -1,10 +1,20 @@
 import { createIcons, icons } from "lucide";
 import { Button } from "/js/components/ui/button.js";
 import { Spinner } from "/js/components/ui/spinner.js";
-import { updateAnimal } from "/admin/js/lib/admin-data.js";
+import { fetchAnimalHealthRecord, updateAnimal } from "/admin/js/lib/admin-data.js";
 import { parsePhoto360, saveAnimalAssets } from "../state.js";
 import { bindProfileAssets, clientAssetError, profileAssetsFields, readProfileAssets } from "./profile-assets.js";
 import { resizeImage } from "./util.js";
+
+const HEALTH_READY_HINT =
+  "Animal must have a vaccination record and vitals before it can be listed for adoption.";
+
+function isHealthReady(record) {
+  if (!record) return false;
+  const hasVaccination = Array.isArray(record.vaccinations) && record.vaccinations.length > 0;
+  const hasVital = Array.isArray(record.vitals) && record.vitals.length > 0;
+  return hasVaccination && hasVital;
+}
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({
@@ -31,21 +41,29 @@ const API_TO_STATUS = {
 
 function tabsHtml(attr, options, active) {
   return options
-    .map(
-      (o) =>
-        `<button type="button" class="q-btn${o.value === active ? " is-active" : ""}" data-${attr}="${esc(o.value)}">${esc(o.label)}</button>`
-    )
+    .map((o) => {
+      const disabled = o.disabled ? " disabled aria-disabled=\"true\"" : "";
+      const title = o.title ? ` title="${esc(o.title)}"` : "";
+      const cls = `q-btn${o.value === active ? " is-active" : ""}${o.disabled ? " is-disabled" : ""}`;
+      return `<button type="button" class="${cls}" data-${attr}="${esc(o.value)}"${disabled}${title}>${esc(o.label)}</button>`;
+    })
     .join("");
 }
 
-export function openEditAnimalDialog(animal) {
+export async function openEditAnimalDialog(animal) {
+  let healthReady = false;
+  try {
+    healthReady = isHealthReady(await fetchAnimalHealthRecord(animal.id));
+  } catch {
+    healthReady = false;
+  }
   return new Promise((resolve) => {
     const overlay = document.createElement("div");
     overlay.className = "dialog-overlay";
 
     const statusTabs = [
-      { value: "not_listed", label: "Just listed" },
-      { value: "available", label: "Ready for adoption" },
+      { value: "not_listed", label: "Not listed" },
+      { value: "available", label: "Ready for adoption", disabled: !healthReady, title: healthReady ? "" : HEALTH_READY_HINT },
       { value: "pending", label: "Pending" },
       { value: "adopted", label: "Adopted" },
     ];
@@ -98,6 +116,7 @@ export function openEditAnimalDialog(animal) {
 
             <label class="dialog-label">Status</label>
             <div class="q-tabs" id="ea-status-tabs">${tabsHtml("status", statusTabs, form.status)}</div>
+            ${healthReady ? "" : `<p class="health-ready-hint">${esc(HEALTH_READY_HINT)}</p>`}
 
             <label class="dialog-label" for="ea-color">Color / markings</label>
             <input class="dialog-input" id="ea-color" value="${esc(animal.barangay)}" autocomplete="off" />
@@ -148,7 +167,7 @@ export function openEditAnimalDialog(animal) {
 
     statusTabsEl.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-status]");
-      if (!btn) return;
+      if (!btn || btn.disabled) return;
       form.status = btn.dataset.status;
       activate(statusTabsEl, "status", form.status);
     });
@@ -196,6 +215,11 @@ export function openEditAnimalDialog(animal) {
       const assetErr = clientAssetError(assets);
       if (assetErr) {
         errorEl.textContent = assetErr;
+        errorEl.hidden = false;
+        return;
+      }
+      if (form.status === "available" && !healthReady) {
+        errorEl.textContent = HEALTH_READY_HINT;
         errorEl.hidden = false;
         return;
       }

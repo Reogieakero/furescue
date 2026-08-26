@@ -123,6 +123,7 @@ $badgeHtml = static function (string $text, string $variant = 'default', string 
 $statusRaw = (string) ($caseRow['status'] ?? '');
 $isResolved = $statusRaw === 'resolved';
 $showResolve = $statusRaw === 'in_progress';
+$canResolve = $showResolve && count($proofUrls) >= 1;
 $stampCls = ($statusRaw === 'in_progress' || $statusRaw === 'resolved') ? 'stamp--accent' : 'stamp--coral';
 
 // renderActions(): Button ignores unknown props, so the disabled "Resolved"
@@ -137,7 +138,16 @@ if ($isResolved) {
       <div class="cd-actions">
         ' . $locationBtn . '
         ' . button_html($assignLabel, 'outline', 'sm', '', 'user-plus', 'data-cd-action="assign"') . '
-        ' . ($showResolve ? button_html('Resolve', 'default', 'sm', '', 'check-circle-2', 'data-cd-action="resolve"') : '') . '
+        ' . ($showResolve ? button_html(
+            'Resolve',
+            'default',
+            'sm',
+            '',
+            'check-circle-2',
+            $canResolve
+                ? 'data-cd-action="resolve"'
+                : 'disabled aria-disabled="true" title="Rescue proof required before resolve"'
+        ) : '') . '
       </div>';
 }
 
@@ -161,10 +171,16 @@ $events[] = [
     'time' => $openTime['time'],
 ];
 
-$workflowLabels = ['assigned' => 'Rescuer assigned', 'status_change' => 'Status updated'];
+$workflowLabels = [
+    'assigned' => 'Rescuer assigned',
+    'status_change' => 'Status updated',
+    'accepted' => 'Rescue accepted',
+    'declined' => 'Rescue declined',
+    'proof_added' => 'Rescue proof added',
+];
 $statusNotes = [
     'in_progress' => 'Rescuer accepted and started the rescue',
-    'resolved' => 'Rescuer marked the case resolved',
+    'resolved' => 'Admin marked the case resolved',
     'assigned' => 'Rescuer re-assigned to the case',
 ];
 $assignedCount = 0;
@@ -194,6 +210,14 @@ foreach ($activityRows as $ev) {
         $rowActor = $byRescuer
             ? $badgeHtml($rescuerName !== '' ? $rescuerName : 'Rescuer', 'secondary', 'user')
             : $badgeHtml(title_case((string) (($ev['actor_role'] ?? '') !== '' ? $ev['actor_role'] : 'Admin')), 'outline', 'shield');
+    } elseif (in_array($type, ['accepted', 'declined', 'proof_added'], true)) {
+        $rowActor = $badgeHtml($rescuerName !== '' ? $rescuerName : 'Rescuer', 'secondary', 'user');
+        $rowNote = match ($type) {
+            'accepted' => 'Rescuer accepted the assignment',
+            'declined' => 'Rescuer declined the assignment',
+            'proof_added' => 'Rescuer uploaded rescue proof',
+            default => '',
+        };
     } else {
         $rowNote = (string) (($ev['notes'] ?? '') !== '' ? $ev['notes'] : ($ev['note'] ?? ''));
     }

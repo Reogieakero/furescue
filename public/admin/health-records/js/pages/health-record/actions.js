@@ -11,6 +11,30 @@ import { openVaccinationDialog, deleteSelectedVaccinations } from "./dialogs/vac
 import { openVitalDialog } from "./dialogs/vitals.js";
 import { openDocumentDialog, openDocumentPreview, openAllDocumentsDrawer } from "./dialogs/documents.js";
 
+export const HEALTH_READY_HINT =
+  "Animal must have a vaccination record and vitals before it can be listed for adoption.";
+
+export function isHealthReady(r = record) {
+  if (!r) return false;
+  const hasVaccination = Array.isArray(r.vaccinations) && r.vaccinations.length > 0;
+  const hasVital = Array.isArray(r.vitals) && r.vitals.length > 0;
+  return hasVaccination && hasVital;
+}
+
+export function gateAdoptionUi(root = document) {
+  const ready = isHealthReady(record);
+  root.querySelectorAll('[data-action="post-for-adoption"]').forEach((btn) => {
+    btn.disabled = !ready;
+    if (!ready) {
+      btn.setAttribute("title", HEALTH_READY_HINT);
+      btn.setAttribute("aria-disabled", "true");
+    } else {
+      btn.removeAttribute("title");
+      btn.removeAttribute("aria-disabled");
+    }
+  });
+}
+
 async function saveRecord() {
   if (!record || !record.id || ui.saving) return;
   const name = (document.getElementById("hr-name")?.value || "").trim();
@@ -19,6 +43,10 @@ async function saveRecord() {
   const neutered = document.getElementById("hr-neutered-value")?.value || record.overview?.neutered || "";
   if (!name) {
     toast("Name is required.", { type: "error" });
+    return;
+  }
+  if (adoptionStatus === "available" && !isHealthReady(record)) {
+    toast(HEALTH_READY_HINT, { type: "error" });
     return;
   }
   ui.saving = true;
@@ -38,6 +66,10 @@ async function saveRecord() {
 
 async function postForAdoption() {
   if (!record || !record.id) return;
+  if (!isHealthReady(record)) {
+    toast(HEALTH_READY_HINT, { type: "error" });
+    return;
+  }
   try {
     await createAdoptionListing(record.id);
     toast("Listed for adoption.", { type: "success" });
@@ -147,3 +179,22 @@ export function handleAction(actionEl) {
       return;
   }
 }
+
+function startAdoptionGate() {
+  const apply = () => gateAdoptionUi(document.getElementById("app") || document);
+  const boot = () => {
+    apply();
+    const app = document.getElementById("app");
+    if (app && !app.dataset.adoptionGateBound) {
+      app.dataset.adoptionGateBound = "1";
+      new MutationObserver(apply).observe(app, { childList: true });
+    }
+  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 0));
+  } else {
+    setTimeout(boot, 0);
+  }
+}
+
+startAdoptionGate();

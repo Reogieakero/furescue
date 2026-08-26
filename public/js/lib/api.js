@@ -42,7 +42,8 @@ export function redirectToLogin() {
 export function homePathForRole(user) {
   const role = user && user.role;
   if (role === "admin") return "/admin/";
-  if (role === "resident" || role === "rescuer") return "/reports/";
+  if (role === "rescuer") return "/cases/";
+  if (role === "resident") return "/reports/";
   return "/index.php";
 }
 

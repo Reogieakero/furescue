@@ -19,6 +19,7 @@ class Animal
     private ?string $photo360Set;
     private ?string $adoptionStatus;
     private ?string $source;
+    private ?string $caseId;
     private ?string $createdBy;
     private ?string $createdAt;
     private ?string $updatedAt;
@@ -46,6 +47,7 @@ class Animal
         $animal->photo360Set = $row['photo_360_set'] ?? null;
         $animal->adoptionStatus = $row['adoption_status'] ?? null;
         $animal->source = $row['source'] ?? null;
+        $animal->caseId = $row['case_id'] ?? null;
         $animal->createdBy = $row['created_by'] ?? null;
         $animal->createdAt = $row['created_at'] ?? null;
         $animal->updatedAt = $row['updated_at'] ?? null;
@@ -166,6 +168,7 @@ class Animal
             'photo_360_set' => $this->photo360Set,
             'adoption_status' => $this->adoptionStatus,
             'source' => $this->source,
+            'case_id' => $this->caseId,
             'created_by' => $this->createdBy,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,

@@ -3,15 +3,32 @@ import { titleCase } from "/admin/js/pages/dashboard/helpers.js";
 import { Badge } from "/js/components/ui/badge.js";
 import { state } from "../state.js";
 
+const STATUS_LABELS = {
+  pending_verification: "PENDING",
+  verified: "VERIFIED",
+  assigned: "ASSIGNED",
+  in_progress: "IN PROGRESS",
+  resolved: "RESOLVED",
+  open: "OPEN",
+};
+
 const WORKFLOW_LABELS = {
   assigned: { label: "Rescuer assigned", icon: "user-plus" },
   status_change: { label: "Status updated", icon: "refresh-cw" },
+  accepted: { label: "Rescue accepted", icon: "badge-check" },
+  declined: { label: "Rescue declined", icon: "file-x" },
+  proof_added: { label: "Rescue proof added", icon: "camera" },
 };
+
+function statusDisplay(status) {
+  return STATUS_LABELS[status] || titleCase(status);
+}
 
 function statusNote(status) {
   if (status === "in_progress") return "Rescuer accepted and started the rescue";
-  if (status === "resolved") return "Rescuer marked the case resolved";
+  if (status === "resolved") return "Admin marked the case resolved";
   if (status === "assigned") return "Rescuer re-assigned to the case";
+  if (status === "open") return "Case returned to open";
   return null;
 }
 
@@ -20,11 +37,32 @@ function describeEvent(ev) {
     const m = /^Status set to (.+)$/.exec(ev.notes || ev.note || "");
     if (m) {
       const status = m[1];
-      return statusNote(status) || `Status changed to ${titleCase(status)}`;
+      return statusNote(status) || `Status changed to ${statusDisplay(status)}`;
     }
     return "";
   }
   return ev.notes || ev.note || "";
+}
+
+function rescuerBadge(caseData) {
+  return Badge({ text: caseData.rescuer_name || "Rescuer", variant: "secondary", icon: "user" });
+}
+
+function eventActorBadge(ev, caseData) {
+  const role = (ev.actor_role || "").toLowerCase();
+  if (role === "rescuer" || !role) return rescuerBadge(caseData);
+  return Badge({
+    text: titleCase(ev.actor_role || "Admin"),
+    variant: "outline",
+    icon: "shield",
+  });
+}
+
+function rescueTailNote(type) {
+  if (type === "accepted") return "Rescuer accepted the assignment";
+  if (type === "declined") return "Rescuer declined the assignment";
+  if (type === "proof_added") return "Rescuer uploaded rescue proof";
+  return "";
 }
 
 function formatEventTime(iso) {
@@ -67,13 +105,11 @@ function buildActivity(caseData) {
         : (isReassign ? "Rescuer reassigned to the case" : "Rescuer assigned to the case");
     } else if (type === "status_change") {
       note = describeEvent(ev);
-      const role = (ev.actor_role || "admin").toLowerCase();
-      const byRescuer = role === "rescuer";
-      actorBadge = Badge({
-        text: byRescuer ? (caseData.rescuer_name || "Rescuer") : titleCase(ev.actor_role || "Admin"),
-        variant: byRescuer ? "secondary" : "outline",
-        icon: byRescuer ? "user" : "shield",
-      });
+      actorBadge = eventActorBadge({ ...ev, actor_role: ev.actor_role || "admin" }, caseData);
+    } else if (type === "accepted" || type === "declined" || type === "proof_added") {
+      title = (WORKFLOW_LABELS[type] || { label: titleCase(type) }).label;
+      actorBadge = eventActorBadge(ev, caseData);
+      note = rescueTailNote(type);
     } else {
       note = describeEvent(ev);
     }

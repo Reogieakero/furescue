@@ -5,6 +5,7 @@ import { initShell } from "/admin/js/layout/app-shell.js";
 import { initDropdownMenu } from "/js/components/ui/dropdown-menu.js";
 import { state, loadCaseDetail, hydrateFromCache } from "./pages/case-detail/state.js";
 import { CaseDetailPage, initCaseDetailEvents } from "./pages/case-detail/components.js";
+import "./pages/case-detail/components/register-animal.js";
 import { loadCases } from "./pages/cases/state.js";
 import { getCase } from "./pages/cases/components/util.js";
 

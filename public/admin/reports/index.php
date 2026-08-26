@@ -109,6 +109,10 @@ $rptButton = static function (string $text, string $variant, string $icon, strin
     $cls = trim($rptBtnBase . ' ' . $rptBtnVariants[$variant] . ' h-7 px-3');
     return '<button type="button" class="' . e($cls) . '" ' . $attrs . '><i data-lucide="' . e($icon) . '" class="icon"></i><span>' . e($text) . '</span></button>';
 };
+$rptLink = static function (string $href, string $text, string $variant, string $icon) use ($rptBtnBase, $rptBtnVariants): string {
+    $cls = trim($rptBtnBase . ' ' . ($rptBtnVariants[$variant] ?? $rptBtnVariants['outline']) . ' h-7 px-3');
+    return '<a href="' . e($href) . '" class="' . e($cls) . '" onclick="event.stopPropagation()"><i data-lucide="' . e($icon) . '" class="icon"></i><span>' . e($text) . '</span></a>';
+};
 
 $counts = [
     'all' => count($reports),
@@ -189,7 +193,7 @@ usort($reports, static function (array $a, array $b) use ($caseByReport, $rptCas
 
 $PAGE_SIZE = 15;
 
-$actionLinksFor = static function (array $r) use ($caseByReport, $rptButton): string {
+$actionLinksFor = static function (array $r) use ($caseByReport, $rptButton, $rptLink): string {
     $ridAttr = 'data-action="%s" data-id="' . e((string) ($r['id'] ?? '')) . '"';
     $status = (string) ($r['status'] ?? '');
     if ($status === 'pending_verification') {
@@ -209,15 +213,9 @@ $actionLinksFor = static function (array $r) use ($caseByReport, $rptButton): st
                 . $timeline;
         }
         $cStatus = (string) ($c['status'] ?? '');
-        if ($cStatus === 'assigned') {
-            return $rptButton('Mark in progress', 'default', 'play', 'data-action="progress" data-id="' . e((string) ($r['id'] ?? '')) . '" data-case="' . e($cid) . '"')
-                . $timeline;
-        }
-        if ($cStatus === 'in_progress') {
-            return $rptButton('Resolve', 'default', 'check-circle-2', 'data-action="resolve" data-id="' . e((string) ($r['id'] ?? '')) . '" data-case="' . e($cid) . '"')
-                . $timeline;
-        }
-        return $timeline;
+        $detailHref = '/admin/cases/case-detail.php?id=' . rawurlencode($cid);
+        $detailVariant = $cStatus === 'in_progress' ? 'default' : 'outline';
+        return $rptLink($detailHref, 'Case detail', $detailVariant, 'folder-open') . $timeline;
     }
     return '';
 };

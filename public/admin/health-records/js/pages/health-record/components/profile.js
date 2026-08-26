@@ -1,7 +1,12 @@
 import { esc } from "../../health-records/components/util.js";
 import { cap, selectField, ADOPTION_OPTIONS } from "../util.js";
+import { HEALTH_READY_HINT, isHealthReady } from "../actions.js";
 
 export function ProfilePanel(r, { editing = false } = {}) {
+  const ready = isHealthReady(r);
+  const adoptionOptions = ADOPTION_OPTIONS.filter(
+    (o) => o.value !== "available" || ready || r.adoptionStatus === "available"
+  );
   const photo = r.photoUrl
     ? `<img src="${esc(r.photoUrl)}" alt="${esc(r.name)}" class="hr-photo">`
     : `<span class="hr-photo hr-photo--ph">${esc((r.name || "?").charAt(0).toUpperCase())}</span>`;
@@ -22,10 +27,11 @@ export function ProfilePanel(r, { editing = false } = {}) {
         <label class="dialog-label">Adoption status${selectField({
           id: "hr-adoption-status",
           name: "adoption_status",
-          options: ADOPTION_OPTIONS,
+          options: adoptionOptions,
           value: r.adoptionStatus || "not_listed",
           placeholder: "Status",
         })}</label>
+        ${ready ? "" : `<p class="health-ready-hint">${esc(HEALTH_READY_HINT)}</p>`}
       </div>`
     : "";
 

@@ -5,10 +5,20 @@ namespace App\Controllers;
 use App\Database;
 use App\Http\Request;
 use App\Http\Response;
+use App\Services\AdoptionEligibilityService;
 use App\Services\NotificationService;
+use PDO;
 
 class AdoptionListingController extends AbstractController
 {
+    private AdoptionEligibilityService $eligibility;
+
+    public function __construct(PDO $pdo)
+    {
+        parent::__construct($pdo);
+        $this->eligibility = new AdoptionEligibilityService($pdo);
+    }
+
     public function create(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
@@ -20,6 +30,10 @@ class AdoptionListingController extends AbstractController
         $animal = $this->repo('animals')->find($req->body['animal_id']);
         if (!$animal) {
             Response::error('NOT_FOUND', 'Animal not found', 404);
+            return;
+        }
+        if (!$this->eligibility->isEligible($req->body['animal_id'])) {
+            $this->rejectNotHealthReady();
             return;
         }
         $id = $this->repo('adoption_listings')->create([
@@ -72,6 +86,10 @@ class AdoptionListingController extends AbstractController
             Response::error('NOT_FOUND', 'Listing not found', 404);
             return;
         }
+        if ($decision === 'approved' && !$this->eligibility->isEligible($listing['animal_id'])) {
+            $this->rejectNotHealthReady();
+            return;
+        }
         $repo->update($listing['id'], [
             'status' => $decision === 'approved' ? 'approved' : 'rejected',
             'reviewed_by' => $req->user['id'],
@@ -86,5 +104,14 @@ class AdoptionListingController extends AbstractController
         $notif = new NotificationService($this->pdo);
         $notif->notify($listing['posted_by'], 'listing_' . $decision, 'Your adoption listing was ' . $decision . '.', 'adoption_listing', $listing['id']);
         Response::success(['listing' => $repo->find($listing['id'])]);
+    }
+
+    private function rejectNotHealthReady(): void
+    {
+        Response::error(
+            AdoptionEligibilityService::ERROR_CODE,
+            AdoptionEligibilityService::ERROR_MESSAGE,
+            409
+        );
     }
 }

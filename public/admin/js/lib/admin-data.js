@@ -178,6 +178,9 @@ export const assignRescuer = (caseId, rescuerId) =>
 export const updateCaseStatus = (caseId, status) =>
   patch(`/cases/${caseId}/status`, { status });
 
+export const resolveCase = (caseId) =>
+  post(`/cases/${caseId}/resolve`);
+
 export const fetchCaseActivity = (caseId) =>
   raw(`/cases/${caseId}/activity`).then((d) => (d && d.activity) || []);
 

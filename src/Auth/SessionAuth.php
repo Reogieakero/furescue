@@ -58,7 +58,8 @@ final class SessionAuth
     {
         return match (self::resolvedRole($role)) {
             'admin' => '/admin/',
-            'resident', 'rescuer' => '/reports/',
+            'rescuer' => '/cases/',
+            'resident' => '/reports/',
             default => '/index.php',
         };
     }
@@ -67,7 +68,8 @@ final class SessionAuth
     {
         return match (self::resolvedRole($role)) {
             'admin' => 'Dashboard',
-            'resident', 'rescuer' => 'My Reports',
+            'rescuer' => 'My Cases',
+            'resident' => 'My Reports',
             default => 'Home',
         };
     }

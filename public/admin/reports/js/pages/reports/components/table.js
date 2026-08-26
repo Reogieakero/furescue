@@ -1,10 +1,26 @@
+import { createIcons, icons } from "lucide";
 import { PaginationBar } from "/js/components/ui/pagination.js";
 import { Button } from "/js/components/ui/button.js";
 import { stampCls } from "./util.js";
+import { attachReportTooltips } from "./tooltips.js";
 import { shortId, timeAgo, titleCase } from "/admin/js/pages/dashboard/helpers.js";
-import { state } from "../state.js";
+import { applyPageState, state } from "../state.js";
 
 const PAGE_SIZE = 15;
+
+const STATUS_LABELS = {
+  pending_verification: "PENDING",
+  verified: "VERIFIED",
+  assigned: "ASSIGNED",
+  in_progress: "IN PROGRESS",
+  resolved: "RESOLVED",
+  open: "OPEN",
+};
+
+function statusLabel(status) {
+  if (!status) return null;
+  return STATUS_LABELS[status] || titleCase(status);
+}
 
 export function enrich(r) {
   const c = state.cases.find((x) => x.report_id === r.id) || null;
@@ -15,14 +31,25 @@ export function enrich(r) {
     id: shortId(r.id),
     brgy: r.address_text || "—",
     reporter: shortId(r.resident_id),
-    status: titleCase(r.status),
+    status: statusLabel(r.status),
     statusCls: stampCls(r.status),
     when: timeAgo(r.created_at),
-    caseStatus: c ? titleCase(c.status) : null,
+    caseStatus: c ? statusLabel(c.status) : null,
     caseStatusCls: c ? stampCls(c.status) : "",
     resolved: !!(c && c.status === "resolved"),
     rescuer: rescuer ? rescuer.full_name : c && c.assigned_rescuer_id ? "Assigned" : "—",
   };
+}
+
+function caseDetailLink(caseId, variant = "outline") {
+  return Button({
+    text: "Case detail",
+    variant,
+    size: "sm",
+    icon: "folder-open",
+    href: `/admin/cases/case-detail.php?id=${encodeURIComponent(caseId)}`,
+    attrs: `onclick="event.stopPropagation()"`,
+  });
 }
 
 export function actionLinks(r) {
@@ -39,13 +66,8 @@ export function actionLinks(r) {
     if (!c.assigned_rescuer_id) {
       return `${Button({ text: "Assign rescuer", variant: "default", size: "sm", icon: "user-plus", attrs: `data-action="assign" data-id="${r.id}" data-case="${c.id}"` })}${timeline}`;
     }
-    if (c.status === "assigned") {
-      return `${Button({ text: "Mark in progress", variant: "default", size: "sm", icon: "play", attrs: `data-action="progress" data-id="${r.id}" data-case="${c.id}"` })}${timeline}`;
-    }
-    if (c.status === "in_progress") {
-      return `${Button({ text: "Resolve", variant: "default", size: "sm", icon: "check-circle-2", attrs: `data-action="resolve" data-id="${r.id}" data-case="${c.id}"` })}${timeline}`;
-    }
-    return timeline;
+    // Admins must not skip accept or one-click resolve — open the case instead.
+    return `${caseDetailLink(c.id, c.status === "in_progress" ? "default" : "outline")}${timeline}`;
   }
   return "";
 }
@@ -78,8 +100,8 @@ function cmp(a, b) {
 }
 
 export function filteredReports() {
-  const q = state.query.trim().toLowerCase();
-  let list = state.reports;
+  const q = (state.query || "").trim().toLowerCase();
+  let list = Array.isArray(state.reports) ? state.reports : [];
   if (state.filter !== "all") list = list.filter((r) => r.status === state.filter);
   if (q) {
     list = list.filter((r) =>
@@ -134,4 +156,21 @@ export function ReportTable() {
       </table>
     </div>
     ${pagination}`;
+}
+
+function hydrateReportTable() {
+  if (!window.__PAGE_STATE__) return;
+  applyPageState();
+  const table = document.getElementById("report-table");
+  if (!table) return;
+  if (!state.reports.length && table.querySelector("tr[data-id]")) return;
+  table.innerHTML = ReportTable();
+  createIcons({ icons });
+  attachReportTooltips();
+}
+
+if (typeof document !== "undefined") {
+  document.addEventListener("DOMContentLoaded", () => {
+    queueMicrotask(hydrateReportTable);
+  });
 }
