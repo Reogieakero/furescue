@@ -2,7 +2,8 @@ import { createIcons, icons } from "lucide";
 import { requireAuth, redirectToLogin } from "../../js/lib/api.js";
 import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
 import { initResidentShell } from "../../js/components/resident-shell.js";
-import { fetchCases } from "./api.js";
+import { toast } from "../../js/components/ui/toast.js";
+import { fetchCases, toggleDuty } from "./api.js";
 import { bindCaseActions } from "./actions.js";
 import { caseRow, countLabel, listErrorHtml, listLoadingHtml } from "./list-render.js";
 
@@ -57,6 +58,38 @@ async function loadCases({ silent = false } = {}) {
   }
 }
 
+function paintDutyControl(status) {
+  const btn = el("duty-toggle");
+  if (!btn) return;
+  const on = status === "on_duty";
+  btn.dataset.status = on ? "on_duty" : "off_duty";
+  btn.setAttribute("aria-pressed", String(on));
+  btn.classList.toggle("rbtn--solid", on);
+  btn.classList.toggle("rbtn--ghost", !on);
+  btn.innerHTML = `<i data-lucide="${on ? "siren" : "circle-dot"}"></i><span>${on ? "On duty" : "Off duty"}</span>`;
+  paintIcons();
+}
+
+async function onDutyToggle() {
+  const btn = el("duty-toggle");
+  const user = (window.__PAGE_STATE__ || {}).user || {};
+  if (!btn || btn.disabled || !user.id) return;
+  const next = btn.dataset.status === "on_duty" ? "off_duty" : "on_duty";
+  btn.disabled = true;
+  try {
+    const data = await toggleDuty(user.id, next);
+    paintDutyControl((data && data.duty_status) || next);
+  } catch (err) {
+    if (err && err.status === 401) {
+      redirectToLogin();
+      return;
+    }
+    toast(err.message || "Could not update duty status.", { type: "error" });
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 function bindFilters() {
   document.querySelectorAll(".rtab[data-status]").forEach((tab) => {
     tab.addEventListener("click", () => {
@@ -82,6 +115,8 @@ function boot() {
     onDeclined: () => loadCases({ silent: true }),
   });
   el("refresh-cases")?.addEventListener("click", () => loadCases());
+  el("duty-toggle")?.addEventListener("click", () => onDutyToggle());
+  paintDutyControl(((window.__PAGE_STATE__ || {}).dutyStatus === "on_duty") ? "on_duty" : "off_duty");
   loadCases();
 }
 

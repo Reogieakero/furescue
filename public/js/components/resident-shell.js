@@ -2,6 +2,7 @@ import { createIcons, icons } from "lucide";
 import { clearSession, apiFetch } from "../lib/api.js";
 import { bootstrapPageAuth } from "../lib/page-auth.js";
 import { setNavBadge } from "../lib/swr.js";
+import { subscribeToNotifications } from "../lib/notification-stream.js";
 import { initDropdownMenu } from "./ui/dropdown-menu.js";
 
 function initMenuToggle() {
@@ -33,15 +34,42 @@ function setBadgeEls(key, value) {
   });
 }
 
+function applyBadgeCount(count) {
+  setNavBadge("notifications", count);
+  setBadgeEls("notifications", count);
+}
+
 async function refreshNotificationBadge() {
   try {
     const data = await apiFetch("/notifications/unread-count");
-    const count = Number(data && data.count) || 0;
-    setNavBadge("notifications", count);
-    setBadgeEls("notifications", count);
+    applyBadgeCount(Number(data && data.count) || 0);
   } catch {
     /* badge is best-effort */
   }
+}
+
+function applyStreamBadge(payload) {
+  if (!payload || typeof payload !== "object") return;
+  if (typeof payload.unread_count === "number") {
+    applyBadgeCount(payload.unread_count);
+    return;
+  }
+  const hasRow =
+    (payload.notification && payload.notification.id != null) || payload.id != null;
+  if (hasRow) {
+    const shown = document.querySelector('[data-nav-badge="notifications"]');
+    applyBadgeCount((Number(shown && shown.textContent) || 0) + 1);
+    return;
+  }
+  void refreshNotificationBadge();
+}
+
+let notificationStream = null;
+
+function stopNotificationStream() {
+  if (!notificationStream) return;
+  notificationStream.close();
+  notificationStream = null;
 }
 
 function initDate() {
@@ -76,7 +104,10 @@ export function initResidentShell() {
   initLogout();
   initDropdownMenu(document);
   refreshNotificationBadge();
+  notificationStream = subscribeToNotifications(applyStreamBadge);
 }
+
+window.addEventListener("pagehide", stopNotificationStream);
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initResidentShell);

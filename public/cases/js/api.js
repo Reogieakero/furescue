@@ -66,6 +66,13 @@ export function declineCase(id) {
   return apiFetch(`/cases/${encodeURIComponent(id)}/decline`, { method: "POST", body: {} });
 }
 
+export function toggleDuty(id, status) {
+  return apiFetch(`/rescuers/${encodeURIComponent(id)}/duty`, {
+    method: "PATCH",
+    body: { status },
+  });
+}
+
 export function uploadProof(id, files) {
   const formData = new FormData();
   for (const file of files) {

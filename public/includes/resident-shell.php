@@ -67,6 +67,7 @@ $residentNavGroups = [
         'items' => [
             ['icon' => 'heart', 'label' => 'Browse Animals', 'href' => '/animals/'],
             ['icon' => 'file-check', 'label' => 'My Adoptions', 'href' => '/adoptions/'],
+            ['icon' => 'megaphone', 'label' => 'My Listings', 'href' => '/listings/'],
         ],
     ],
     [
@@ -160,6 +161,9 @@ $residentChrome = static function () use ($esc, $residentGroupsHtml, $residentSh
             <p class="text-xs text-muted-foreground mt-1">' . $esc((string) ($residentUser['email'] ?? '')) . '</p>
           </div>
           <div class="-mx-1 my-1 h-px bg-muted"></div>
+          <a href="/account/" class="' . $residentMenuBase . '">
+            <i data-lucide="user" class="lucide h-4 w-4"></i><span>Account</span>
+          </a>
           <a href="/notifications/" class="' . $residentMenuBase . '">
             <i data-lucide="bell" class="lucide h-4 w-4"></i><span>Notifications</span>
           </a>

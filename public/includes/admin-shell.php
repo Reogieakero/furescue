@@ -15,10 +15,9 @@ declare(strict_types=1);
  * here as real <a href> links. Active state is resolved server-side from
  * $activeNav, so navigation works without JavaScript.
  *
- * Badge merge mirrors Sidebar()'s `{ notifications, ...getNavBadges(), ...badges }`
- * minus localStorage: server-side that collapses to ['notifications' => 3] + $navBadges.
- * Sidebar items carry no static badge values anymore — badges are purely dynamic,
- * so an explicit null in $navBadges simply suppresses that item's badge on fresh load.
+ * Badge merge starts empty and applies $navBadges only. Sidebar items carry
+ * no static badge values — badges are purely dynamic, so an explicit null
+ * in $navBadges simply suppresses that item's badge on fresh load.
  */
 
 require __DIR__ . '/admin-nav.php';
@@ -30,7 +29,7 @@ $adminChildren = $adminChildren ?? '';
 
 $esc = static fn(mixed $v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 
-$adminBadgeMap = ['notifications' => 3];
+$adminBadgeMap = [];
 foreach ($navBadges as $k => $v) {
     $adminBadgeMap[$k] = $v;
 }
@@ -92,9 +91,10 @@ $adminProfileMenu = '
     <div data-dropdown-content role="menu" class="absolute top-full z-50 mt-1 hidden min-w-56 overflow-hidden rounded-md border border-input bg-card p-1 text-card-foreground shadow-md right-0">'
         . $adminMenuLabel('Insights')
         . $adminMenuItem('bar-chart-3', 'Analytics', '/admin/analytics/')
-        . $adminMenuItem('file-down', 'Reports & Exports', '/admin/reports/')
+        . $adminMenuItem('file-down', 'Reports & Exports', '/admin/analytics/')
         . $adminMenuSeparator
         . $adminMenuLabel('System')
+        . $adminMenuItem('user', 'Account', '/account/')
         . $adminMenuItem('users', 'Users', '/admin/rescuers/')
         . $adminMenuSeparator
         . $adminMenuItem('log-out', 'Log Out', '/auth/logout.php', true) . '
@@ -123,14 +123,9 @@ $adminProfileMenu = '
         <i data-lucide="menu"></i>
       </button>
 
-      <div class="topbar-search">
-        <i data-lucide="search"></i>
-        <input type="text" placeholder="Search case #, name, barangay…">
-      </div>
-
       <div class="topbar-actions">
         <span class="topbar-meta"><i data-lucide="calendar"></i> <span id="admin-date"></span> &middot; City of Mati</span>
-        <button class="topbar-bell" aria-label="Notifications"><i data-lucide="bell"></i></button>
+        <a href="/admin/notifications/" class="topbar-bell" aria-label="Notifications"><i data-lucide="bell"></i></a>
         <span class="topbar-divider"></span>
         <?= $adminProfileMenu ?>
       </div>

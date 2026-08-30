@@ -74,3 +74,4 @@ docs/             Project documentation
 | [FEATURES.md](docs/technical/FEATURES.md) | Feature inventory (as built) — what is implemented per feature area, with evidence |
 | [HOW_TO_RUN.md](docs/technical/HOW_TO_RUN.md) | Install, configure, migrate, seed, and run |
 | [SYSTEM_REPORT.md](docs/technical/SYSTEM_REPORT.md) | System report |
+| [WORKFLOWS.md](docs/technical/WORKFLOWS.md) | Study objectives → pages, role flows, mermaid diagrams |

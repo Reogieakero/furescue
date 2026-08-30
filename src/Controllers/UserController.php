@@ -104,6 +104,7 @@ class UserController extends AbstractController
             return;
         }
 
+        $isAdmin = ($req->user['role'] ?? '') === 'admin';
         $allowed = ['full_name','phone_number','address','profile_photo_url'];
         if ($isAdmin) {
             $allowed = array_merge($allowed, ['account_status','role']);
@@ -145,6 +146,16 @@ class UserController extends AbstractController
             Response::error('NOT_FOUND', 'Rescuer not found', 404);
             return;
         }
+
+        $callerId = (string) ($req->user['id'] ?? '');
+        $callerRole = (string) ($req->user['role'] ?? '');
+        $canToggleAny = in_array('users.toggle_duty', $req->permissions, true);
+        $canToggleSelf = $callerId !== '' && $callerId === $user->id() && $callerRole === 'rescuer';
+        if (!$canToggleAny && !$canToggleSelf) {
+            Response::error('FORBIDDEN', 'Cannot change duty status for this rescuer', 403);
+            return;
+        }
+
         $stmt = $this->pdo->prepare(
             "INSERT INTO rescuer_duty_status (id, user_id, status)
              VALUES (?, ?, ?)

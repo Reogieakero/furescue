@@ -38,7 +38,8 @@ if (
         header('Location: ' . rtrim((string) $uri, '/') . '/' . ($query !== null ? '?' . $query : ''), true, 302);
         exit;
     }
-    return false;
+    require $requestPath . DIRECTORY_SEPARATOR . 'index.php';
+    exit;
 }
 if (is_string($uri) && str_starts_with($uri, '/uploads/')) {
     $file = __DIR__ . $uri;

@@ -32,7 +32,7 @@ $adminUser = [
     'profile_photo_url' => '',
 ];
 $activeNav = 'health records';
-$navBadges = ['notifications' => 3];
+$navBadges = [];
 $adminChildren = $children;
 
 ob_start();

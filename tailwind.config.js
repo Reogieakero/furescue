@@ -10,6 +10,8 @@ export default {
     "./public/animals/**/*.{php,js}",
     "./public/adoptions/**/*.{php,js}",
     "./public/listings/**/*.{php,js}",
+    "./public/cases/**/*.{php,js}",
+    "./public/account/**/*.{php,js}",
     "./public/includes/*.php",
     "./public/{learning,messages,notifications}/**/*.{php,js}",
     "./public/js/**/*.{js,ts}",

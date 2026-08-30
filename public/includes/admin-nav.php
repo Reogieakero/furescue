@@ -27,6 +27,7 @@ $adminNav = [
         'label' => 'Overview',
         'items' => [
             ['key' => 'dashboard', 'label' => 'Dashboard', 'href' => '/admin/', 'icon' => 'layout-dashboard'],
+            ['key' => 'analytics', 'label' => 'Analytics', 'href' => '/admin/analytics/', 'icon' => 'bar-chart-3'],
         ],
     ],
     [

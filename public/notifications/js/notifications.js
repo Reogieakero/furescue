@@ -2,6 +2,7 @@ import { createIcons, icons } from "lucide";
 import { apiFetch, requireAuth } from "/js/lib/api.js";
 import { bootstrapPageAuth } from "/js/lib/page-auth.js";
 import { esc, timeAgo } from "/js/lib/format.js";
+import { subscribeToNotifications } from "/js/lib/notification-stream.js";
 import { initResidentShell, setResidentNavBadge } from "/js/components/resident-shell.js";
 import { toast } from "/js/components/ui/toast.js";
 
@@ -18,9 +19,14 @@ const TYPE_STYLE = [
 
 const RELATED_LINK = {
   report: { href: "/reports/", label: "View report" },
-  case: { href: "/reports/", label: "View case" },
+  case: { href: "/cases/detail.php?id=", label: "View case" },
   adoption: { href: "/adoptions/", label: "View adoption" },
+  listing: { href: "/listings/", label: "View listing" },
 };
+
+const CASE_LIST_HREF = "/cases/";
+
+let inboxStream = null;
 
 const state = {
   items: [],
@@ -36,8 +42,20 @@ function styleFor(type) {
 }
 
 function relatedFor(n) {
-  if (!n.related_type || !RELATED_LINK[n.related_type]) return null;
-  return RELATED_LINK[n.related_type];
+  const spec = n.related_type && RELATED_LINK[n.related_type];
+  if (!spec) return null;
+  const id = n.related_id;
+  if (id == null || id === "") {
+    return {
+      href: n.related_type === "case" ? CASE_LIST_HREF : spec.href,
+      label: spec.label,
+    };
+  }
+  if (n.related_type === "case") {
+    return { href: `${spec.href}${encodeURIComponent(id)}`, label: spec.label };
+  }
+  const joiner = spec.href.includes("?") ? "&" : "?";
+  return { href: `${spec.href}${joiner}id=${encodeURIComponent(id)}`, label: spec.label };
 }
 
 function unreadCount() {
@@ -211,5 +229,41 @@ document.addEventListener("DOMContentLoaded", () => {
     openRow(row);
   });
 
-  void loadNotifications();
+  void loadNotifications().finally(() => {
+    inboxStream = subscribeToNotifications(applyInboxStream);
+  });
 });
+
+function rowFromPayload(payload) {
+  if (!payload || typeof payload !== "object") return null;
+  const candidate =
+    payload.notification && typeof payload.notification === "object"
+      ? payload.notification
+      : payload;
+  return candidate.id != null ? candidate : null;
+}
+
+function applyInboxStream(payload) {
+  const row = rowFromPayload(payload);
+  if (row) {
+    const idx = state.items.findIndex((n) => n.id === row.id);
+    if (idx >= 0) state.items.splice(idx, 1);
+    state.items.unshift(row);
+    renderList();
+    renderUnreadChip();
+    syncBadge();
+    return;
+  }
+  if (payload && typeof payload.unread_count === "number") {
+    setResidentNavBadge("notifications", payload.unread_count);
+  }
+}
+
+function closeInboxStream() {
+  if (!inboxStream) return;
+  inboxStream.close();
+  inboxStream = null;
+}
+
+window.addEventListener("pagehide", closeInboxStream);
+window.addEventListener("unload", closeInboxStream);

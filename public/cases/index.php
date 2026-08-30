@@ -17,6 +17,21 @@ $pdo = Database::connect();
 $userData = (new \App\Repositories\UserRepository($pdo))->find($uid);
 $userData = $userData ? $userData->toArray() : [];
 
+$dutyStatus = 'off_duty';
+try {
+    $dutyStmt = $pdo->prepare('SELECT status FROM rescuer_duty_status WHERE user_id = ? LIMIT 1');
+    $dutyStmt->execute([$uid]);
+    $dutyRow = $dutyStmt->fetchColumn();
+    if ($dutyRow === 'on_duty' || $dutyRow === 'off_duty') {
+        $dutyStatus = $dutyRow;
+    }
+} catch (Throwable $e) {
+    $dutyStatus = 'off_duty';
+}
+
+$esc = static fn(mixed $v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+$dutyOn = $dutyStatus === 'on_duty';
+
 $residentUser = [
     'id' => $uid,
     'full_name' => (string) ($userData['full_name'] ?? ($_SESSION['user']['full_name'] ?? '')),
@@ -33,6 +48,10 @@ $content = '
           <p class="rpage-sub">Accept assigned rescues, update in-progress work, and file proof when you finish.</p>
         </div>
         <div class="rpage-actions">
+          <button type="button" id="duty-toggle" class="rbtn rbtn--sm ' . ($dutyOn ? 'rbtn--solid' : 'rbtn--ghost') . '" data-status="' . $esc($dutyStatus) . '" aria-pressed="' . ($dutyOn ? 'true' : 'false') . '" aria-label="Toggle duty status">
+            <i data-lucide="' . ($dutyOn ? 'siren' : 'circle-dot') . '"></i>
+            <span>' . ($dutyOn ? 'On duty' : 'Off duty') . '</span>
+          </button>
           <button type="button" id="refresh-cases" class="rbtn rbtn--ghost rbtn--sm">
             <i data-lucide="refresh-cw"></i><span>Refresh</span>
           </button>
@@ -60,6 +79,7 @@ $jwt = new JwtService();
 $pageState = [
     'accessToken' => $jwt->issueAccessToken(['id' => $uid, 'role' => $residentUser['role']]),
     'user' => $residentUser,
+    'dutyStatus' => $dutyStatus,
 ];
 $pageModules = ['/cases/js/list.js'];
 $pageTitle = 'FurEscue — My Cases';
