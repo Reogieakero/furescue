@@ -1,5 +1,5 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, apiFetch, redirectToLogin } from "../../js/lib/api.js";
+import { hasPageSession, PORTAL_ROLES, requireAuth, apiFetch, redirectToLogin } from "../../js/lib/api.js";
 import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
 import { initResidentShell } from "../../js/components/resident-shell.js";
 import { toast } from "../../js/components/ui/toast.js";
@@ -42,7 +42,7 @@ async function onSubmit(event, user) {
     });
     toast("Account updated.", { type: "success" });
   } catch (err) {
-    if (err && err.status === 401) {
+    if (err && err.status === 401 && !hasPageSession()) {
       redirectToLogin();
       return;
     }
@@ -57,7 +57,7 @@ async function onSubmit(event, user) {
 function boot() {
   bootstrapPageAuth();
   initResidentShell();
-  const user = requireAuth(["resident", "rescuer", "admin"]);
+  const user = requireAuth(PORTAL_ROLES);
   if (!user) return;
   createIcons({ icons });
   el("account-form")?.addEventListener("submit", (event) => onSubmit(event, user));

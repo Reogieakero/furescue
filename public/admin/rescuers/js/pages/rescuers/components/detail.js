@@ -47,38 +47,52 @@ export function renderRescuerDetail() {
   createIcons({ icons });
 }
 
+function rowRescuer(id) {
+  return [...state.rescuers, ...state.pending].find((x) => x.id === id) || null;
+}
+
 export async function selectRescuer(id, { force = false } = {}) {
   if (!id) return;
   highlightRow(id);
-  if (!force && state.selectedId === id) {
-    if (state.selectedRescuer) {
-      persistSelection();
-      renderRescuerDetail();
-      return;
-    }
-    if (state.selectedRescuer === undefined) return;
+
+  const fromRow = rowRescuer(id);
+  const alreadyLoaded =
+    !force &&
+    state.selectedId === id &&
+    state.selectedRescuer &&
+    state.selectedRescuer.id === id;
+
+  if (alreadyLoaded) {
+    persistSelection();
+    renderRescuerDetail();
+    return;
   }
 
   const gen = ++selectGen;
   state.selectedId = id;
-  state.selectedRescuer = undefined;
+  state.selectedRescuer =
+    fromRow ||
+    (state.selectedRescuer && state.selectedRescuer.id === id ? state.selectedRescuer : fromRow);
   persistSelection();
   renderRescuerDetail();
 
-  let rescuer = null;
-  let casesRes = { items: [] };
+  let rescuer = state.selectedRescuer;
+  let casesRes = { items: state.selectedRescuerCases || [] };
   try {
     const userRes = await api.fetchUser(id);
     if (gen !== selectGen || state.selectedId !== id) return;
-    rescuer = (userRes && (userRes.user || userRes)) || null;
+    const fetched = (userRes && (userRes.user || userRes)) || null;
+    if (fetched) {
+      rescuer = { ...(fromRow || {}), ...fetched };
+    }
     const cases = await api.fetchRescuerCases(id);
     casesRes = cases || { items: [] };
   } catch {
-    rescuer = null;
+    if (!rescuer) rescuer = fromRow;
     casesRes = { items: [] };
   }
   if (gen !== selectGen || state.selectedId !== id) return;
-  state.selectedRescuer = rescuer;
+  state.selectedRescuer = rescuer || fromRow || null;
   state.selectedRescuerCases = casesRes.items || [];
   persistSelection();
   renderRescuerDetail();

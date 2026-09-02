@@ -28,6 +28,35 @@ $stmt = $pdo->prepare(
 $stmt->execute();
 $listings = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
+$uniqueByAnimal = static function (array $rows): array {
+    $rank = ['pending_review' => 0, 'approved' => 1, 'rejected' => 2];
+    $best = [];
+    foreach ($rows as $row) {
+        $key = (string) ($row['animal_id'] ?? '');
+        if ($key === '') {
+            continue;
+        }
+        if (!isset($best[$key])) {
+            $best[$key] = $row;
+            continue;
+        }
+        $prev = $best[$key];
+        $rNew = $rank[$row['status'] ?? ''] ?? 9;
+        $rOld = $rank[$prev['status'] ?? ''] ?? 9;
+        if ($rNew < $rOld) {
+            $best[$key] = $row;
+        } elseif ($rNew === $rOld) {
+            $tNew = strtotime((string) ($row['created_at'] ?? '')) ?: 0;
+            $tOld = strtotime((string) ($prev['created_at'] ?? '')) ?: 0;
+            if ($tNew > $tOld) {
+                $best[$key] = $row;
+            }
+        }
+    }
+    return array_values($best);
+};
+$listings = $uniqueByAnimal($listings);
+
 usort($listings, static function (array $a, array $b): int {
     $rankA = (($a['status'] ?? '') === 'pending_review') ? 0 : 1;
     $rankB = (($b['status'] ?? '') === 'pending_review') ? 0 : 1;

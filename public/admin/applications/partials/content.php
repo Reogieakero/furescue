@@ -57,18 +57,13 @@ $filterTabs = '
 const APPLICATIONS_PAGE_SIZE = 15;
 $actionLinksFor = static function (array $a) use ($appButton): string {
     $id = e((string) ($a['id'] ?? ''));
-    $details = $appButton('Details', 'outline', 'sm', 'eye', 'data-action="details" data-id="' . $id . '"');
+    $view = $appButton('View application', 'outline', 'sm', 'eye', 'data-action="view" data-id="' . $id . '"');
     $status = (string) ($a['status'] ?? '');
     if ($status === 'pending') {
-        return $details
-            . $appButton('Approve', 'default', 'sm', 'badge-check', 'data-action="approve" data-id="' . $id . '"')
-            . $appButton('Decline', 'destructive', 'sm', 'file-x', 'data-action="decline" data-id="' . $id . '"');
+        return $view
+            . $appButton('Reject', 'destructive', 'sm', 'file-x', 'data-action="reject" data-id="' . $id . '"');
     }
-    if ($status === 'approved') {
-        return $details
-            . $appButton('Complete', 'default', 'sm', 'check-circle-2', 'data-action="complete" data-id="' . $id . '"');
-    }
-    return $details;
+    return $view;
 };
 
 if ($loadError !== '') {

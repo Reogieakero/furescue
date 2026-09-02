@@ -41,15 +41,6 @@ export function exportableRescuers() {
 function rescuerRow(r) {
   const duty = r.duty_status || "off_duty";
   const suspended = r.account_status === "suspended";
-  const dutyBtn = suspended
-    ? ""
-    : Button({
-        text: duty === "on_duty" ? "Set off duty" : "Set on duty",
-        variant: "outline",
-        size: "sm",
-        icon: "power",
-        attrs: `data-action="duty" data-id="${r.id}" data-status="${duty === "on_duty" ? "off_duty" : "on_duty"}"`,
-      });
   const toggle = suspended
     ? Button({ text: "Activate", variant: "outline", size: "sm", icon: "user-check", attrs: `data-action="activate" data-id="${r.id}"` })
     : Button({ text: "Suspend", variant: "destructive", size: "sm", attrs: `data-action="suspend" data-id="${r.id}"` });
@@ -61,10 +52,7 @@ function rescuerRow(r) {
       <td class="table-cell"><span class="stamp stamp--sm ${dutyStampCls(duty)}">${dutyLabel(duty)}</span></td>
       <td class="table-cell">${timeAgo(r.created_at)}</td>
       <td class="table-cell table-cell--right table-cell--nowrap">
-        <span class="table-actions">
-          ${dutyBtn}
-          ${toggle}
-        </span>
+        <span class="table-actions">${toggle}</span>
       </td>
     </tr>`;
 }

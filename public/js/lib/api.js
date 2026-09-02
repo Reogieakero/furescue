@@ -34,7 +34,37 @@ export function clearSession() {
   localStorage.removeItem(USER_KEY);
 }
 
+export function pageSession(state = typeof window !== "undefined" ? window.__PAGE_STATE__ : null) {
+  if (!state || !state.accessToken || !state.user || !state.user.id) return null;
+  return state;
+}
+
+export function hasPageSession(state) {
+  return pageSession(state) !== null;
+}
+
+export function syncPageAuth(state = typeof window !== "undefined" ? window.__PAGE_STATE__ : null) {
+  const page = pageSession(state);
+  if (!page) return null;
+  const current = getSessionUser();
+  const sameToken = getAccessToken() === page.accessToken;
+  const sameUser =
+    current && current.id === page.user.id && current.role === page.user.role;
+  if (!sameToken || !sameUser) {
+    setSession({
+      access_token: page.accessToken,
+      refresh_token: getRefreshToken() || "",
+      user: page.user,
+    });
+  }
+  return getSessionUser();
+}
+
 export function redirectToLogin() {
+  if (hasPageSession()) {
+    syncPageAuth();
+    return;
+  }
   clearSession();
   window.location.replace("/auth/login.php");
 }
@@ -62,6 +92,7 @@ export async function apiFetchFull(path, opts = {}) {
 
 export async function apiUpload(path, formData) {
   const headers = {};
+  syncPageAuth();
   const token = getAccessToken();
   if (token) headers["Authorization"] = `Bearer ${token}`;
   let res;
@@ -95,6 +126,7 @@ async function request(path, { method = "GET", body, auth = true } = {}) {
   const headers = { "Content-Type": "application/json" };
   let sentToken = "";
   if (auth) {
+    syncPageAuth();
     sentToken = getAccessToken();
     if (sentToken) headers["Authorization"] = `Bearer ${sentToken}`;
   }
@@ -124,7 +156,7 @@ async function request(path, { method = "GET", body, auth = true } = {}) {
     );
     err.code = payload && payload.error && payload.error.code;
     err.status = res.status;
-    if (res.status === 401 && sentToken && getAccessToken() === sentToken) {
+    if (res.status === 401 && sentToken && getAccessToken() === sentToken && !hasPageSession()) {
       clearSession();
     }
     throw err;
@@ -144,11 +176,13 @@ export function login(email, password) {
   });
 }
 
+export const PORTAL_ROLES = ["resident", "rescuer", "admin"];
+
 export function requireAuth(roles = []) {
-  const user = getSessionUser();
+  const user = syncPageAuth() || getSessionUser();
   if (!getAccessToken() || !user) {
-    redirectToLogin();
-    return null;
+    if (!hasPageSession()) redirectToLogin();
+    return user || null;
   }
   if (roles.length > 0 && !roles.includes(user.role)) {
     redirectForRole(user);

@@ -19,7 +19,7 @@ function render(user, { loading = false } = {}) {
   initRescuerEvents();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function boot() {
   if (window.__PAGE_STATE__) {
     bootstrapPageAuth();
     Object.assign(state, window.__PAGE_STATE__);
@@ -50,4 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
     render(user, { loading: false });
     restoreSelection();
   });
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}

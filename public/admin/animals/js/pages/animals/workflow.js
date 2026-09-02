@@ -20,14 +20,7 @@ export function initAnimalsEvents() {
   app.addEventListener("click", async (e) => {
     const openBtn = e.target.closest('[data-act="open-add"]');
     if (openBtn) {
-      const animal = await openAddAnimalDialog();
-      if (animal) {
-        setSelectedId(animal.id);
-        renderAnimalGrid();
-        renderAnimalKpis();
-        renderSideStats();
-        renderSelection();
-      }
+      await openAddAnimalDialog();
       return;
     }
 

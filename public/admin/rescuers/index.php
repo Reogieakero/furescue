@@ -107,7 +107,7 @@ $pageHead = '
     <div>
       <span class="stamp stamp--coral">Rescue Management</span>
       <h1 class="page-title">Rescuers</h1>
-      <p class="page-sub">Manage rescuers, duty status, and applications.</p>
+      <p class="page-sub">Review duty status, suspend or activate rescuers, and decide applications.</p>
     </div>
     <div class="page-head-actions">
       ' . $rescuersButton('Export CSV', 'outline', 'default', 'download', 'data-export="csv"') . '
@@ -189,15 +189,6 @@ $rescuerRowHtml = static function (array $r) use ($rescuersButton, $dutyOf): str
     $duty = $dutyOf($r);
     $isSuspended = ($r['account_status'] ?? '') === 'suspended';
     $id = e((string) ($r['id'] ?? ''));
-    $dutyToggle = $isSuspended
-        ? ''
-        : $rescuersButton(
-            $duty === 'on_duty' ? 'Set off duty' : 'Set on duty',
-            'outline',
-            'sm',
-            'power',
-            'data-action="duty" data-id="' . $id . '" data-status="' . ($duty === 'on_duty' ? 'off_duty' : 'on_duty') . '"'
-        );
     $toggle = $isSuspended
         ? $rescuersButton('Activate', 'outline', 'sm', 'user-check', 'data-action="activate" data-id="' . $id . '"')
         : $rescuersButton('Suspend', 'destructive', 'sm', '', 'data-action="suspend" data-id="' . $id . '"');
@@ -209,10 +200,7 @@ $rescuerRowHtml = static function (array $r) use ($rescuersButton, $dutyOf): str
       <td class="table-cell"><span class="stamp stamp--sm ' . e($duty === 'on_duty' ? 'stamp--accent' : 'stamp--muted') . '">' . e($duty === 'on_duty' ? 'On duty' : 'Off duty') . '</span></td>
       <td class="table-cell">' . e(time_ago($r['created_at'] ?? null)) . '</td>
       <td class="table-cell table-cell--right table-cell--nowrap">
-        <span class="table-actions">
-          ' . $dutyToggle . '
-          ' . $toggle . '
-        </span>
+        <span class="table-actions">' . $toggle . '</span>
       </td>
     </tr>';
 };

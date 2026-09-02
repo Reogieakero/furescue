@@ -22,45 +22,26 @@ export function filteredApplications() {
 }
 
 export function actionLinks(a) {
-  const details = Button({
-    text: "Details",
+  const view = Button({
+    text: "View application",
     variant: "outline",
     size: "sm",
     icon: "eye",
-    attrs: `data-action="details" data-id="${a.id}"`,
+    attrs: `data-action="view" data-id="${a.id}"`,
   });
   if (a.status === "pending") {
     return [
-      details,
+      view,
       Button({
-        text: "Approve",
-        variant: "default",
-        size: "sm",
-        icon: "badge-check",
-        attrs: `data-action="approve" data-id="${a.id}"`,
-      }),
-      Button({
-        text: "Decline",
+        text: "Reject",
         variant: "destructive",
         size: "sm",
         icon: "file-x",
-        attrs: `data-action="decline" data-id="${a.id}"`,
+        attrs: `data-action="reject" data-id="${a.id}"`,
       }),
     ].join("");
   }
-  if (a.status === "approved") {
-    return (
-      details +
-      Button({
-        text: "Complete",
-        variant: "default",
-        size: "sm",
-        icon: "check-circle-2",
-        attrs: `data-action="complete" data-id="${a.id}"`,
-      })
-    );
-  }
-  return details;
+  return view;
 }
 
 function emptyCopy() {

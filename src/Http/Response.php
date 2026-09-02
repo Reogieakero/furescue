@@ -7,10 +7,12 @@ use App\Database;
 class Response
 {
     public static bool $sent = false;
+    public static int $statusCode = 200;
 
     public static function json(array $payload, int $status = 200): void
     {
         self::$sent = true;
+        self::$statusCode = $status;
         if (!headers_sent()) {
             http_response_code($status);
             header('Content-Type: application/json; charset=utf-8');

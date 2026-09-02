@@ -16,17 +16,13 @@ function proofCount(caseData) {
 }
 
 function resolveButtonHtml(caseData) {
-  // Resolve only after accept (`in_progress`) AND ≥1 rescue proof.
-  if (caseData.status !== "in_progress") return "";
-  const canResolve = proofCount(caseData) >= 1;
+  if (caseData.status !== "in_progress" || proofCount(caseData) < 1) return "";
   return Button({
     text: "Resolve",
     variant: "default",
     size: "sm",
     icon: "check-circle-2",
-    attrs: canResolve
-      ? 'data-cd-action="resolve"'
-      : 'disabled aria-disabled="true" title="Rescue proof required before resolve"',
+    attrs: 'data-cd-action="resolve"',
   });
 }
 

@@ -241,10 +241,10 @@ require __DIR__ . '/site-head.php';
 ?>
   <body>
     <div id="app"><?= $residentPageHtml ?></div>
-    <script type="module" src="/js/components/resident-shell.js"></script>
 <?php if ($pageState !== []): ?>
     <script>window.__PAGE_STATE__ = <?= json_encode($pageState, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
 <?php endif; ?>
+    <script type="module" src="/js/components/resident-shell.js"></script>
 <?php foreach ($pageScripts as $residentScriptSrc): ?>
     <script src="<?= $esc($residentScriptSrc) ?>"></script>
 <?php endforeach; ?>

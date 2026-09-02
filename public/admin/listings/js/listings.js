@@ -4,6 +4,7 @@ import { bootstrapPageAuth } from "/js/lib/page-auth.js";
 import { initShell } from "/admin/js/layout/app-shell.js";
 import { ListingsPage } from "./pages/listings/components.js";
 import { state, loadListings } from "./pages/listings/state.js";
+import { uniqueListingsByAnimal } from "./pages/listings/unique.js";
 import { initListingsEvents } from "./pages/listings/workflow.js";
 import { initDropdownMenu } from "/js/components/ui/dropdown-menu.js";
 
@@ -37,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     bootstrapPageAuth();
     Object.assign(state, window.__PAGE_STATE__);
     if (!Array.isArray(state.listings)) state.listings = [];
+    else state.listings = uniqueListingsByAnimal(state.listings);
     const app = document.getElementById("app");
     if (app && !app.childElementCount) {
       app.innerHTML = ListingsPage(getSessionUser());

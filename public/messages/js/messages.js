@@ -1,5 +1,5 @@
 import { createIcons, icons } from "lucide";
-import { apiFetch, requireAuth, getSessionUser } from "/js/lib/api.js";
+import { apiFetch, getSessionUser, PORTAL_ROLES, requireAuth } from "/js/lib/api.js";
 import { bootstrapPageAuth } from "/js/lib/page-auth.js";
 import { esc, timeAgo } from "/js/lib/format.js";
 import { initResidentShell } from "/js/components/resident-shell.js";
@@ -241,9 +241,9 @@ function startPolling() {
   }, 15000);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function boot() {
   bootstrapPageAuth();
-  const user = requireAuth();
+  const user = requireAuth(PORTAL_ROLES);
   if (!user) return;
   state.me = user;
   initResidentShell();
@@ -270,4 +270,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   void refreshThreads();
   startPolling();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}

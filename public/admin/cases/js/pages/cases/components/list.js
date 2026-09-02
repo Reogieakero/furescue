@@ -44,22 +44,17 @@ export function filteredCases() {
 }
 
 function caseAction(c) {
-  if (!c.rescuer && c.statusRaw === "open") {
-    return Button({
-      text: "Assign rescuer",
-      variant: "default",
-      size: "sm",
-      icon: "user-plus",
-      attrs: `data-action="assign" data-case="${c.id}" data-report="${c.report ? c.report.id : ""}"`,
-    });
-  }
-  if (c.statusRaw === "assigned") {
-    return `<span class="action-text">${esc("Waiting for rescuer to accept the assigned rescue")}</span>`;
-  }
-  if (c.statusRaw === "in_progress") {
-    return `<span class="action-text">${esc("In progress")}</span>`;
-  }
-  return "";
+  if (c.statusRaw === "resolved") return "";
+  const canAssign = c.statusRaw === "open" || c.statusRaw === "assigned" || c.statusRaw === "in_progress";
+  if (!canAssign) return "";
+  const label = c.rescuer ? "Reassign" : "Assign rescuer";
+  return Button({
+    text: label,
+    variant: c.rescuer ? "outline" : "default",
+    size: "sm",
+    icon: "user-plus",
+    attrs: `data-action="assign" data-case="${c.id}" data-report="${c.report ? c.report.id : ""}"`,
+  });
 }
 
 function rescuerChip(rescuer) {

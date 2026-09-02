@@ -12,7 +12,7 @@ class ElearningController extends AbstractController
     {
         $repo = $this->repo('elearning_modules', ['id','title','category','published_status','created_at']);
         $filters = [];
-        if ($req->user['role'] === 'resident') {
+        if (in_array((string) ($req->user['role'] ?? ''), ['resident', 'rescuer'], true)) {
             $filters['published_status'] = 'published';
         } elseif (!empty($req->query['published_status'])) {
             $filters['published_status'] = $req->query['published_status'];

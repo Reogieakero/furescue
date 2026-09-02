@@ -38,7 +38,7 @@ function render(user, { loading = false } = {}) {
   initPageInteractions();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function boot() {
   if (window.__PAGE_STATE__) {
     bootstrapPageAuth();
     Object.assign(state, window.__PAGE_STATE__);
@@ -58,4 +58,10 @@ document.addEventListener("DOMContentLoaded", () => {
       toast(err.message || "Could not load modules.", { type: "error" });
     })
     .finally(() => render(user, { loading: false }));
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}

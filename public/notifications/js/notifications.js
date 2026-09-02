@@ -1,5 +1,5 @@
 import { createIcons, icons } from "lucide";
-import { apiFetch, requireAuth } from "/js/lib/api.js";
+import { apiFetch, PORTAL_ROLES, requireAuth } from "/js/lib/api.js";
 import { bootstrapPageAuth } from "/js/lib/page-auth.js";
 import { esc, timeAgo } from "/js/lib/format.js";
 import { subscribeToNotifications } from "/js/lib/notification-stream.js";
@@ -31,6 +31,7 @@ let inboxStream = null;
 const state = {
   items: [],
   filter: "all",
+  loadError: "",
 };
 
 function styleFor(type) {
@@ -106,6 +107,17 @@ function renderList() {
   const visible =
     state.filter === "unread" ? state.items.filter((n) => !n.is_read) : state.items;
 
+  if (state.loadError) {
+    list.innerHTML = `
+      <li class="rempty">
+        <i data-lucide="wifi-off"></i>
+        <p class="rempty-title">Could not load notifications</p>
+        <p class="rempty-text">${esc(state.loadError)}</p>
+      </li>`;
+    createIcons({ icons });
+    return;
+  }
+
   if (!visible.length) {
     const empty =
       state.filter === "unread"
@@ -145,11 +157,14 @@ async function loadNotifications({ silent = false } = {}) {
   try {
     const items = await apiFetch("/notifications?per_page=100");
     state.items = Array.isArray(items) ? items : [];
+    state.loadError = "";
     renderList();
     renderUnreadChip();
     syncBadge();
   } catch (err) {
-    if (!silent) toast(err.message || "Could not load notifications.", { type: "error" });
+    state.loadError = err.message || "Could not load notifications.";
+    renderList();
+    if (!silent) toast(state.loadError, { type: "error" });
   }
 }
 
@@ -166,9 +181,9 @@ async function markOne(id) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function boot() {
   bootstrapPageAuth();
-  const user = requireAuth();
+  const user = requireAuth(PORTAL_ROLES);
   if (!user) return;
   initResidentShell();
 
@@ -232,7 +247,13 @@ document.addEventListener("DOMContentLoaded", () => {
   void loadNotifications().finally(() => {
     inboxStream = subscribeToNotifications(applyInboxStream);
   });
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}
 
 function rowFromPayload(payload) {
   if (!payload || typeof payload !== "object") return null;

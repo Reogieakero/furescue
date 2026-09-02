@@ -1,4 +1,5 @@
 import { fetchListings } from "../../api.js";
+import { uniqueListingsByAnimal } from "./unique.js";
 
 export const state = {
   listings: [],
@@ -23,7 +24,7 @@ function mergeNames(items) {
 export async function loadListings() {
   try {
     const result = await fetchListings();
-    state.listings = mergeNames(result.items);
+    state.listings = uniqueListingsByAnimal(mergeNames(result.items));
     state.error = null;
   } catch (err) {
     state.error = (err && err.message) || "Could not load listings.";

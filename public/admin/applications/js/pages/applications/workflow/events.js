@@ -3,7 +3,7 @@ import { state } from "../state.js";
 import { ApplicationTable } from "../components.js";
 import { filteredApplications } from "../components/table.js";
 import { openDetailsDrawer } from "./drawer.js";
-import { runApprove, runDecline, runComplete, runRetry } from "./actions.js";
+import { runDecline, runRetry } from "./actions.js";
 import { toast } from "/js/components/ui/toast.js";
 import { datedCsvName, downloadCsv } from "/js/lib/csv.js";
 import { applicantName, animalName } from "../components/util.js";
@@ -70,17 +70,20 @@ export function initApplicationEvents() {
     const actionEl = e.target.closest("[data-action]");
     if (actionEl) {
       e.preventDefault();
+      e.stopPropagation();
       const action = actionEl.dataset.action;
       const id = actionEl.dataset.id;
-      if (action === "retry") return runRetry();
-      if (action === "details") {
-        state.selectedId = id;
-        paintTable();
-        return openDetailsDrawer(id);
+      try {
+        if (action === "retry") return await runRetry();
+        if (action === "view" || action === "details") {
+          state.selectedId = id;
+          paintTable();
+          return openDetailsDrawer(id);
+        }
+        if (action === "reject" || action === "decline") return await runDecline(id);
+      } catch (err) {
+        toast((err && err.message) || "Action failed.", { type: "error" });
       }
-      if (action === "approve") return runApprove(id);
-      if (action === "decline") return runDecline(id);
-      if (action === "complete") return runComplete(id);
       return;
     }
 

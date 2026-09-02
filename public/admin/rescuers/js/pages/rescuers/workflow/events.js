@@ -1,7 +1,7 @@
 import { createIcons, icons } from "lucide";
 import { state, loadRescuers, persistSelection } from "../state.js";
 import { RescuerTable, rerenderAll, selectRescuer, toggleCaseNode, openRescuerModal, renderRescuerDetail } from "../components.js";
-import { runApprove, runReject, runSuspend, runActivate, runToggleDuty } from "./actions.js";
+import { runApprove, runReject, runSuspend, runActivate } from "./actions.js";
 import { exportableRescuers } from "../components/table.js";
 import { toast } from "/js/components/ui/toast.js";
 import { datedCsvName, downloadCsv } from "/js/lib/csv.js";
@@ -66,13 +66,13 @@ export function initRescuerEvents() {
     const actionEl = e.target.closest("[data-action]");
     if (actionEl) {
       e.preventDefault();
+      e.stopPropagation();
       const action = actionEl.dataset.action;
       const id = actionEl.dataset.id;
       if (action === "approve") return runApprove(id);
       if (action === "reject") return runReject(id);
       if (action === "suspend") return runSuspend(id);
       if (action === "activate") return runActivate(id);
-      if (action === "duty") return runToggleDuty(id, actionEl.dataset.status);
       return;
     }
 
@@ -96,8 +96,5 @@ export function initRescuerEvents() {
 
 export function restoreSelection() {
   if (!state.selectedId) return;
-  renderRescuerDetail();
-  if (state.selectedRescuer === undefined) {
-    selectRescuer(state.selectedId);
-  }
+  selectRescuer(state.selectedId);
 }

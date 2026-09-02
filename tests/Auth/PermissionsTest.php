@@ -15,6 +15,7 @@ class PermissionsTest extends TestCase
         $this->assertContains('animals.read', $result);
         $this->assertContains('users.approve_rescuers', $result);
         $this->assertContains('vitals.ingest', $result);
+        $this->assertNotContains('users.toggle_duty', $result);
     }
 
     public function testRescuerResolvesDefaults(): void

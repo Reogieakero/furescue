@@ -43,7 +43,7 @@ export function openDetailsDrawer(id) {
   };
 
   if (a.status === "pending") {
-    opts.footer = `${Button({ text: "Decline", variant: "outline", attrs: 'data-drawer-act="decline"' })}
+    opts.footer = `${Button({ text: "Reject", variant: "outline", attrs: 'data-drawer-act="decline"' })}
       ${Button({ text: "Approve", variant: "default", attrs: 'data-drawer-act="approve"' })}`;
     opts.onMount = (bodyEl) => {
       const drawer = bodyEl.closest(".drawer");

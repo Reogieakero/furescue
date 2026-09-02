@@ -324,13 +324,12 @@ export function openAddAnimalDialog(prefill = {}) {
             /* create() may already have linked case_id */
           }
           setSelectedId(animal.id);
-          overlay.remove();
-          resolve(animal);
-          window.location.href = "/admin/animals/";
-          return;
         }
         overlay.remove();
         resolve(animal);
+        if (animal && animal.id) {
+          window.location.href = `/admin/health-records/health-record.php?id=${encodeURIComponent(animal.id)}`;
+        }
       } catch (err) {
         if (err && err.animalId) form.pendingId = err.animalId;
         okBtn.disabled = false;

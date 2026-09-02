@@ -32,16 +32,29 @@ class AdoptionListingController extends AbstractController
             Response::error('NOT_FOUND', 'Animal not found', 404);
             return;
         }
-        if (!$this->eligibility->isEligible($req->body['animal_id'])) {
+        $animalId = (string) $req->body['animal_id'];
+        if (!$this->eligibility->isEligible($animalId)) {
             $this->rejectNotHealthReady();
             return;
         }
-        $id = $this->repo('adoption_listings')->create([
-            'id' => Database::uuidV4(),
-            'animal_id' => $req->body['animal_id'],
-            'posted_by' => $req->user['id'],
-            'status' => 'pending_review',
-        ]);
+        if ($this->findLiveListing($animalId)) {
+            $this->rejectDuplicateListing();
+            return;
+        }
+        try {
+            $id = $this->repo('adoption_listings')->create([
+                'id' => Database::uuidV4(),
+                'animal_id' => $animalId,
+                'posted_by' => $req->user['id'],
+                'status' => 'pending_review',
+            ]);
+        } catch (\PDOException $e) {
+            if ($this->findLiveListing($animalId)) {
+                $this->rejectDuplicateListing();
+                return;
+            }
+            throw $e;
+        }
         $this->notifyRole('admin', 'listing_submitted', 'A new adoption listing needs review.', 'adoption_listing', $id);
         Response::success(['listing' => $this->repo('adoption_listings')->find($id)], 201);
     }
@@ -104,6 +117,28 @@ class AdoptionListingController extends AbstractController
         $notif = new NotificationService($this->pdo);
         $notif->notify($listing['posted_by'], 'listing_' . $decision, 'Your adoption listing was ' . $decision . '.', 'adoption_listing', $listing['id']);
         Response::success(['listing' => $repo->find($listing['id'])]);
+    }
+
+    private function findLiveListing(string $animalId): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT * FROM adoption_listings
+             WHERE animal_id = ? AND status IN ('pending_review', 'approved')
+             ORDER BY created_at DESC, id DESC
+             LIMIT 1"
+        );
+        $stmt->execute([$animalId]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    private function rejectDuplicateListing(): void
+    {
+        Response::error(
+            'LISTING_EXISTS',
+            'This animal already has a pending or approved listing.',
+            409
+        );
     }
 
     private function rejectNotHealthReady(): void

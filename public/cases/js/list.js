@@ -1,5 +1,5 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, redirectToLogin } from "../../js/lib/api.js";
+import { hasPageSession, requireAuth, redirectToLogin } from "../../js/lib/api.js";
 import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
 import { initResidentShell } from "../../js/components/resident-shell.js";
 import { toast } from "../../js/components/ui/toast.js";
@@ -48,7 +48,7 @@ async function loadCases({ silent = false } = {}) {
     allCases = await fetchCases();
     renderRows(visibleRows());
   } catch (err) {
-    if (err && err.status === 401) {
+    if (err && err.status === 401 && !hasPageSession()) {
       redirectToLogin();
       return;
     }
@@ -80,7 +80,7 @@ async function onDutyToggle() {
     const data = await toggleDuty(user.id, next);
     paintDutyControl((data && data.duty_status) || next);
   } catch (err) {
-    if (err && err.status === 401) {
+    if (err && err.status === 401 && !hasPageSession()) {
       redirectToLogin();
       return;
     }

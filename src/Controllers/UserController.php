@@ -149,9 +149,8 @@ class UserController extends AbstractController
 
         $callerId = (string) ($req->user['id'] ?? '');
         $callerRole = (string) ($req->user['role'] ?? '');
-        $canToggleAny = in_array('users.toggle_duty', $req->permissions, true);
         $canToggleSelf = $callerId !== '' && $callerId === $user->id() && $callerRole === 'rescuer';
-        if (!$canToggleAny && !$canToggleSelf) {
+        if (!$canToggleSelf) {
             Response::error('FORBIDDEN', 'Cannot change duty status for this rescuer', 403);
             return;
         }

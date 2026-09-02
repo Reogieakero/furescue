@@ -216,17 +216,14 @@ $rescuerChip = static function (?array $rescuer): string {
 };
 
 $caseAction = static function (array $c): string {
-    if ($c['rescuer'] === null && $c['statusRaw'] === 'open') {
-        $attrs = 'data-action="assign" data-case="' . e($c['id']) . '" data-report="' . e(($c['report']['id'] ?? '') === null ? '' : (string) ($c['report']['id'] ?? '')) . '"';
-        return button_html('Assign rescuer', 'default', 'sm', '', 'user-plus', $attrs);
+    $status = (string) ($c['statusRaw'] ?? '');
+    if (!in_array($status, ['open', 'assigned', 'in_progress'], true)) {
+        return '';
     }
-    if ($c['statusRaw'] === 'assigned') {
-        return '<span class="action-text">' . e('Waiting for rescuer to accept the assigned rescue') . '</span>';
-    }
-    if ($c['statusRaw'] === 'in_progress') {
-        return '<span class="action-text">' . e('In progress') . '</span>';
-    }
-    return '';
+    $attrs = 'data-action="assign" data-case="' . e($c['id']) . '" data-report="' . e(($c['report']['id'] ?? '') === null ? '' : (string) ($c['report']['id'] ?? '')) . '"';
+    $label = $c['rescuer'] !== null ? 'Reassign' : 'Assign rescuer';
+    $variant = $c['rescuer'] !== null ? 'outline' : 'default';
+    return button_html($label, $variant, 'sm', '', 'user-plus', $attrs);
 };
 
 $caseCardHtml = static function (array $c) use ($rescuerChip, $caseAction): string {

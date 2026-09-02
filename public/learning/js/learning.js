@@ -1,5 +1,5 @@
 import { createIcons, icons } from "lucide";
-import { apiFetch, apiFetchFull, requireAuth } from "/js/lib/api.js";
+import { apiFetch, apiFetchFull, PORTAL_ROLES, requireAuth } from "/js/lib/api.js";
 import { bootstrapPageAuth } from "/js/lib/page-auth.js";
 import { esc } from "/js/lib/format.js";
 import { initResidentShell } from "/js/components/resident-shell.js";
@@ -227,9 +227,9 @@ function bindEvents() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+async function boot() {
   bootstrapPageAuth();
-  const user = requireAuth();
+  const user = requireAuth(PORTAL_ROLES);
   if (!user) return;
   initResidentShell();
   bindEvents();
@@ -265,4 +265,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (fromHash && state.modules.some((m) => m.id === fromHash)) {
     void openLesson(fromHash);
   }
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    void boot();
+  });
+} else {
+  void boot();
+}

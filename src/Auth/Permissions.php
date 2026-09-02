@@ -75,7 +75,6 @@ class Permissions
             'users.update_self',
             'users.approve_rescuers',
             'users.reject_rescuers',
-            'users.toggle_duty',
             'notifications.read',
             'notifications.broadcast',
             'notifications.delete',

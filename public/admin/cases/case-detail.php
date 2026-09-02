@@ -122,8 +122,7 @@ $badgeHtml = static function (string $text, string $variant = 'default', string 
 
 $statusRaw = (string) ($caseRow['status'] ?? '');
 $isResolved = $statusRaw === 'resolved';
-$showResolve = $statusRaw === 'in_progress';
-$canResolve = $showResolve && count($proofUrls) >= 1;
+$showResolve = $statusRaw === 'in_progress' && count($proofUrls) >= 1;
 $stampCls = ($statusRaw === 'in_progress' || $statusRaw === 'resolved') ? 'stamp--accent' : 'stamp--coral';
 
 // renderActions(): Button ignores unknown props, so the disabled "Resolved"
@@ -144,9 +143,7 @@ if ($isResolved) {
             'sm',
             '',
             'check-circle-2',
-            $canResolve
-                ? 'data-cd-action="resolve"'
-                : 'disabled aria-disabled="true" title="Rescue proof required before resolve"'
+            'data-cd-action="resolve"'
         ) : '') . '
       </div>';
 }

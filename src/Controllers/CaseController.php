@@ -94,8 +94,8 @@ class CaseController extends AbstractController
             Response::error('NOT_FOUND', 'Case not found', 404);
             return;
         }
-        if (!in_array($case->status(), ['open', 'assigned'], true)) {
-            Response::error('INVALID_STATUS', 'Case can only be assigned when open or assigned', 422);
+        if (!in_array($case->status(), ['open', 'assigned', 'in_progress'], true)) {
+            Response::error('INVALID_STATUS', 'Case can only be assigned when open, assigned, or in progress', 422);
             return;
         }
 
