@@ -23,6 +23,12 @@ The frontend is mid-migration from static `.html` pages to PHP pages using share
 - After editing `input.css` or `tailwind.config.js`, run `npm run build` (and remember the Tailwind `content:` globs gotcha below for `.php` files).
 - The responsive rule above still applies: any new token/component must be verified at 375px / 768px / 1440px.
 
+## Folder architecture (overhaul)
+
+Target tree and CSS cascade: `docs/technical/FOLDER_ARCHITECTURE.md`.  
+Keep-list, URL freeze, workstreams: `docs/technical/FOLDER_OVERHAUL_SPEC.md`.  
+Until that overhaul lands, the live layout is still `public/<page>/` + `public/includes/` + `public/css/input.css` as described below.
+
 ## Modular files, no monoliths (hard rule)
 
 - Never bottleneck logic or markup in one long file. One concern per file; split when a file grows past ~300 lines, accumulates a second responsibility, or duplicates markup/logic used elsewhere.
