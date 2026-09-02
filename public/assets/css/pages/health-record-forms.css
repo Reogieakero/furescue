@@ -1,0 +1,318 @@
+/* Folded from admin 14_health-record.css — forms / vax drawers. */
+
+/* Inline add/edit affordances (no modals) */
+.hr-grid .panel-head,
+.hr-trio .panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.panel-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.hr-inline-form {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0;
+  background: hsl(var(--paperdark) / 0.5);
+}
+.hr-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+.hr-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+}
+.hr-form-field > span {
+  font-weight: 600;
+  color: hsl(var(--ink));
+}
+.hr-input {
+  height: 38px;
+  padding: 0 12px;
+  border: 1.5px solid hsl(var(--border));
+  border-radius: 10px;
+  background: hsl(var(--background));
+  color: hsl(var(--ink));
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 13px;
+}
+.hr-input::placeholder,
+.hr-input::-moz-placeholder {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  color: hsl(var(--muted-foreground));
+  opacity: 1;
+}
+.hr-input:focus {
+  outline: none;
+  border-color: hsl(var(--jungle2));
+  box-shadow: 0 0 0 3px hsl(var(--jungle2) / 0.18);
+}
+.hr-form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* shadcn-style datepicker popover */
+.hr-dp-popover {
+  min-width: 248px;
+}
+.hr-dp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.hr-dp-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: hsl(var(--ink));
+}
+.hr-dp-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.hr-dp-nav:hover {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+.hr-dp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.hr-dp-wd {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  font-size: 11px;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+}
+
+/* "Veterinary Review Required" / "Not age-appropriate" badge in the vaccination card header */
+.hr-vax-head-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  background: hsl(var(--hr-red-bg));
+  color: hsl(var(--hr-red));
+  white-space: nowrap;
+}
+.hr-vax-head-flag--warn {
+  background: hsl(var(--hr-orange-bg));
+  color: hsl(var(--hr-orange));
+}
+.hr-vax-head-flag .lucide {
+  width: 13px;
+  height: 13px;
+}
+
+/* "View all" link + help icon in the vaccination card header */
+.hr-link {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--primary));
+  cursor: pointer;
+}
+.hr-link:hover {
+  text-decoration: underline;
+}
+.hr-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-left: 4px;
+  border: none;
+  border-radius: 9999px;
+  background: hsl(var(--paperdark) / 0.6);
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.hr-help:hover {
+  background: hsl(var(--secondary));
+  color: hsl(var(--primary));
+}
+.hr-help .lucide {
+  width: 15px;
+  height: 15px;
+}
+
+/* Drawer: all vaccinations list */
+.hr-vax-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.hr-vax-row {
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: hsl(var(--background));
+}
+.hr-vax-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.hr-vax-row-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: hsl(var(--ink));
+}
+.hr-vax-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+}
+.hr-vax-row-meta strong {
+  color: hsl(var(--ink));
+  font-weight: 600;
+}
+.hr-vax-row-extra {
+  margin-top: 8px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+}
+.hr-vax-row-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Drawer: vaccination explainer */
+.hr-explain-intro {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: hsl(var(--muted-foreground));
+}
+.hr-explain-list {
+  margin: 0 0 16px;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12.5px;
+  color: hsl(var(--ink));
+}
+.hr-explain-entry {
+  border-top: 1px solid hsl(var(--border));
+  padding: 12px 0;
+}
+.hr-explain-entry:first-of-type {
+  border-top: none;
+  padding-top: 4px;
+}
+.hr-explain-entry-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hr-explain-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: hsl(var(--ink));
+}
+.hr-explain-why {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: hsl(var(--ink));
+}
+.hr-explain-note {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
+}
+.hr-explain-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 0;
+}
+
+/* Drawer: vaccine schedule (allowed ages) */
+.hr-sched-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.hr-sched-list .hr-explain-intro {
+  margin-bottom: 4px;
+}
+.hr-sched-row {
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: hsl(var(--background));
+}
+.hr-sched-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.hr-sched-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: hsl(var(--ink));
+}
+.hr-sched-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+}
+.hr-sched-meta strong {
+  color: hsl(var(--ink));
+  font-weight: 600;
+}

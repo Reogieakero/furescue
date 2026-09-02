@@ -1,15 +1,1 @@
-@import "partials/01_body.css";
-@import "partials/02_btn.css";
-@import "partials/03_health-carousel.css";
-@import "partials/04_table-wrap.css";
-@import "partials/05_audit.css";
-@import "partials/06_drawer-location.css";
-@import "partials/07_donut-wrap.css";
-@import "partials/08_case-detail.css";
-@import "partials/09_skeleton.css";
-@import "partials/10_rescuer-split.css";
-@import "partials/11_animal-grid.css";
-@import "partials/12_health-records.css";
-@import "partials/13_animals-flyout.css";
-@import "partials/14_health-record.css";
-@import "partials/15_dashboard.css";
+/* Folded into /assets/css — compatibility shim. Do not add rules. */

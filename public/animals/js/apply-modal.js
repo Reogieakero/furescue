@@ -1,7 +1,7 @@
 import { createIcons, icons } from "lucide";
-import { apiFetch } from "../../js/lib/api.js";
-import { toast } from "../../js/components/ui/toast.js";
-import { esc } from "../../js/lib/format.js";
+import { apiFetch } from "/assets/js/lib/api.js";
+import { toast } from "/assets/js/components/ui/toast.js";
+import { esc } from "/assets/js/lib/format.js";
 
 // Shared "Apply to adopt" dialog. `animal` needs at least { id, name }.
 export function openApplyModal(animal, { onApplied } = {}) {

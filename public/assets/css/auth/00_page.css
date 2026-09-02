@@ -1,0 +1,29 @@
+.auth-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 1rem;
+  background: hsl(var(--paper));
+  color: hsl(var(--ink));
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+.auth-page .hidden {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .auth-page {
+    padding: 1.5rem;
+    align-items: center;
+  }
+}
+
+@media (min-width: 1440px) {
+  .auth-page {
+    padding: 2rem;
+  }
+}

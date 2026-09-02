@@ -1,7 +1,7 @@
 import { createIcons, icons } from "lucide";
-import { hasPageSession, requireAuth, redirectToLogin } from "../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
-import { initResidentShell } from "../../js/components/resident-shell.js";
+import { hasPageSession, requireAuth, redirectToLogin } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initResidentShell } from "/assets/js/components/resident-shell.js";
 import { fetchCase } from "./api.js";
 import { bindCaseActions } from "./actions.js";
 import { bindProofForm } from "./proof.js";

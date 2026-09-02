@@ -1,7 +1,7 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, apiFetchFull, redirectToLogin } from "../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
-import { toast } from "../../js/components/ui/toast.js";
+import { requireAuth, apiFetchFull, redirectToLogin } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { toast } from "/assets/js/components/ui/toast.js";
 
 const esc = (value) =>
   String(value ?? "").replace(/[&<>"']/g, (c) => ({

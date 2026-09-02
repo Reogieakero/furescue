@@ -9,9 +9,10 @@ require __DIR__ . '/../../../vendor/autoload.php';
 Dotenv\Dotenv::createImmutable(dirname(__DIR__, 3))->safeLoad();
 
 $requiredRole = 'admin';
-require __DIR__ . '/../../includes/guard.php';
+require_once dirname(__DIR__, 3) . '/views/path.php';
+require views_path('components/guard.php');
 
-require __DIR__ . '/../includes/ui-helpers.php';
+require views_path('components/admin-ui-helpers.php');
 
 require __DIR__ . '/helpers.php';
 
@@ -133,11 +134,11 @@ $activeNav = 'analytics';
 $navBadges = [];
 
 ob_start();
-require __DIR__ . '/view.php';
+require views_path('admin/analytics/view.php');
 $adminChildren = (string) ob_get_clean();
 
 ob_start();
-require __DIR__ . '/../../includes/admin-shell.php';
+require views_path('layouts/admin.php');
 $pageHtml = (string) ob_get_clean();
 
 $pageTitle = 'FurEscue — Analytics & Exports';
@@ -147,7 +148,7 @@ $pageCss = [
     '/admin/analytics/css/analytics.css',
 ];
 $fontsHref = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
-require __DIR__ . '/../../includes/site-head.php';
+require views_path('components/site-head.php');
 ?>
   <body>
     <div id="app"><?= $pageHtml ?></div>

@@ -1,0 +1,180 @@
+/* Resident page primitives from input.css — rpage / rcard / rbtn / rchip / rempty. */
+
+/* --- Shared page primitives (scoped) --- */
+.resident-shell .rpage-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+@media (min-width: 640px) {
+  .resident-shell .rpage-head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+}
+.resident-shell .rpage-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 3vw, 1.85rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.resident-shell .rpage-sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: hsl(var(--muted-foreground));
+}
+.resident-shell .rpage-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.resident-shell .rcard {
+  display: flex;
+  flex-direction: column;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.9rem;
+  box-shadow: var(--shadow-sm);
+}
+.resident-shell .rcard-pad {
+  padding: 18px;
+}
+.resident-shell .rcard-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid hsl(var(--border));
+}
+.resident-shell .rcard-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resident-shell .rbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+  border-radius: calc(var(--radius) + 2px);
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1;
+  min-height: 2.5rem;
+  padding-inline: 1.15rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease, box-shadow 0.15s ease;
+}
+.resident-shell .rbtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.35);
+}
+.resident-shell .rbtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.resident-shell .rbtn .lucide {
+  width: 15px;
+  height: 15px;
+}
+.resident-shell .rbtn--solid {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow: var(--shadow-sm);
+}
+.resident-shell .rbtn--solid:hover:not(:disabled) {
+  background: hsl(var(--primary) / 0.88);
+}
+.resident-shell .rbtn--ghost {
+  background: hsl(var(--card));
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+.resident-shell .rbtn--ghost:hover:not(:disabled) {
+  background: hsl(var(--surface-soft));
+}
+.resident-shell .rbtn--danger-ghost {
+  background: transparent;
+  color: hsl(var(--destructive));
+}
+.resident-shell .rbtn--sm {
+  min-height: 2.1rem;
+  padding-inline: 0.85rem;
+  font-size: 0.82rem;
+  border-radius: var(--radius);
+}
+
+.resident-shell .rchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  padding: 0.22rem 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+.resident-shell .rchip--brand {
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+}
+.resident-shell .rchip--sky {
+  background: hsl(var(--jungle2) / 0.15);
+  color: hsl(var(--teal));
+}
+.resident-shell .rchip--success {
+  background: hsl(150 70% 32% / 0.12);
+  color: hsl(150 70% 26%);
+}
+.resident-shell .rchip--alert {
+  background: hsl(var(--destructive) / 0.1);
+  color: hsl(var(--destructive));
+}
+
+.resident-shell .rempty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+}
+.resident-shell .rempty .lucide,
+.resident-shell .rempty-icon {
+  width: 34px;
+  height: 34px;
+  color: hsl(var(--border));
+}
+.resident-shell .rempty-title {
+  margin: 0;
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: hsl(var(--foreground));
+}
+.resident-shell .rempty-text {
+  margin: 0;
+  font-size: 0.82rem;
+  max-width: 34ch;
+}

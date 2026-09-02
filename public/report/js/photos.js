@@ -1,5 +1,5 @@
 import { createIcons, icons } from "lucide";
-import { toast } from "../../js/components/ui/toast.js";
+import { toast } from "/assets/js/components/ui/toast.js";
 
 const MAX_FILES = 8;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;

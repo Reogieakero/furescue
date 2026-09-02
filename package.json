@@ -5,9 +5,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tailwindcss -i ./public/css/input.css -o ./public/css/style.css --minify",
-    "watch": "tailwindcss -i ./public/css/input.css -o ./public/css/style.css --watch",
-    "dev": "tailwindcss -i ./public/css/input.css -o ./public/css/style.css --watch"
+    "build": "tailwindcss -i ./public/assets/css/input.css -o ./public/assets/css/style.css --minify",
+    "watch": "tailwindcss -i ./public/assets/css/input.css -o ./public/assets/css/style.css --watch",
+    "dev": "tailwindcss -i ./public/assets/css/input.css -o ./public/assets/css/style.css --watch"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

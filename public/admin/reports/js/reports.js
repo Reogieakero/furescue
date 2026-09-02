@@ -1,11 +1,11 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, getSessionUser } from "/js/lib/api.js";
-import { bootstrapPageAuth } from "/js/lib/page-auth.js";
-import { initShell } from "/admin/js/layout/app-shell.js";
-import { ReportsPage, attachReportTooltips, initReportSort } from "./pages/reports/components.js";
-import { applyPageState, state, loadReports } from "./pages/reports/state.js";
-import { initReportsEvents } from "./pages/reports/workflow.js";
-import { initDropdownMenu } from "/js/components/ui/dropdown-menu.js";
+import { requireAuth, getSessionUser } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initShell } from "/assets/js/admin/app-shell.js";
+import { ReportsPage, attachReportTooltips, initReportSort } from "./components.js";
+import { applyPageState, state, loadReports } from "./state.js";
+import { initReportsEvents } from "./workflow.js";
+import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
 
 function initDate() {
   const el = document.getElementById("admin-date");

@@ -46,8 +46,9 @@ Seeded password for every demo account: **`Password123!`**. Admin: `admin@furesc
 
 ```
 src/              PHP API (controllers, services, auth, routes)
-public/           Web root — PHP pages, CSS, JS, uploads
-views/            Target for layouts/components after the folder overhaul (see docs)
+public/           Web root — thin page bootstraps, `/assets/`, uploads
+public/assets/    Shared CSS (`css/input.css` → `css/style.css`, `css/tokens.css`) and JS (`js/{lib,components,admin}`)
+views/            Layouts (`layouts/admin.php`, `layouts/resident.php`), components (`site-head.php`, `guard.php`), page markup; `path.php` (`views_path()`)
 bin/              CLI tools (migrations)
 migrations/       SQL schema migrations
 seeders/          Demo data seeder

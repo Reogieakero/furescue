@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardDescription } from "../../js/components/ui/card.js";
+import { Card, CardHeader, CardTitle, CardDescription } from "/assets/js/components/ui/card.js";
 
 const features = [
   {

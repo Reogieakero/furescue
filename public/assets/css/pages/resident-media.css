@@ -1,0 +1,52 @@
+/* Resident 3D / 360 from input.css. */
+
+/* --- 3D model viewer --- */
+.resident-shell .rmodel-stage {
+  width: 100%;
+  height: min(56vh, 420px);
+  border-radius: 0.75rem;
+  background:
+    radial-gradient(120% 90% at 50% 0%, hsl(var(--surface-soft)), hsl(var(--background)));
+  overflow: hidden;
+  position: relative;
+}
+.resident-shell .rmodel-stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: none;
+}
+.resident-shell .rmodel-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.76rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* --- 360° carousel --- */
+.resident-shell .rspin-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 0.75rem;
+  background: hsl(var(--surface-soft));
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: grab;
+}
+.resident-shell .rspin-stage.is-dragging {
+  cursor: grabbing;
+}
+.resident-shell .rspin-stage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.resident-shell .rspin-range {
+  width: 100%;
+  accent-color: hsl(var(--primary));
+}

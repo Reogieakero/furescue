@@ -1,8 +1,8 @@
 import { createIcons, icons } from "lucide";
-import { hasPageSession, PORTAL_ROLES, requireAuth, apiFetch, redirectToLogin } from "../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
-import { initResidentShell } from "../../js/components/resident-shell.js";
-import { toast } from "../../js/components/ui/toast.js";
+import { hasPageSession, PORTAL_ROLES, requireAuth, apiFetch, redirectToLogin } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initResidentShell } from "/assets/js/components/resident-shell.js";
+import { toast } from "/assets/js/components/ui/toast.js";
 
 const el = (id) => document.getElementById(id);
 

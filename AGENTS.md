@@ -2,7 +2,7 @@
 
 Vanilla PHP 8.1+ REST API (no framework, custom router, PDO + MySQL) + frontend of PHP-rendered pages with ES-module islands. One server serves both: `php -S 127.0.0.1:8000 -t public public\index.php` from repo root.
 
-The frontend is mid-migration from static `.html` pages to PHP pages using shared partials in `public/includes/` (`site-head.php`, `admin-shell.php`, ...). Admin pages are now `.php`; expect both variants during transition.
+The frontend is PHP-rendered pages with ES-module islands. Shared chrome lives in `views/` (`views/layouts/admin.php`, `views/layouts/resident.php`, `views/components/site-head.php`, `views/components/guard.php`). Thin page bootstraps stay under `public/` so URLs do not change. `views/path.php` exposes `views_path()`.
 
 ## Responsive frontend (hard rule)
 
@@ -15,10 +15,10 @@ The frontend is mid-migration from static `.html` pages to PHP pages using share
 ## Frontend design system (hard rule)
 
 - **Follow the existing system design first.** All frontend styling must come from the shared design tokens, never ad-hoc values:
-  - Colors, radius, shadows, fonts: CSS variables in `:root` / `.dark` in `public/css/input.css` (e.g. `--primary`, `--border`, `--radius`, `--shadow-md`, brand colors `--brand-1/2`, palette `paper`/`ink`/`jungle`/`coral`/...), mapped to Tailwind classes in `tailwind.config.js`.
+  - Colors, radius, shadows, fonts: CSS variables in `:root` / `.dark` in `public/assets/css/tokens.css` (e.g. `--primary`, `--border`, `--radius`, `--shadow-md`, brand colors `--brand-1/2`, palette `paper`/`ink`/`jungle`/`coral`/...), mapped to Tailwind classes in `tailwind.config.js`. Edit the cascade via `public/assets/css/input.css`; the compiled sheet is `public/assets/css/style.css`.
   - Icons: Lucide only (`lucide.createIcons()` via the esm.sh import map), sized with the existing `.lucide` conventions — never inline SVG or emoji as icons.
-  - Shared components/patterns (`.input`, `.toast`, `.loader-overlay`, `.logo-mark`, `.badge-icon`, admin shell partials) already exist in `input.css` and `public/includes/` — reuse them instead of restyling from scratch.
-- **New reusable style = add it to the system.** If you introduce a new border radius, color, shadow, spacing scale, font, icon set, or component pattern that could be used by other pages, promote it into `public/css/input.css` (as a `:root` variable and/or shared class) plus a mapping in `tailwind.config.js` if it needs Tailwind utilities — then use the token everywhere. Do not hardcode one-off values in page-level styles.
+  - Shared components/patterns (`.input`, `.toast`, `.loader-overlay`, `.logo-mark`, `.badge-icon`, admin/resident shells) already exist in the `public/assets/css/` cascade and `views/layouts/` / `views/components/` — reuse them instead of restyling from scratch.
+- **New reusable style = add it to the system.** If you introduce a new border radius, color, shadow, spacing scale, font, icon set, or component pattern that could be used by other pages, promote it into `public/assets/css/` (token in `tokens.css` and/or a shared class imported from `input.css`) plus a mapping in `tailwind.config.js` if it needs Tailwind utilities — then use the token everywhere. Do not hardcode one-off values in page-level styles.
 - Never hardcode raw hex/hsl colors, radii, or font stacks in markup or JS when a token exists; if no suitable token exists, create one first.
 - After editing `input.css` or `tailwind.config.js`, run `npm run build` (and remember the Tailwind `content:` globs gotcha below for `.php` files).
 - The responsive rule above still applies: any new token/component must be verified at 375px / 768px / 1440px.
@@ -26,13 +26,13 @@ The frontend is mid-migration from static `.html` pages to PHP pages using share
 ## Folder architecture (overhaul)
 
 Target tree and CSS cascade: `docs/technical/FOLDER_ARCHITECTURE.md`.  
-Keep-list, URL freeze, workstreams: `docs/technical/FOLDER_OVERHAUL_SPEC.md`.  
-Until that overhaul lands, the live layout is still `public/<page>/` + `public/includes/` + `public/css/input.css` as described below.
+Keep-list, URL freeze, workstreams: `docs/technical/FOLDER_OVERHAUL_SPEC.md` (§4 URL freeze).  
+Live layout: thin bootstraps in `public/admin/<page>/index.php` (and `public/<resident-page>/`), markup in `views/admin/<page>/` (and `views/<resident-page>/`), shared CSS/JS in `public/assets/`. Compatibility shims still exist (see Gotchas).
 
 ## Modular files, no monoliths (hard rule)
 
 - Never bottleneck logic or markup in one long file. One concern per file; split when a file grows past ~300 lines, accumulates a second responsibility, or duplicates markup/logic used elsewhere.
-- Frontend: new pages live in their own folder as `public/<page>/index.php` (URL `/page/`; sub-pages are sibling `.php` files in that folder). Page-specific assets live inside the page folder (`public/<page>/js/`, `public/<page>/css/`, page-local partials) and are referenced with absolute paths (`/page/js/app.js`). Shared markup goes into partials in `public/includes/` (`include`d by pages); shared libs/components stay in `public/js/lib|components/`; reusable styles become tokens/classes in `public/css/input.css` (see design-system rule).
+- Frontend: new pages live in their own folder as `public/<page>/index.php` (URL `/page/`; sub-pages are sibling `.php` files in that folder). The public file is a thin bootstrap; markup lives in `views/<page>/` (admin: `views/admin/<page>/`). Page JS is flattened under `public/<page>/js/` — no `js/pages/` nesting — and is referenced with absolute paths (`/page/js/app.js`). Shared markup goes in `views/layouts/` and `views/components/` (`require views_path('…')` from `views/path.php`). Shared JS is `public/assets/js/{lib,components,admin}`; reusable styles become tokens/classes in `public/assets/css/` (`tokens.css`, `input.css` entry + one-concern files).
 - Backend: controllers stay thin; business rules belong in `src/*` service classes, DB access in repositories/PDO helpers — not inline in route closures.
 - When creating a shared piece (partial, module, class), reuse the existing ones first; only extract new ones when the duplication is real.
 
@@ -55,7 +55,8 @@ npm run build                                :: compile Tailwind after editing C
 
 - **DB driver defaults to pgsql**: `src/Database.php` falls back to Postgres when `DB_DRIVER` is unset. The schema (e.g. `DEFAULT (UUID())`) requires MySQL 8.0.13+. Always have `.env` (copy `.env.example`) before migrate/serve.
 - **Migrations are plain SQL files** in `migrations/`, applied once by filename order and logged in `migrations_log`. Add new ones as `YYYY_MM_DD_NNNNNN_name.sql`; never edit applied files.
-- **CSS**: edit `public/css/input.css`, never the compiled `public/css/style.css` (both are git-tracked; rebuild with `npm run build`). Tailwind `content:` globs in `tailwind.config.js` only cover `public/{landing,auth,admin}/*.{html,js}` and `public/js/` — classes used only inside `.php` pages/includes get purged on rebuild; add globs or reuse classes already emitted by the JS/HTML files.
+- **CSS**: edit `public/assets/css/input.css` (and the files it `@import`s, including `tokens.css`), never the compiled `public/assets/css/style.css` (both are git-tracked; rebuild with `npm run build`). `npm run build` is `-i ./public/assets/css/input.css -o ./public/assets/css/style.css`. Tailwind `content:` in `tailwind.config.js` covers `./public/**/*.{php,js,html}` and `./views/**/*.{php,js}` — classes used only outside those globs get purged on rebuild.
+- **Compatibility shims** (keep until inbound grep is empty **and** the user confirms delete): `/css/style.css` `@import`s `/assets/css/style.css`; `/js/lib/*` re-exports `/assets/js/lib/*`; leftover `public/css/input.css` is a comment-only pointer; `public/includes/*` are one-line `require`s of the `views/` files. Leftover 302 stubs (`public/admin/reports.php`, `animals.php`, `cases.php`, `rescuers.php`, `health-records.php`, `health-record.php`, `case-detail.php`) still redirect — URL freeze: `docs/technical/FOLDER_OVERHAUL_SPEC.md` §4.
 - **Frontend deps don't come from npm**: browser pages load `clsx`/`tailwind-merge`/`cva`/`lucide` via esm.sh import maps in the HTML; Leaflet from unpkg CDN. `node_modules` is build-time only.
 
 ## Architecture

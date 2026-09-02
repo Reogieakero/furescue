@@ -1,0 +1,39 @@
+/* Report table pagination from 05_audit.css. */
+
+#report-table .queue-pagination {
+  display: flex;
+  justify-content: flex-end;
+}
+#report-table .queue-pagination nav[aria-label="Pagination"] {
+  width: auto;
+  justify-content: flex-end;
+}
+#report-table .queue-pagination ul {
+  gap: 4px;
+}
+#report-table .queue-pagination button[data-page] {
+  height: 28px;
+  min-width: 28px;
+  padding: 0 6px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+#report-table .queue-pagination button[data-page]:hover {
+  background: rgba(11, 37, 69, 0.06);
+}
+
+#report-table .queue-pagination button[data-page]:has(i[data-lucide^="chevron"], svg) {
+  border: none;
+  background: transparent;
+  font-size: 0;
+}
+#report-table .queue-pagination button[data-page] svg {
+  width: 14px;
+  height: 14px;
+}
+
+#report-table .queue-pagination button[aria-current="page"] {
+  border: 1px solid hsl(var(--coral));
+  background: hsl(var(--coral));
+  color: #fff;
+}

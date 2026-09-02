@@ -1,0 +1,19 @@
+/* Moved from public/css/input.css — .lucide / .badge-icon / .icon. */
+
+.lucide {
+  width: 1em;
+  height: 1em;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+
+.badge-icon {
+  margin-right: 0.3rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.icon {
+  margin-right: 0.35rem;
+  flex-shrink: 0;
+}

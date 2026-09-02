@@ -1,0 +1,163 @@
+/* Moved from public/css/input.css — KPI contract unchanged. */
+
+/* ---------------------------------------------------------------------------
+   KPI / summary stat cards — shared design-system primitive.
+   Contract: docs/study/DESIGN_SYSTEM.md
+   Do not use the deprecated clipped-corner .kpi-tile pattern for new work.
+--------------------------------------------------------------------------- */
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 768px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kpi-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13.5rem), 1fr));
+  }
+}
+
+.kpi-card,
+a.kpi-card,
+button.kpi-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  box-sizing: border-box;
+  font-family: var(--font-dash);
+  font-size: inherit;
+  line-height: 1.3;
+  text-align: left;
+  color: hsl(var(--card-foreground));
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) + 4px);
+  box-shadow: var(--shadow-sm);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.kpi-card__icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius);
+  background: hsl(var(--kpi-ink-well));
+  color: hsl(var(--kpi-ink));
+}
+
+.kpi-card__icon .lucide {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.kpi-card__icon--jungle {
+  background: hsl(var(--kpi-jungle-well));
+  color: hsl(var(--kpi-jungle));
+}
+
+.kpi-card__icon--coral {
+  background: hsl(var(--kpi-coral-well));
+  color: hsl(var(--kpi-coral));
+}
+
+.kpi-card__icon--sky {
+  background: hsl(var(--kpi-sky-well));
+  color: hsl(var(--kpi-sky));
+}
+
+.kpi-card__icon--amber {
+  background: hsl(var(--kpi-amber-well));
+  color: hsl(var(--kpi-amber));
+}
+
+.kpi-card__icon--ink {
+  background: hsl(var(--kpi-ink-well));
+  color: hsl(var(--kpi-ink));
+}
+
+.kpi-card__body {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.kpi-card__label,
+.kpi-card__value,
+.kpi-card__trend {
+  margin: 0;
+}
+
+.kpi-card__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: hsl(var(--muted-foreground));
+  overflow-wrap: anywhere;
+}
+
+.kpi-card__value {
+  font-family: var(--font-dash);
+  font-size: clamp(1.5rem, 2.2vw, 1.875rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: hsl(var(--ink));
+  overflow-wrap: anywhere;
+}
+
+.kpi-card__trend {
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: hsl(var(--muted-foreground));
+}
+
+.kpi-card__trend--up {
+  color: hsl(var(--kpi-trend-up));
+}
+
+.kpi-card__trend--down {
+  color: hsl(var(--kpi-trend-down));
+}
+
+.kpi-card__trend--neutral {
+  color: hsl(var(--muted-foreground));
+}
+
+.kpi-card--interactive {
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kpi-card--interactive:hover {
+  border-color: hsl(var(--ring) / 0.4);
+  box-shadow: var(--shadow-md);
+}
+
+.kpi-card--interactive:focus-visible {
+  outline: none;
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.25);
+}

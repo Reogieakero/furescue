@@ -1,0 +1,109 @@
+/* Folded from admin 02_btn.css — .btn / .action-link. */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid transparent;
+  padding: 10px 16px;
+  cursor: pointer;
+  color: inherit;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.btn .lucide {
+  width: 14px;
+  height: 14px;
+}
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 11px;
+}
+.btn-block {
+  width: 100%;
+}
+.btn-outline {
+  background: transparent;
+  border-color: rgba(11, 37, 69, 0.15);
+  color: hsl(var(--ink));
+}
+.btn-outline:hover {
+  border-color: hsl(var(--jungle));
+  color: hsl(var(--jungle));
+}
+.btn-solid {
+  background: hsl(var(--coral));
+  color: #fff;
+}
+.btn-solid:hover {
+  background: hsl(var(--jungle));
+}
+.btn-accent {
+  background: hsl(var(--jungle2));
+  color: #fff;
+}
+.btn-accent:hover {
+  background: hsl(var(--jungle));
+}
+.btn-border-jungle {
+  background: transparent;
+  border-color: rgba(18, 58, 107, 0.2);
+  color: hsl(var(--jungle));
+}
+.btn-border-jungle:hover {
+  border-color: hsl(var(--jungle));
+  background: rgba(220, 234, 246, 0.6);
+}
+.btn-ghost-danger {
+  background: none;
+  border: none;
+  color: rgba(220, 38, 38, 0.7);
+  padding: 6px 12px;
+}
+.btn-ghost-danger:hover {
+  color: rgb(220, 38, 38);
+}
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: hsl(var(--coral));
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn-link .link-chevron {
+  width: 12px;
+  height: 12px;
+}
+.btn-link:hover {
+  color: hsl(var(--jungle));
+}
+
+.action-link {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: hsl(var(--jungle2));
+  text-decoration: none;
+}
+.action-link:hover {
+  text-decoration: underline;
+}
+.action-link--danger {
+  color: rgba(220, 38, 38, 0.75);
+}
+.action-link--danger:hover {
+  color: rgb(220, 38, 38);
+}

@@ -1,0 +1,305 @@
+/* Folded from admin 14_health-record.css — layout / profile / pills. */
+
+/* Dedicated Health Record detail page — re-skinned to the admin design system.
+   Layout uses the shared .panel / .page-head components; status chips and tinted
+   icons reuse the per-hue accents (--hr-*) already used across the admin theme.
+   The tone variables are scoped to .admin-shell so .tint-* / .pill--* resolve
+   inside this page. */
+
+.admin-shell {
+  --hr-green: 152 58% 34%;
+  --hr-green-bg: 152 58% 94%;
+  --hr-blue: 211 71% 38%;
+  --hr-blue-bg: 208 59% 91%;
+  --hr-purple: 256 48% 44%;
+  --hr-purple-bg: 280 52% 94%;
+  --hr-orange: 24 82% 46%;
+  --hr-orange-bg: 38 86% 93%;
+  --hr-red: 0 72% 51%;
+  --hr-red-bg: 0 72% 94%;
+  --hr-yellow: 38 90% 46%;
+  --hr-yellow-bg: 45 90% 90%;
+}
+
+.panel-body {
+  padding: 16px;
+}
+
+.hr-doc-ic {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  color: hsl(var(--jungle));
+  vertical-align: -3px;
+}
+
+/* Scrollable documents table (many attachments) */
+.hr-doc-table-wrap {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+/* Shared "View" link used in the documents table and the "View all" drawer */
+.hr-doc-open {
+  display: inline-flex;
+  align-items: center;
+  color: hsl(var(--coral));
+  font-weight: 500;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.hr-doc-open:hover {
+  text-decoration: underline;
+}
+
+/* Document cards inside the "View all documents" drawer */
+.hr-doc-row-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid hsl(var(--border));
+  border-radius: 10px;
+  background: hsl(var(--card));
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.hr-doc-row-card:hover {
+  border-color: hsl(var(--jungle));
+  background: hsl(var(--jungle) / 0.04);
+}
+.hr-doc-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.hr-doc-row-head .hr-doc-row-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: hsl(var(--ink));
+}
+.hr-doc-row-head .hr-doc-row-name i {
+  width: 16px;
+  height: 16px;
+  color: hsl(var(--jungle));
+}
+.hr-doc-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 0.78rem;
+  color: hsl(var(--muted-foreground));
+}
+.hr-doc-row-meta strong {
+  color: hsl(var(--ink));
+  font-weight: 500;
+}
+.hr-doc-link {
+  display: inline-flex;
+  align-items: center;
+  color: hsl(var(--coral));
+  cursor: pointer;
+}
+.hr-doc-link:hover {
+  color: hsl(var(--jungle));
+}
+
+.hr-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+  margin-bottom: 16px;
+}
+.hr-trio {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+  min-height: 720px;
+  margin-bottom: 16px;
+}
+.hr-trio-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.hr-trio .panel,
+.hr-trio-col .panel {
+  margin-bottom: 0;
+}
+.hr-trio-col > .panel {
+  flex: 1 1 0;
+  min-height: 320px;
+}
+
+@media (max-width: 900px) {
+  .hr-grid,
+  .hr-trio {
+    grid-template-columns: 1fr;
+  }
+  .hr-trio-col > .panel {
+    flex: none;
+  }
+}
+
+/* Animal profile */
+.hr-profile-panel {
+  display: flex;
+  flex-direction: column;
+}
+.hr-profile-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Health overview — match the animal profile card height */
+.hr-overview-panel {
+  display: flex;
+  flex-direction: column;
+}
+.hr-overview-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.hr-overview-body .hr-subcards {
+  flex-shrink: 0;
+}
+.hr-overview-body .hr-notes {
+  flex: 1;
+}
+.hr-profile {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+.hr-photo {
+  width: 50%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 0;
+  flex-shrink: 0;
+  background: hsl(var(--paperdark));
+}
+.hr-photo--ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+}
+.hr-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.hr-info-card {
+  flex: 1;
+  background: hsl(var(--paperdark) / 0.5);
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.hr-profile-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: hsl(var(--ink));
+}
+.hr-detail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+}
+.hr-detail-row {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  align-items: start;
+  gap: 8px;
+  min-width: 0;
+  font-size: 0.82rem;
+}
+.hr-detail-ic {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  color: hsl(var(--muted-foreground));
+}
+.hr-detail-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.hr-detail-label {
+  color: hsl(var(--muted-foreground));
+  overflow-wrap: anywhere;
+}
+.hr-detail-value {
+  font-weight: 600;
+  color: hsl(var(--ink));
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Pills (status chips) */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pill--green { background: hsl(var(--hr-green-bg)); color: hsl(var(--hr-green)); }
+.pill--blue { background: hsl(var(--hr-blue-bg)); color: hsl(var(--hr-blue)); }
+.pill--purple { background: hsl(var(--hr-purple-bg)); color: hsl(var(--hr-purple)); }
+.pill--orange { background: hsl(var(--hr-orange-bg)); color: hsl(var(--hr-orange)); }
+.pill--red { background: hsl(var(--hr-red-bg)); color: hsl(var(--hr-red)); }
+.pill--yellow { background: hsl(var(--hr-yellow-bg)); color: hsl(var(--hr-yellow)); }
+
+/* Tinted icon circles */
+.tint-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tint-circle .lucide { width: 20px; height: 20px; }
+.tint-green { background: hsl(var(--hr-green-bg)); color: hsl(var(--hr-green)); }
+.tint-blue { background: hsl(var(--hr-blue-bg)); color: hsl(var(--hr-blue)); }
+.tint-purple { background: hsl(var(--hr-purple-bg)); color: hsl(var(--hr-purple)); }
+.tint-orange { background: hsl(var(--hr-orange-bg)); color: hsl(var(--hr-orange)); }
+.tint-red { background: hsl(var(--hr-red-bg)); color: hsl(var(--hr-red)); }
+.tint-yellow { background: hsl(var(--hr-yellow-bg)); color: hsl(var(--hr-yellow)); }
+.text-green { color: hsl(var(--hr-green)); }
+.text-blue { color: hsl(var(--hr-blue)); }
+.text-purple { color: hsl(var(--hr-purple)); }
+.text-orange { color: hsl(var(--hr-orange)); }
+.text-red { color: hsl(var(--hr-red)); }
+.text-yellow { color: hsl(var(--hr-yellow)); }

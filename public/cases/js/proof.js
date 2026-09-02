@@ -1,6 +1,6 @@
 import { createIcons, icons } from "lucide";
-import { toast } from "../../js/components/ui/toast.js";
-import { showLoader, hideLoader } from "../../js/components/ui/loader.js";
+import { toast } from "/assets/js/components/ui/toast.js";
+import { showLoader, hideLoader } from "/assets/js/components/ui/loader.js";
 import { proofFromUpload, uploadProof } from "./api.js";
 
 const MAX_FILES = 8;

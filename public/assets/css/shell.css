@@ -1,0 +1,3 @@
+/* Admin + resident chrome. Order locked: admin first, then resident. */
+@import "./shell-admin.css";
+@import "./shell-resident.css";

@@ -1,9 +1,9 @@
 import { createIcons, icons } from "lucide";
-import { apiFetch, apiFetchFull, PORTAL_ROLES, requireAuth } from "/js/lib/api.js";
-import { bootstrapPageAuth } from "/js/lib/page-auth.js";
-import { esc } from "/js/lib/format.js";
-import { initResidentShell } from "/js/components/resident-shell.js";
-import { toast } from "/js/components/ui/toast.js";
+import { apiFetch, apiFetchFull, PORTAL_ROLES, requireAuth } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { esc } from "/assets/js/lib/format.js";
+import { initResidentShell } from "/assets/js/components/resident-shell.js";
+import { toast } from "/assets/js/components/ui/toast.js";
 
 const CATEGORY_META = {
   dog_behavior: { label: "Dog Behavior", icon: "dog" },

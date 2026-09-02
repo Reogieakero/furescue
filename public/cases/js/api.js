@@ -1,4 +1,4 @@
-import { apiFetch, apiFetchFull, apiUpload } from "../../js/lib/api.js";
+import { apiFetch, apiFetchFull, apiUpload } from "/assets/js/lib/api.js";
 import { parsePhotos } from "./status.js";
 
 function asCase(raw) {

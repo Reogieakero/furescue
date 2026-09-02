@@ -152,7 +152,7 @@ In a **second** terminal, from the repo root:
 npm install
 npm run build
 ```
-`npm run build` compiles `public/css/input.css` → `public/css/style.css`. Use `npm run watch` if you will edit styles.
+`npm run build` compiles `public/assets/css/input.css` → `public/assets/css/style.css` (`-i ./public/assets/css/input.css -o ./public/assets/css/style.css`). Use `npm run watch` if you will edit styles.
 
 ### Step 13 — Open the system
 With the server from Step 11 running, open in your browser:
@@ -188,7 +188,7 @@ All seeded accounts use the password **`Password123!`**:
 | `PHP Warning: Module "mysqli" is already loaded` | Harmless — appears on some setups, ignore it. |
 | API returns `500 SERVER_ERROR` | Check `.env` secret values are set; run `php bin\migrate.php` again. |
 | Map tiles blank | Requires internet access (Leaflet + OSM tiles load from CDN). |
-| Styling looks unstyled | Run `npm run build` from the repo root so `public/css/style.css` exists. |
+| Styling looks unstyled | Run `npm run build` from the repo root so `public/assets/css/style.css` exists. |
 | `composer` not recognized | Reinstall Composer and open a new terminal. |
 | Port 8000 already in use | Change the port in the Step 11 command and use that same port in the Step 13 URLs. The browser code calls `/api/v1` relative to the page origin, so no JS changes are needed. |
 

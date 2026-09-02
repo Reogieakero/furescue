@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 use App\Repositories\UserRepository;
 
-require __DIR__ . '/includes/index-data.php';
-require __DIR__ . '/partials/library.php';
+require_once dirname(__DIR__, 3) . '/views/path.php';
+require views_path('admin/elearning/index-data.php');
+require views_path('admin/elearning/partials/library.php');
 
 $uid = (string) $_SESSION['user']['id'];
 $role = (string) ($_SESSION['user']['role'] ?? '');
@@ -41,7 +42,7 @@ $navBadges = [
 ];
 
 ob_start();
-require __DIR__ . '/../../includes/admin-shell.php';
+require views_path('layouts/admin.php');
 $pageHtml = (string) ob_get_clean();
 
 $pageTitle = 'FurEscue — E-Learning';
@@ -51,7 +52,7 @@ $pageCss = [
     '/admin/elearning/css/elearning.css',
 ];
 $fontsHref = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
-require __DIR__ . '/../../includes/site-head.php';
+require views_path('components/site-head.php');
 ?>
   <body>
     <div id="app"><?= $pageHtml ?></div>

@@ -1,10 +1,10 @@
 import { createIcons, icons } from "lucide";
-import { apiFetch, PORTAL_ROLES, requireAuth } from "/js/lib/api.js";
-import { bootstrapPageAuth } from "/js/lib/page-auth.js";
-import { esc, timeAgo } from "/js/lib/format.js";
-import { subscribeToNotifications } from "/js/lib/notification-stream.js";
-import { initResidentShell, setResidentNavBadge } from "/js/components/resident-shell.js";
-import { toast } from "/js/components/ui/toast.js";
+import { apiFetch, PORTAL_ROLES, requireAuth } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { esc, timeAgo } from "/assets/js/lib/format.js";
+import { subscribeToNotifications } from "/assets/js/lib/notification-stream.js";
+import { initResidentShell, setResidentNavBadge } from "/assets/js/components/resident-shell.js";
+import { toast } from "/assets/js/components/ui/toast.js";
 
 const TYPE_STYLE = [
   [/(report_)?dismiss/, { icon: "x-circle", tone: "alert", label: "Dismissed" }],

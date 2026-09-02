@@ -1,18 +1,18 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, getSessionUser } from "../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
-import { initShell } from "./layout/app-shell.js";
-import { DashboardPage, ActivityInner, bindAuditReadActions } from "./pages/dashboard/components.js";
-import { loadDashboard, state, hydrateFromCache } from "./pages/dashboard/state.js";
-import { createCarousel } from "./pages/dashboard/carousel.js";
-import { initQueueTabs, initQueuePagination, initQueueActions } from "./pages/dashboard/queue.js";
-import { initCaseDensityMap, bindGisActions } from "./pages/dashboard/map.js";
-import { initDropdownMenu } from "../../js/components/ui/dropdown-menu.js";
-import { initAnnounceDialog } from "./pages/dashboard/components/announce.js";
-import { mountDashboardCharts } from "./pages/dashboard/components/charts.js";
-import * as api from "./lib/admin-data.js";
-import { safe } from "./pages/dashboard/helpers.js";
-import { setNavBadge } from "../../js/lib/swr.js";
+import { requireAuth, getSessionUser } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initShell } from "/assets/js/admin/app-shell.js";
+import { DashboardPage, ActivityInner, bindAuditReadActions } from "./components.js";
+import { loadDashboard, state, hydrateFromCache } from "./state.js";
+import { createCarousel } from "./carousel.js";
+import { initQueueTabs, initQueuePagination, initQueueActions } from "./queue.js";
+import { initCaseDensityMap, bindGisActions } from "./map.js";
+import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { initAnnounceDialog } from "./components/announce.js";
+import { mountDashboardCharts } from "./components/charts.js";
+import * as api from "/assets/js/admin/admin-data.js";
+import { safe } from "./helpers.js";
+import { setNavBadge } from "/assets/js/lib/swr.js";
 
 function initDate() {
   const el = document.getElementById("admin-date");

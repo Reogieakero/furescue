@@ -1,4 +1,4 @@
-import { Button } from "../../js/components/ui/button.js";
+import { Button } from "/assets/js/components/ui/button.js";
 
 export function Navbar() {
   const links = [

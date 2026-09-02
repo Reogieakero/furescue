@@ -1,0 +1,22 @@
+/* Global prefers-reduced-motion from input.css + admin 05 map/chart/sidebar. */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-ping {
+    animation: none;
+    opacity: 0.4;
+  }
+  .chart-bar {
+    transition: none;
+  }
+  .sidebar {
+    transition: none;
+  }
+}

@@ -1,0 +1,182 @@
+/* Greeting from 01, dashboard elearn card from 04, dash core from 15. */
+
+.greeting {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (min-width: 640px) {
+  .greeting {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+.greeting-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2vw, 1.875rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin: 8px 0 0;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.greeting-sub {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: rgba(11, 37, 69, 0.55);
+}
+@media (min-width: 640px) {
+  .greeting-sub {
+    font-size: 14px;
+  }
+}
+.greeting-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.elearn-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+.elearn-card > .panel-title-wrap {
+  flex-shrink: 0;
+}
+.elearn-carousel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.elearn-carousel > .carousel {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+.carousel-slide--elearn .ec-category {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: hsl(var(--coral));
+}
+.carousel-slide--elearn .ec-title {
+  margin: 8px 0 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: hsl(var(--ink));
+}
+.carousel-slide--elearn .ec-meta {
+  margin: 6px 0 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(11, 37, 69, 0.5);
+}
+.carousel-slide--elearn .ec-link {
+  margin-top: auto;
+}
+.elearn-action {
+  flex-shrink: 0;
+  margin-top: 16px;
+}
+.elearn-card > .empty-state {
+  flex: 1;
+}
+
+.dash {
+  --font-sans: var(--font-dash);
+  --font-display: var(--font-dash);
+  font-family: var(--font-dash);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dash .greeting {
+  margin-bottom: 0;
+}
+
+.dash .greeting-title {
+  font-family: var(--font-dash);
+  font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: hsl(var(--ink));
+}
+
+.dash .greeting-sub {
+  font-size: 13px;
+  color: hsl(var(--muted-foreground));
+}
+
+.dash-kicker {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dash .panel {
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+.dash .panel-head {
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 14px 16px;
+}
+
+.dash .panel-title,
+.dash .panel-title--sm {
+  font-family: var(--font-dash);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.dash .panel-title-wrap > .lucide {
+  color: hsl(var(--primary));
+}
+
+.dash .panel-foot {
+  border-top: 1px solid hsl(var(--border));
+}
+
+.dash .table-head th {
+  font-family: var(--font-dash);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: hsl(var(--muted-foreground));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.dash .table tbody tr {
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.dash .table tbody tr:hover {
+  background: hsl(var(--paper));
+}
+
+.dash > .kpi-grid {
+  margin-bottom: 0;
+}

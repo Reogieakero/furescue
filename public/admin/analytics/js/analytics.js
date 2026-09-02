@@ -1,10 +1,10 @@
 import { createIcons, icons } from "lucide";
-import { API_BASE_URL, getAccessToken } from "../../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../../js/lib/page-auth.js";
-import { initShell } from "../../js/layout/app-shell.js";
-import { initDropdownMenu } from "../../../js/components/ui/dropdown-menu.js";
-import { toast } from "../../../js/components/ui/toast.js";
-import { renderAll } from "./pages/analytics/render.js";
+import { API_BASE_URL, getAccessToken } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initShell } from "/assets/js/admin/app-shell.js";
+import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { toast } from "/assets/js/components/ui/toast.js";
+import { renderAll } from "./render.js";
 
 const state = {
   range: { start: "", end: "" },

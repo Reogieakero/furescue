@@ -1,14 +1,14 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth } from "/js/lib/api.js";
-import { bootstrapPageAuth } from "/js/lib/page-auth.js";
-import { initShell } from "/admin/js/layout/app-shell.js";
-import { HealthRecordsPage, rerenderAll } from "./pages/health-records/components.js";
-import { initHealthRecordsEvents } from "./pages/health-records/workflow.js";
-import { initDropdownMenu } from "/js/components/ui/dropdown-menu.js";
-import { initAnimalsFlyout } from "./pages/health-records/components/animals-flyout.js";
-import { state, loadHealthRecords, loadHealthActivity, allAttentionCount } from "./pages/health-records/state.js";
-import { mountCharts } from "./pages/health-records/components/charts.js";
-import { setNavBadge } from "/js/lib/swr.js";
+import { requireAuth } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initShell } from "/assets/js/admin/app-shell.js";
+import { HealthRecordsPage, rerenderAll } from "./health-records/components.js";
+import { initHealthRecordsEvents } from "./health-records/workflow.js";
+import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { initAnimalsFlyout } from "./health-records/components/animals-flyout.js";
+import { state, loadHealthRecords, loadHealthActivity, allAttentionCount } from "./health-records/state.js";
+import { mountCharts } from "./health-records/components/charts.js";
+import { setNavBadge } from "/assets/js/lib/swr.js";
 
 function initDate() {
   const el = document.getElementById("admin-date");

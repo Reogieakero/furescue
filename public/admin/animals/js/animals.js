@@ -1,13 +1,13 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, getSessionUser } from "/js/lib/api.js";
-import { bootstrapPageAuth } from "/js/lib/page-auth.js";
-import { initShell } from "/admin/js/layout/app-shell.js";
-import { AnimalsPage, rerenderAll } from "./pages/animals/components.js";
-import { initAnimalsEvents } from "./pages/animals/workflow.js";
-import { loadAnimals, restoreSelectedId, state } from "./pages/animals/state.js";
-import { renderSelection } from "./pages/animals/components/grid.js";
-import { renderDetail } from "./pages/animals/components/side.js";
-import { initDropdownMenu } from "/js/components/ui/dropdown-menu.js";
+import { requireAuth, getSessionUser } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initShell } from "/assets/js/admin/app-shell.js";
+import { AnimalsPage, rerenderAll } from "./components.js";
+import { initAnimalsEvents } from "./workflow.js";
+import { loadAnimals, restoreSelectedId, state } from "./state.js";
+import { renderSelection } from "./components/grid.js";
+import { renderDetail } from "./components/side.js";
+import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
 
 function initDate() {
   const el = document.getElementById("admin-date");

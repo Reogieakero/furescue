@@ -8,7 +8,8 @@ use App\Auth\JwtService;
 
 Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2))->safeLoad();
 
-require __DIR__ . '/../includes/guard.php';
+require_once dirname(__DIR__, 2) . '/views/path.php';
+require views_path('components/guard.php');
 
 $uid = (string) $_SESSION['user']['id'];
 
@@ -20,16 +21,9 @@ $residentUser = [
     'profile_photo_url' => '',
 ];
 
-$content = '
-    <div class="mx-auto w-full max-w-6xl">
-      <p><a href="/animals/" class="inline-flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-primary"><i data-lucide="arrow-left" class="h-4 w-4"></i>Back to gallery</a></p>
-      <div id="detail-root" aria-live="polite">
-        <div class="rempty">
-          <i data-lucide="loader-circle"></i>
-          <p class="rempty-text">Loading profile…</p>
-        </div>
-      </div>
-    </div>';
+ob_start();
+require views_path('animals/detail.php');
+$content = ob_get_clean();
 
 $jwt = new JwtService();
 
@@ -49,4 +43,4 @@ $importMapExtras = [
 $activeNav = 'browse animals';
 $residentShellTitle = 'Animal Profile';
 
-require __DIR__ . '/../includes/resident-shell.php';
+require views_path('layouts/resident.php');

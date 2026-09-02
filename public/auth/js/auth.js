@@ -1,5 +1,5 @@
 import { createIcons, icons } from "lucide";
-import { apiFetchFull, homePathForRole, setSession } from "../../js/lib/api.js";
+import { apiFetchFull, homePathForRole, setSession } from "/assets/js/lib/api.js";
 
 function initPasswordToggle() {
   const toggle = document.getElementById("toggle-pw");

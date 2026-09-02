@@ -1,9 +1,9 @@
 import { createIcons, icons } from "lucide";
-import { apiFetchFull, redirectToLogin } from "../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
-import { initResidentShell } from "../../js/components/resident-shell.js";
-import { toast } from "../../js/components/ui/toast.js";
-import { esc } from "../../js/lib/format.js";
+import { apiFetchFull, redirectToLogin } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initResidentShell } from "/assets/js/components/resident-shell.js";
+import { toast } from "/assets/js/components/ui/toast.js";
+import { esc } from "/assets/js/lib/format.js";
 import { openModelViewer, open360Viewer } from "./3d-viewer.js";
 
 const PER_PAGE = 12;

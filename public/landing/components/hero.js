@@ -1,5 +1,5 @@
-import { Button } from "../../js/components/ui/button.js";
-import { Badge } from "../../js/components/ui/badge.js";
+import { Button } from "/assets/js/components/ui/button.js";
+import { Badge } from "/assets/js/components/ui/badge.js";
 
 export function Hero() {
   return `

@@ -1,12 +1,12 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, getSessionUser } from "/js/lib/api.js";
-import { bootstrapPageAuth } from "/js/lib/page-auth.js";
-import { initShell } from "/admin/js/layout/app-shell.js";
-import { initDropdownMenu } from "/js/components/ui/dropdown-menu.js";
-import { ElearningPage } from "./pages/elearning/components.js";
-import { hydrateModules, loadModules, state } from "./pages/elearning/state.js";
-import { initElearningEvents } from "./pages/elearning/workflow.js";
-import { toast } from "/js/components/ui/toast.js";
+import { requireAuth, getSessionUser } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initShell } from "/assets/js/admin/app-shell.js";
+import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { ElearningPage } from "./components.js";
+import { hydrateModules, loadModules, state } from "./state.js";
+import { initElearningEvents } from "./workflow.js";
+import { toast } from "/assets/js/components/ui/toast.js";
 
 function initDate() {
   const el = document.getElementById("admin-date");

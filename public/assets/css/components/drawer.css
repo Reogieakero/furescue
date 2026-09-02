@@ -1,0 +1,204 @@
+/* Drawer chrome from 05 + location block from 06. */
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(8, 20, 35, 0.55);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 16px;
+}
+.drawer-overlay.is-open {
+  opacity: 1;
+}
+.drawer {
+  width: min(440px, 100%);
+  height: auto;
+  max-height: calc(100% - 32px);
+  background: hsl(var(--paper));
+  border: 1px solid rgba(11, 37, 69, 0.15);
+  border-radius: 12px;
+  box-shadow: -20px 0 50px rgba(8, 20, 35, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateX(calc(100% + 16px));
+  transition: transform 0.3s ease;
+}
+.drawer-overlay.is-open .drawer {
+  transform: translateX(0);
+}
+.drawer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px 4px;
+}
+.drawer-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+}
+.drawer-body {
+  padding: 12px 16px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.drawer-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 2px dashed rgba(11, 37, 69, 0.12);
+}
+
+.drawer-overlay--left {
+  justify-content: flex-start;
+}
+.drawer-overlay--left .drawer {
+  box-shadow: 20px 0 50px rgba(8, 20, 35, 0.3);
+  transform: translateX(calc(-100% - 16px));
+}
+.drawer-overlay--left.is-open .drawer {
+  transform: translateX(0);
+}
+.drawer-map {
+  height: 240px;
+  border: 1.5px solid rgba(11, 37, 69, 0.12);
+}
+.drawer-map .leaflet-container {
+  background: #d6e2ea;
+  font-family: inherit;
+}
+.drawer-photo {
+  width: min(130px, 38vw);
+  height: auto;
+  display: block;
+}
+.drawer-reported {
+  margin-top: auto;
+  margin-bottom: -10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 18px;
+}
+.drawer-reported-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(11, 37, 69, 0.6);
+  text-align: left;
+  white-space: nowrap;
+}
+.tw-cursor {
+  animation: tw-blink 1s steps(1) infinite;
+  color: hsl(var(--coral));
+  font-weight: 700;
+}
+@keyframes tw-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.drawer-overlay--elevated {
+  background: transparent;
+  pointer-events: none;
+}
+.drawer-overlay--elevated .drawer {
+  pointer-events: auto;
+  width: 460px;
+}
+.drawer-overlay--elevated .drawer-map {
+  height: 320px;
+}
+.drawer-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 24px;
+  color: rgba(11, 37, 69, 0.5);
+  font-size: 12px;
+}
+.drawer-empty .lucide {
+  width: 16px;
+  height: 16px;
+}
+
+.drawer-location {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 2px 0 12px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, hsl(var(--surface)) 0%, hsl(var(--paper)) 100%);
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(15, 30, 50, 0.05);
+}
+.drawer-location-pin {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+}
+.drawer-location-pin .lucide {
+  width: 16px;
+  height: 16px;
+}
+.drawer-location-text {
+  min-width: 0;
+}
+.drawer-location-name {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.3;
+  color: hsl(var(--text-strong));
+}
+.drawer-location-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: hsl(var(--text-muted));
+}
+.loc-loading {
+  color: hsl(var(--text-muted));
+  font-weight: 500;
+  font-style: italic;
+}
+
+.drawer-map-cap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border-top: 1px solid hsl(var(--border));
+  background: hsl(var(--surface));
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--text-strong));
+}
+.drawer-map-cap .lucide {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: hsl(var(--primary));
+}
+.drawer-map-cap .loc-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

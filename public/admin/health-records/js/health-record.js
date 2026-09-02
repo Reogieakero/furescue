@@ -1,9 +1,9 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth } from "/js/lib/api.js";
-import { bootstrapPageAuth } from "/js/lib/page-auth.js";
-import { initShell } from "/admin/js/layout/app-shell.js";
-import { initDropdownMenu } from "/js/components/ui/dropdown-menu.js";
-import { fetchAnimalHealthRecord } from "/admin/js/lib/admin-data.js";
+import { requireAuth } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initShell } from "/assets/js/admin/app-shell.js";
+import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { fetchAnimalHealthRecord } from "/assets/js/admin/admin-data.js";
 import {
   HealthRecordPage,
   HealthRecordLoading,
@@ -11,7 +11,7 @@ import {
   HealthRecordEmpty,
   hydrateHealthRecord,
   renderHealthRecord,
-} from "./pages/health-record/page.js";
+} from "./health-record/page.js";
 
 function getAnimalId() {
   return new URLSearchParams(window.location.search).get("id");

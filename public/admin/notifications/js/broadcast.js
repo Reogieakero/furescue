@@ -1,11 +1,11 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, apiFetchFull } from "../../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../../js/lib/page-auth.js";
-import { fetchRecentBroadcasts } from "../../js/lib/admin-data.js";
-import { initShell } from "../../js/layout/app-shell.js";
-import { initDropdownMenu } from "../../../js/components/ui/dropdown-menu.js";
-import { initSelect } from "../../../js/components/ui/select.js";
-import { toast } from "../../../js/components/ui/toast.js";
+import { requireAuth, apiFetchFull } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { fetchRecentBroadcasts } from "/assets/js/admin/admin-data.js";
+import { initShell } from "/assets/js/admin/app-shell.js";
+import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { initSelect } from "/assets/js/components/ui/select.js";
+import { toast } from "/assets/js/components/ui/toast.js";
 
 const MAX_LENGTH = 1000;
 

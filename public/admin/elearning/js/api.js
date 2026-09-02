@@ -1,4 +1,4 @@
-import { apiFetch, apiFetchFull } from "/js/lib/api.js";
+import { apiFetch, apiFetchFull } from "/assets/js/lib/api.js";
 
 function listFields(row) {
   if (!row || typeof row !== "object") return row;

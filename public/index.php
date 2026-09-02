@@ -18,7 +18,8 @@ $dotenv->safeLoad();
 
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 if ($uri === '/' || $uri === '/index.html' || $uri === '/index.php') {
-    require __DIR__ . '/includes/homepage.php';
+    require_once dirname(__DIR__) . '/views/path.php';
+    require views_path('home/landing.php');
     exit;
 }
 $docRoot = realpath(__DIR__);

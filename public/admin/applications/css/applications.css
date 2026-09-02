@@ -1,18 +1,1 @@
-#application-filters .report-search {
-  min-width: 0;
-  flex: 1 1 12rem;
-  max-width: 100%;
-}
-
-#application-table .table-wrap {
-  overflow-x: auto;
-  max-width: 100%;
-}
-
-#application-table .queue-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 24px 16px;
-}
+/* Folded into /assets/css — compatibility shim. Do not add rules. */

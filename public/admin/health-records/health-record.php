@@ -2,25 +2,9 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/includes/health-record-data.php';
-require __DIR__ . '/partials/record-head.php';
-require __DIR__ . '/partials/record-profile.php';
-require __DIR__ . '/partials/record-overview.php';
-require __DIR__ . '/partials/record-history.php';
-require __DIR__ . '/partials/record-vaccinations.php';
-require __DIR__ . '/partials/record-reminders.php';
-require __DIR__ . '/partials/record-vitals.php';
-require __DIR__ . '/partials/record-documents.php';
-require __DIR__ . '/partials/record-stats.php';
-
-$children = $pageHeadHtml
-    . '<div class="hr-grid">' . $profilePanelHtml . $overviewPanelHtml . '</div>'
-    . '<div class="hr-trio">
-        ' . $historyPanelHtml . '
-        <div class="hr-trio-col">' . $vaxPanelHtml . $remindersPanelHtml . '</div>
-        <div class="hr-trio-col">' . $vitalsPanelHtml . $documentsPanelHtml . '</div>
-      </div>'
-    . $statsPanelHtml;
+require_once dirname(__DIR__, 3) . '/views/path.php';
+require views_path('admin/health-records/health-record-data.php');
+require views_path('admin/health-records/health-record.php');
 
 $currentUser = (new \App\Repositories\UserRepository($pdo))->find($uid);
 $currentUserData = $currentUser ? $currentUser->toArray() : [];
@@ -33,10 +17,9 @@ $adminUser = [
 ];
 $activeNav = 'health records';
 $navBadges = [];
-$adminChildren = $children;
 
 ob_start();
-require __DIR__ . '/../../includes/admin-shell.php';
+require views_path('layouts/admin.php');
 $pageHtml = (string) ob_get_clean();
 
 $uid = (string) $_SESSION['user']['id'];
@@ -57,7 +40,7 @@ $pageDescription = 'FurEscue admin — dedicated health record for a rescued ani
 $pageCss = ['/admin/css/admin.css'];
 $fontsHref = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
 $importMapExtras = [];
-require __DIR__ . '/../../includes/site-head.php';
+require views_path('components/site-head.php');
 ?>
   <body>
     <div id="app"><?= $pageHtml ?></div>

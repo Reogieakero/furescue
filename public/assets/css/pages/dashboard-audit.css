@@ -1,0 +1,47 @@
+/* Folded from admin 05_audit.css — .audit. */
+
+.audit {
+  background: hsl(var(--ink));
+  color: #fff;
+  padding: 16px;
+}
+.audit-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.5);
+}
+.audit-head .lucide {
+  width: 14px;
+  height: 14px;
+}
+.audit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 11px;
+}
+.audit-item {
+  display: flex;
+  gap: 8px;
+}
+.audit-time {
+  font-family: var(--font-mono);
+  color: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+}
+.audit-text {
+  color: rgba(255, 255, 255, 0.8);
+}
+.audit-text strong {
+  color: hsl(var(--jungle2));
+  font-weight: 600;
+}

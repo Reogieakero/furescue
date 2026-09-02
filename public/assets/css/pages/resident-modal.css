@@ -1,0 +1,107 @@
+/* Resident modal / form from input.css. */
+
+/* --- Modal dialog --- */
+.resident-shell .rmodal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: hsl(var(--ink) / 0.45);
+  padding: 0;
+}
+@media (min-width: 640px) {
+  .resident-shell .rmodal-overlay {
+    align-items: center;
+    padding: 24px;
+  }
+}
+.resident-shell .rmodal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 540px;
+  max-height: 92vh;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem 1rem 0 0;
+  box-shadow: var(--shadow-md);
+}
+@media (min-width: 640px) {
+  .resident-shell .rmodal {
+    border-radius: 1rem;
+  }
+}
+.resident-shell .rmodal--wide {
+  max-width: 780px;
+}
+.resident-shell .rmodal-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid hsl(var(--border));
+}
+.resident-shell .rmodal-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.resident-shell .rmodal-x {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.resident-shell .rmodal-x:hover {
+  background: hsl(var(--surface-soft));
+  color: hsl(var(--foreground));
+}
+.resident-shell .rmodal-body {
+  padding: 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.resident-shell .rmodal-foot {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 18px;
+  border-top: 1px solid hsl(var(--border));
+}
+.resident-shell .rform-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.resident-shell .rform-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: hsl(var(--muted-foreground));
+}
+.resident-shell .rform-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: hsl(var(--destructive));
+}
+.resident-shell .rform-error[hidden] {
+  display: none;
+}
