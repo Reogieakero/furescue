@@ -103,11 +103,12 @@ export function RescuersCard() {
         <a href="/admin/rescuers/" class="btn-link">View all ${ChevronRight()}</a>
       </div>
     </div>
-    ${rows ? `<div class="rescuer-list">${rows}</div>` : EmptyState({ icon: "siren", text: "No rescuers on duty." })}
+    ${rows ? `<div class="rescuer-list">${rows}</div>` : EmptyState({ icon: "siren", text: "No rescuers on duty.", className: "empty-state--compact" })}
   </div>`;
 }
 
 export function ChartCard() {
+  const total = (state.chart || []).reduce((sum, d) => sum + (d.count || 0), 0);
   const bars = state.chart.map(
     (d) => `
     <div class="chart-col">
@@ -122,7 +123,9 @@ export function ChartCard() {
   return `
     <div class="panel panel--padded">
     <div class="panel-title-wrap"><i data-lucide="bar-chart-3"></i><h2 class="panel-title panel-title--sm">Adoptions this week</h2></div>
-    <div class="chart">${bars}</div>
+    ${total
+      ? `<div class="chart">${bars}</div>`
+      : EmptyState({ icon: "bar-chart-3", text: "No completed adoptions this week.", className: "empty-state--compact" })}
     <div class="chart-foot">
       <span class="chart-foot-muted">Total completed</span>
       <span class="chart-foot-total">${state.overview.adoptions_completed}${growth}</span>
@@ -136,7 +139,7 @@ export function ElearningCard() {
     return `
   <div class="panel panel--padded elearn-card">
     <div class="panel-title-wrap"><i data-lucide="book-open"></i><h2 class="panel-title panel-title--sm">E-Learning library</h2></div>
-    ${EmptyState({ icon: "book-open", text: "No records." })}
+    ${EmptyState({ icon: "book-open", text: "No published modules yet.", className: "empty-state--compact" })}
   </div>`;
   }
   const slideHtml = (m) => {
@@ -178,11 +181,13 @@ export function AuditLogCard() {
           return `<li class="audit-item"><span class="audit-time">${timeAgo(n.created_at)}</span><span class="audit-text">${n.message || "—"}</span>${markReadBtn}</li>`;
         }
       ).join("")
-    : `<li class="audit-item"><span class="audit-text">No recent notifications.</span></li>`;
+    : "";
   return `
-  <div class="audit">
-    <div class="audit-head"><i data-lucide="bell"></i> Recent notifications</div>
-    <ul class="audit-list">${rows}</ul>
+  <div class="panel audit">
+    <div class="panel-head">
+      <div class="panel-title-wrap"><i data-lucide="bell"></i><h2 class="panel-title panel-title--sm">Recent notifications</h2></div>
+    </div>
+    ${rows ? `<ul class="audit-list">${rows}</ul>` : EmptyState({ icon: "bell", text: "No recent notifications.", className: "empty-state--compact" })}
   </div>`;
 }
 
@@ -227,8 +232,9 @@ export function DashboardSections() {
   ${RecentReportsCard()}
   ${HealthTrendRow()}
   ${AttentionRow()}
-  <div class="cols cols--two">
+  <div class="dash-trio">
     ${ElearningCard()}
+    ${ChartCard()}
     ${AuditLogCard()}
   </div>`;
 }

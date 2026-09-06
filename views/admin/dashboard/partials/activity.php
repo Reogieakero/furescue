@@ -57,7 +57,8 @@ $dashboardSections = "
   {$recentReportsCard}
   {$healthTrendRow}
   {$attentionRow}
-  <div class=\"cols cols--two\">
+  <div class=\"dash-trio\">
     {$elearningCard}
+    {$chartCard}
     {$auditLogCard}
   </div>";

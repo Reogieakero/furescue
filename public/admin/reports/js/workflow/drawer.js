@@ -4,7 +4,7 @@ import { Spinner } from "/shared/components/spinner/spinner.js";
 import * as api from "/assets/js/admin/admin-data.js";
 import { esc } from "../components/util.js";
 import { shortId, titleCase } from "/admin/js/helpers.js";
-import { report, infoRows, typewriter, locationSub } from "./helpers.js";
+import { report, infoRows, reportPhotoHtml, typewriter, locationSub } from "./helpers.js";
 
 export function openReportDrawer(id) {
   const r = report(id);
@@ -22,7 +22,7 @@ export function openReportDrawer(id) {
       </div>
       <div id="report-detail-map" class="drawer-map"></div>
       <div class="drawer-reported">
-        <img class="drawer-photo" src="/reported.png" alt="Report">
+        ${reportPhotoHtml(r)}
         <span class="drawer-reported-text" id="drawer-reported-text"></span>
       </div>`,
     onMount: (bodyEl) => {

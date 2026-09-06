@@ -82,6 +82,25 @@
   width: min(130px, 38vw);
   height: auto;
   display: block;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+
+.drawer-photo-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px dashed hsl(var(--border));
+  border-radius: var(--radius);
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+}
+
+.drawer-photo-empty .lucide {
+  width: 0.95rem;
+  height: 0.95rem;
 }
 .drawer-reported {
   margin-top: auto;

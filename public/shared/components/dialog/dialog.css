@@ -173,6 +173,56 @@
   border-top: 1px solid rgba(11, 37, 69, 0.1);
   border-radius: 0 0 16px 16px;
 }
+
+.dialog-heading {
+  min-width: 0;
+  flex: 1;
+}
+
+.dialog-desc {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+  max-width: 42ch;
+  color: hsl(var(--muted-foreground));
+}
+
+.dialog--compact {
+  width: min(28rem, 100%);
+  max-height: min(32rem, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+}
+
+.dialog--compact .dialog-head {
+  padding: 14px 16px 10px;
+  align-items: flex-start;
+}
+
+.dialog--compact .dialog-title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.dialog--compact .dialog-body {
+  padding: 8px 16px 4px;
+  gap: 12px;
+  overflow: visible;
+}
+
+.dialog--compact .dialog-foot {
+  padding: 10px 16px 14px;
+}
+
+.dialog--compact textarea.input,
+.dialog--compact .announce-message {
+  min-height: 8rem;
+  max-height: 12rem;
+  line-height: 1.45;
+  resize: vertical;
+}
 .dialog-spin {
   width: 13px;
   height: 13px;

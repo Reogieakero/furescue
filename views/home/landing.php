@@ -6,6 +6,7 @@ $fontsHref = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144
 $pageCss = ['/landing/css/landing.css'];
 require __DIR__ . '/../components/site-head.php';
 require __DIR__ . '/../components/guest-header.php';
+require __DIR__ . '/live-stats.php';
 require __DIR__ . '/copy.php';
 ?>
   <body>
@@ -43,7 +44,7 @@ require __DIR__ . '/copy.php';
               <div class="float-card float-card--tl">
                 <span class="float-icon"><i data-lucide="map-pin"></i></span>
                 <div>
-                  <strong>128</strong>
+                  <strong><?= (int) $liveStats['cases_active'] ?></strong>
                   <small>active cases</small>
                 </div>
               </div>
@@ -51,7 +52,7 @@ require __DIR__ . '/copy.php';
               <div class="float-card float-card--br">
                 <span class="float-icon"><i data-lucide="heart"></i></span>
                 <div>
-                  <strong>64</strong>
+                  <strong><?= (int) $liveStats['animals_adopted'] ?></strong>
                   <small>adopted</small>
                 </div>
               </div>

@@ -98,7 +98,7 @@ $rescuersCard = '
         <a href="/admin/rescuers/" class="btn-link">View all ' . chevron_right() . '</a>
       </div>
     </div>
-    ' . ($rescuerCardRows !== '' ? "<div class=\"rescuer-list\">{$rescuerCardRows}</div>" : empty_state('siren', 'No rescuers on duty.')) . '
+    ' . ($rescuerCardRows !== '' ? "<div class=\"rescuer-list\">{$rescuerCardRows}</div>" : empty_state('siren', 'No rescuers on duty.', 'empty-state--compact')) . '
   </div>';
 
 $attentionRow = "
@@ -123,10 +123,13 @@ $growthHtml = '';
 if ($growth !== null) {
     $growthHtml = ' &middot; <span class="chart-foot-accent">' . ($growth > 0 ? '+' : '') . e($growth) . '% vs last week</span>';
 }
+$chartInner = $curSum > 0
+    ? '<div class="chart">' . $chartCols . '</div>'
+    : empty_state('bar-chart-3', 'No completed adoptions this week.', 'empty-state--compact');
 $chartCard = '
     <div class="panel panel--padded">
     <div class="panel-title-wrap"><i data-lucide="bar-chart-3"></i><h2 class="panel-title panel-title--sm">Adoptions this week</h2></div>
-    <div class="chart">' . $chartCols . '</div>
+    ' . $chartInner . '
     <div class="chart-foot">
       <span class="chart-foot-muted">Total completed</span>
       <span class="chart-foot-total">' . e($overview['adoptions_completed']) . $growthHtml . '</span>
@@ -138,7 +141,7 @@ if ($elearnItems === []) {
     $elearningCard = '
   <div class="panel panel--padded elearn-card">
     <div class="panel-title-wrap"><i data-lucide="book-open"></i><h2 class="panel-title panel-title--sm">E-Learning library</h2></div>
-    ' . empty_state('book-open', 'No records.') . '
+    ' . empty_state('book-open', 'No published modules yet.', 'empty-state--compact') . '
   </div>';
 } else {
     $buildElearnSlide = static function (array $m): string {
@@ -181,11 +184,14 @@ if ($auditItems !== []) {
         $auditRows .= '
     <li class="audit-item"><span class="audit-time">' . e(time_ago($n['created_at'] ?? null)) . '</span><span class="audit-text">' . e(($n['message'] ?? null) ?: '—') . '</span></li>';
     }
+    $auditInner = '<ul class="audit-list">' . $auditRows . '</ul>';
 } else {
-    $auditRows = '<li class="audit-item"><span class="audit-text">No recent notifications.</span></li>';
+    $auditInner = empty_state('bell', 'No recent notifications.', 'empty-state--compact');
 }
 $auditLogCard = '
-  <div class="audit">
-    <div class="audit-head"><i data-lucide="bell"></i> Recent notifications</div>
-    <ul class="audit-list">' . $auditRows . '</ul>
+  <div class="panel audit">
+    <div class="panel-head">
+      <div class="panel-title-wrap"><i data-lucide="bell"></i><h2 class="panel-title panel-title--sm">Recent notifications</h2></div>
+    </div>
+    ' . $auditInner . '
   </div>';

@@ -14,3 +14,8 @@
   color: hsl(var(--stamp));
   flex-shrink: 0;
 }
+
+.empty-state--compact {
+  min-height: 72px;
+  padding: 8px;
+}

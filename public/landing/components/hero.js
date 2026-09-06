@@ -92,7 +92,7 @@ export function Hero() {
           <div class="float-card float-card--tl">
             <span class="float-icon"><i data-lucide="map-pin"></i></span>
             <div>
-              <strong>128</strong>
+              <strong>0</strong>
               <small>active cases</small>
             </div>
           </div>
@@ -100,7 +100,7 @@ export function Hero() {
           <div class="float-card float-card--br">
             <span class="float-icon"><i data-lucide="heart"></i></span>
             <div>
-              <strong>64</strong>
+              <strong>0</strong>
               <small>adopted</small>
             </div>
           </div>

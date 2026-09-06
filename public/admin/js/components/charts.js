@@ -3,19 +3,30 @@ import { categoryBreakdown, healthOverview, hslToken, cssVar } from "../insights
 
 const charts = { category: null, vax: null, trend: null };
 
+function setCenter(id, value, label) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const strong = el.querySelector("strong");
+  const span = el.querySelector("span");
+  if (strong) strong.textContent = String(value);
+  if (span) span.textContent = label;
+}
+
 function donut(Chart, canvas, labels, data, colors) {
   if (!canvas) return null;
+  const total = data.reduce((sum, n) => sum + n, 0);
+  const muted = hslToken("--border") || "hsl(220 14% 88%)";
   return new Chart(canvas, {
     type: "doughnut",
     data: {
-      labels,
+      labels: total ? labels : ["No data"],
       datasets: [
         {
-          data,
-          backgroundColor: colors,
+          data: total ? data : [1],
+          backgroundColor: total ? colors : [muted],
           borderColor: hslToken("--card") || "#fff",
           borderWidth: 2,
-          hoverOffset: 4,
+          hoverOffset: total ? 4 : 0,
         },
       ],
     },
@@ -23,7 +34,10 @@ function donut(Chart, canvas, labels, data, colors) {
       responsive: true,
       maintainAspectRatio: false,
       cutout: "68%",
-      plugins: { legend: { display: false }, tooltip: { enabled: true } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: Boolean(total) },
+      },
     },
   });
 }
@@ -36,6 +50,23 @@ function palette() {
     progress: hslToken("--status-progress"),
     care: hslToken("--status-care"),
   };
+}
+
+export function refreshCategoryChart(reports) {
+  const canvas = document.getElementById("reports-category-donut");
+  if (!canvas || !charts.category) return;
+  const cats = categoryBreakdown(reports || []);
+  const total = cats.reduce((sum, item) => sum + item.count, 0);
+  const colors = palette();
+  const muted = hslToken("--border") || "hsl(220 14% 88%)";
+  charts.category.data.labels = total ? cats.map((c) => c.label) : ["No data"];
+  charts.category.data.datasets[0].data = total ? cats.map((c) => c.count) : [1];
+  charts.category.data.datasets[0].backgroundColor = total
+    ? [colors.green, colors.pending, colors.danger, colors.progress]
+    : [muted];
+  charts.category.options.plugins.tooltip.enabled = Boolean(total);
+  charts.category.update();
+  setCenter("reports-category-center", total, total === 1 ? "Report" : "Reports");
 }
 
 export async function mountDashboardCharts() {
@@ -62,6 +93,11 @@ export async function mountDashboardCharts() {
     cats.map((c) => c.count),
     [colors.green, colors.pending, colors.danger, colors.progress]
   );
+  setCenter(
+    "reports-category-center",
+    cats.reduce((sum, item) => sum + item.count, 0),
+    cats.reduce((sum, item) => sum + item.count, 0) === 1 ? "Report" : "Reports"
+  );
 
   const health = healthOverview(state.healthRecords || []);
   charts.vax = donut(
@@ -71,22 +107,29 @@ export async function mountDashboardCharts() {
     health.vax.map((v) => v.count),
     [colors.green, colors.pending, colors.danger, colors.progress]
   );
+  setCenter(
+    "vax-status-center",
+    health.totalAnimals,
+    health.totalAnimals === 1 ? "Animal" : "Animals"
+  );
 
   const trendCanvas = document.getElementById("reports-trend-chart");
   const trend = state.reportTrend || state.overview.reports_monthly || [];
-  if (trendCanvas && trend.length) {
+  if (trendCanvas) {
+    const counts = trend.map((d) => d.count);
+    const empty = !trend.length || counts.every((n) => !n);
     charts.trend = new Chart(trendCanvas, {
       type: "line",
       data: {
-        labels: trend.map((d) => d.month),
+        labels: trend.length ? trend.map((d) => d.month) : ["—"],
         datasets: [
           {
             label: "Reports",
-            data: trend.map((d) => d.count),
+            data: trend.length ? counts : [0],
             borderColor: colors.green,
             backgroundColor: "transparent",
             pointBackgroundColor: colors.green,
-            pointBorderColor: "#fff",
+            pointBorderColor: hslToken("--card") || "#fff",
             pointBorderWidth: 2,
             pointRadius: 5,
             tension: 0.35,
@@ -102,6 +145,7 @@ export async function mountDashboardCharts() {
           x: { grid: { display: false }, ticks: { color: hslToken("--muted-foreground") } },
           y: {
             beginAtZero: true,
+            suggestedMax: empty ? 4 : undefined,
             ticks: { precision: 0, color: hslToken("--muted-foreground") },
             grid: { color: hslToken("--border") },
             border: { display: false },

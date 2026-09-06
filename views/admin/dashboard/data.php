@@ -62,7 +62,7 @@ $reportsPendingResult = $reportRepo->paginate(1, 100, ['status' => 'pending_veri
 $allReportsResult = $reportRepo->paginate(1, 100, []);
 $reportsPendingItems = array_map(static fn($r) => $r->toArray(), $reportsPendingResult['items']);
 $stmt = $pdo->prepare(
-    "SELECT r.id, r.resident_id, r.animal_description, r.latitude, r.longitude,
+    "SELECT r.id, r.resident_id, r.animal_description, r.photo_urls, r.latitude, r.longitude,
             r.address_text, r.status, r.created_at, r.validation_status,
             u.full_name AS resident_name,
             c.status AS case_status, c.id AS case_id

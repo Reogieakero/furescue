@@ -13,6 +13,67 @@ function esc(value) {
   }[c]));
 }
 
+let activeDialog = null;
+
+export function openDialog({
+  title = "",
+  description = "",
+  body = "",
+  footer = "",
+  icon = "info",
+  compact = true,
+  onMount = null,
+} = {}) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "dialog-overlay";
+    overlay.innerHTML = `
+      <div class="dialog${compact ? " dialog--compact" : ""}" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+        <div class="dialog-head">
+          <div class="dialog-heading">
+            <div class="dialog-title-wrap">
+              ${icon ? `<i data-lucide="${esc(icon)}" class="dialog-icon"></i>` : ""}
+              <h3 class="dialog-title" id="dialog-title">${esc(title)}</h3>
+            </div>
+            ${description ? `<p class="dialog-desc">${esc(description)}</p>` : ""}
+          </div>
+          <button type="button" class="dialog-x" aria-label="Close" data-act="close"><i data-lucide="x"></i></button>
+        </div>
+        <div class="dialog-body">${body}</div>
+        ${footer ? `<div class="dialog-foot">${footer}</div>` : ""}
+      </div>`;
+
+    document.body.appendChild(overlay);
+    createIcons({ icons });
+    activeDialog = overlay;
+
+    const close = () => {
+      if (activeDialog === overlay) activeDialog = null;
+      overlay.remove();
+      document.removeEventListener("keydown", onKey);
+      resolve();
+    };
+
+    const onKey = (e) => {
+      if (e.key === "Escape") close();
+    };
+    document.addEventListener("keydown", onKey);
+    overlay.querySelectorAll('[data-act="close"]').forEach((el) => el.addEventListener("click", close));
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) close();
+    });
+
+    if (onMount) onMount(overlay.querySelector(".dialog-body"), { overlay, close });
+  });
+}
+
+export function closeDialog() {
+  if (!activeDialog) return;
+  const overlay = activeDialog;
+  activeDialog = null;
+  overlay.remove();
+}
+
 export function detailsDialog({ title = "Details", info = [] } = {}) {
   return new Promise((resolve) => {
     const overlay = document.createElement("div");

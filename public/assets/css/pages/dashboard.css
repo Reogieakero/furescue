@@ -89,8 +89,10 @@
   flex-shrink: 0;
   margin-top: 16px;
 }
-.elearn-card > .empty-state {
+.elearn-card > .empty-state,
+.dash .audit > .empty-state {
   flex: 1;
+  min-height: 88px;
 }
 
 .dash {
@@ -116,7 +118,62 @@
 
 .dash .greeting-sub {
   font-size: 13px;
+  line-height: 1.4;
+  max-width: 48ch;
   color: hsl(var(--muted-foreground));
+}
+
+.dash-trio {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.dash-trio > * {
+  min-width: 0;
+  height: 100%;
+}
+
+@media (min-width: 768px) {
+  .dash-trio {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .dash-trio {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.announce-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.announce-fields [data-select] {
+  width: 100%;
+}
+
+.dash #recent-reports .queue-empty,
+.dash .activity-empty,
+.dash .attention-main .queue-empty {
+  min-height: 88px;
+}
+
+.dash .attention-main > .panel:has(.queue-empty) {
+  flex: 0 1 auto;
+}
+
+.dash .health-carousel:has(.carousel-empty) {
+  height: auto;
+}
+
+@media (min-width: 768px) {
+  .dash > .kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .dash-kicker {

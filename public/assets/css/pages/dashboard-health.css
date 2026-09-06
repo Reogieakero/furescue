@@ -93,6 +93,7 @@
   grid-template-columns: 1fr;
   gap: 12px;
   padding: 16px;
+  flex: 1;
 }
 
 @media (min-width: 768px) {
@@ -101,12 +102,25 @@
   }
 }
 
+.dash-bottom > .panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+}
+
 .dash-subcard {
   border: 1px solid hsl(var(--border));
   border-radius: 10px;
   padding: 12px;
   min-width: 0;
   background: hsl(var(--card));
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-subcard .empty-state--compact {
+  flex: 1;
 }
 
 .dash-subcard h3 {
@@ -241,11 +255,14 @@
 
 .dash-trend-body {
   padding: 8px 16px 16px;
-  height: 280px;
+  flex: 1 1 auto;
+  min-height: 240px;
+  height: auto;
 }
 
 .dash-trend-body canvas {
   width: 100% !important;
+  height: 100% !important;
   max-width: 100%;
 }
 
@@ -259,10 +276,8 @@
 }
 
 .dash .audit {
-  border: 1px solid hsl(var(--border));
-  border-radius: 12px;
-  box-shadow: var(--shadow-sm);
-  background: hsl(var(--card));
+  display: flex;
+  flex-direction: column;
   height: 100%;
 }
 

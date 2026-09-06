@@ -1,28 +1,32 @@
-import { openDrawer, closeDrawer } from "/shared/components/drawer/drawer.js";
+import { openDialog } from "/shared/components/dialog/dialog.js";
 import { Button } from "/shared/components/button/button.js";
-import { Select, initSelect } from "/shared/components/select/select.js";
+import { Select, initSelect, getSelectValue } from "/shared/components/select/select.js";
 import { toast } from "/shared/components/toast/toast.js";
 import { broadcastAnnouncement, fetchUnreadCount } from "/assets/js/admin/admin-data.js";
 import { setNavBadge } from "/assets/js/lib/swr.js";
 
+const TARGETS = [
+  { value: "role:admin", label: "Admins" },
+  { value: "role:rescuer", label: "Rescuers" },
+  { value: "role:resident", label: "Residents" },
+  { value: "all", label: "All users" },
+];
+
 export function AnnounceDialog() {
-  const targets = [
-    { value: "role:admin", label: "Admins" },
-    { value: "role:rescuer", label: "Rescuers" },
-    { value: "role:resident", label: "Residents" },
-    { value: "all", label: "All users" },
-  ];
-  return openDrawer({
+  return openDialog({
     title: "New Announcement",
+    description: "Send a short update to the selected audience.",
+    icon: "megaphone",
+    compact: true,
     body: `
-      <div class="space-y-3">
+      <div class="announce-fields">
         <div>
-          <label class="label">Message</label>
-          <textarea name="message" rows="4" class="input" placeholder="Type your announcement…" required></textarea>
+          <label class="label" for="announce-message">Message</label>
+          <textarea id="announce-message" name="message" rows="5" class="input announce-message" placeholder="Type your announcement…" required></textarea>
         </div>
         <div>
-          <label class="label">Target</label>
-          ${Select({ id: "announce-target", value: "role:admin", options: targets })}
+          <label class="label" for="announce-target">Target</label>
+          ${Select({ id: "announce-target", value: "role:admin", options: TARGETS })}
         </div>
       </div>
     `,
@@ -32,26 +36,26 @@ export function AnnounceDialog() {
         ${Button({ text: "Send", variant: "default", attrs: 'id="announce-send"' })}
       </div>
     `,
-    onMount: (bodyEl) => {
+    onMount: (bodyEl, { overlay, close }) => {
       initSelect(bodyEl);
-      const sendBtn = bodyEl.querySelector("#announce-send");
+      const sendBtn = overlay.querySelector("#announce-send");
       if (!sendBtn) return;
       sendBtn.addEventListener("click", async () => {
         const message = bodyEl.querySelector('[name="message"]')?.value?.trim();
-        const targetEl = bodyEl.querySelector('[data-select-value]');
-        const target = targetEl ? targetEl.textContent?.trim() : "role:admin";
-        const targetValue = targets.find((t) => t.label === target)?.value || "role:admin";
+        const targetValue = getSelectValue(bodyEl.querySelector("#announce-target")) || "role:admin";
         if (!message) {
           toast("Please enter a message", { type: "error" });
           return;
         }
+        sendBtn.disabled = true;
         try {
           await broadcastAnnouncement({ type: "admin_announcement", targets: [targetValue], message });
           toast("Announcement sent", { type: "success" });
-          closeDrawer();
+          close();
           const count = await fetchUnreadCount();
           setNavBadge("notifications", count);
         } catch (e) {
+          sendBtn.disabled = false;
           toast(e.message || "Failed to send", { type: "error" });
         }
       });
@@ -61,7 +65,8 @@ export function AnnounceDialog() {
 
 export function initAnnounceDialog() {
   const btn = document.getElementById("announce-btn");
-  if (!btn) return;
+  if (!btn || btn.dataset.announceBound) return;
+  btn.dataset.announceBound = "1";
   btn.addEventListener("click", (e) => {
     e.preventDefault();
     AnnounceDialog();

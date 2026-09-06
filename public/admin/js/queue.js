@@ -6,6 +6,7 @@ import { openDrawer } from "/shared/components/drawer/drawer.js";
 import { Button } from "/shared/components/button/button.js";
 import * as api from "/assets/js/admin/admin-data.js";
 import { shortId, titleCase } from "./helpers.js";
+import { firstPhoto } from "./insights.js";
 import {
   ReportsQueueInner,
   RescuersQueueInner,
@@ -45,6 +46,14 @@ function esc(value) {
   }[c]));
 }
 
+function reportPhotoHtml(r) {
+  const src = firstPhoto(r && (r.photo_urls || r.photoUrls));
+  if (!src) {
+    return `<div class="drawer-photo-empty"><i data-lucide="image-off"></i><span>No photo attached</span></div>`;
+  }
+  return `<img class="drawer-photo" src="${esc(src)}" alt="Report photo">`;
+}
+
 function openReportDetails(id) {
   const r = state.reportsPending.items.find((i) => i.id === id);
   if (!r) return;
@@ -64,7 +73,7 @@ function openReportDetails(id) {
       <div class="dialog-info">${rows}</div>
       <div id="report-detail-map" class="drawer-map"></div>
       <div class="drawer-reported">
-        <img class="drawer-photo" src="/reported.png" alt="Report">
+        ${reportPhotoHtml(r)}
         <span class="drawer-reported-text" id="drawer-reported-text"></span>
       </div>`,
     onMount: (bodyEl) => {

@@ -1,16 +1,23 @@
 /* Folded from admin 15_dashboard.css — GIS / map / legend. */
 
 /* ---- GIS layout ---- */
-.dash-gis {
+.dash-gis,
+.dash-gis-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.dash-gis-body {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
 }
 
 @media (min-width: 1024px) {
-  .dash-gis {
+  .dash-gis-body {
     grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
-    align-items: start;
+    align-items: stretch;
   }
 }
 
@@ -22,43 +29,47 @@
   gap: 16px;
 }
 
-.dash-gis-head {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px 16px 0;
-}
+@media (min-width: 1024px) {
+  .dash-gis-main,
+  .dash-gis-side,
+  .dash-gis-map {
+    height: 100%;
+  }
 
-@media (min-width: 768px) {
-  .dash-gis-head {
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
+  .dash-gis-map {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .dash-gis-side > .dash-side-card:last-child {
+    flex: 1;
   }
 }
 
-.dash-gis-kicker {
+.dash-gis-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 16px 8px;
+}
+
+.dash-gis-title {
   margin: 0;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: hsl(var(--ink));
 }
 
 .dash-gis-sub {
   margin: 4px 0 0;
   font-size: 13px;
+  line-height: 1.4;
   color: hsl(var(--muted-foreground));
-  max-width: 42rem;
+  white-space: nowrap;
 }
 
-.dash-gis-tools {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+@media (max-width: 767px) {
+  .dash-gis-sub {
+    white-space: normal;
+  }
 }
 
 .dash-seg {
@@ -109,20 +120,44 @@
 }
 
 .dash-filters {
-  display: none;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 0 16px 12px;
-  align-items: center;
-}
-
-.dash-filters.is-open {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px 16px;
 }
 
-@media (min-width: 768px) {
-  .dash-filters {
-    display: flex;
+@media (min-width: 1024px) {
+  .dash-filters,
+  .dash-filters-group--data {
+    flex-wrap: nowrap;
+  }
+}
+
+.dash-filters-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.dash-filters-group--view {
+  flex-shrink: 0;
+}
+
+.dash-filters-group--data {
+  margin-left: auto;
+}
+
+@media (max-width: 767px) {
+  .dash-filters-group {
+    width: 100%;
+  }
+
+  .dash-filters-group--data {
+    margin-left: 0;
   }
 }
 
@@ -146,7 +181,7 @@
 
 @media (min-width: 768px) {
   .dash-filters .dash-date-range {
-    width: 16rem;
+    width: 12rem;
   }
 }
 
@@ -157,34 +192,22 @@
 
 @media (min-width: 768px) {
   .dash-filters [data-select] {
-    width: 11rem;
+    width: 9.25rem;
   }
 }
 
 .dash-filters .btn,
-.dash-apply {
+.dash-apply,
+.dash-reset {
   height: 36px;
   border-radius: 10px;
   white-space: nowrap;
 }
 
-.dash-reset {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: none;
-  border: 0;
-  color: hsl(var(--primary));
-  font: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0;
-}
-
-.dash-reset .lucide {
-  width: 14px;
-  height: 14px;
+.dash-map-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 280px;
 }
 
 .dash .map-canvas--leaflet {
@@ -198,14 +221,17 @@
   }
 }
 
-@media (min-width: 1440px) {
-  .dash .map-canvas--leaflet {
-    height: 440px;
+@media (min-width: 1024px) {
+  .dash-map-wrap .map-canvas--leaflet {
+    height: 100%;
+    min-height: 360px;
   }
 }
 
-.dash-map-wrap {
-  position: relative;
+@media (min-width: 1440px) {
+  .dash .map-canvas--leaflet {
+    min-height: 420px;
+  }
 }
 
 .dash-legend {

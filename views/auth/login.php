@@ -8,8 +8,7 @@ require views_path('components/site-head.php');
     <div id="app">
       <main class="auth-page">
         <div class="auth-shell">
-          <aside class="auth-photo">
-            <img src="/auth/images/login-retriever.png" alt="Golden retriever" width="720" height="960" />
+          <aside class="auth-photo" aria-hidden="true">
             <div class="auth-photo-overlay">
               <i data-lucide="heart" class="auth-photo-accent" aria-hidden="true"></i>
               <p class="auth-photo-quote">Be their voice&hellip;</p>

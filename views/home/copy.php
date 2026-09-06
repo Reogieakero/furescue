@@ -66,10 +66,10 @@ $steps = [
 ];
 
 $stats = [
-    ['value' => '190+', 'label' => 'Rescued Animals', 'sub' => 'puspin & aspin given a second chance'],
-    ['value' => '64', 'label' => 'Adoptions', 'sub' => 'matched with forever homes'],
-    ['value' => '350+', 'label' => 'Reports Handled', 'sub' => 'from sighting to safe rescue'],
-    ['value' => '48', 'label' => 'Active Volunteers', 'sub' => 'rescuers on the ground daily'],
+    ['value' => (string) (int) ($liveStats['animals'] ?? 0), 'label' => 'Rescued Animals', 'sub' => 'puspin & aspin given a second chance'],
+    ['value' => (string) (int) ($liveStats['animals_adopted'] ?? 0), 'label' => 'Adoptions', 'sub' => 'matched with forever homes'],
+    ['value' => (string) (int) ($liveStats['reports'] ?? 0), 'label' => 'Reports Handled', 'sub' => 'from sighting to safe rescue'],
+    ['value' => (string) (int) ($liveStats['rescuers_active'] ?? 0), 'label' => 'Active Volunteers', 'sub' => 'rescuers on the ground daily'],
 ];
 
 $whatWeDo = [

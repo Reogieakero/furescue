@@ -1,5 +1,6 @@
 import { esc } from "../components/util.js";
 import { shortId, titleCase } from "/admin/js/helpers.js";
+import { firstPhoto } from "/admin/js/insights.js";
 import { state } from "../state.js";
 
 export function report(id) {
@@ -20,6 +21,14 @@ export function locationSub(loc, name) {
   }
   if (loc && loc.road) return loc.road;
   return "";
+}
+
+export function reportPhotoHtml(r) {
+  const src = firstPhoto(r && (r.photo_urls || r.photoUrls));
+  if (!src) {
+    return `<div class="drawer-photo-empty"><i data-lucide="image-off"></i><span>No photo attached</span></div>`;
+  }
+  return `<img class="drawer-photo" src="${esc(src)}" alt="Report photo">`;
 }
 
 export function infoRows(id) {

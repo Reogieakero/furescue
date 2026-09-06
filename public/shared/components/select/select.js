@@ -102,3 +102,27 @@ export function initSelect(root = document, handlers = {}) {
     });
   });
 }
+
+export function getSelectValue(wrap) {
+  const selected = wrap?.querySelector("[data-select-item][aria-selected='true']");
+  return selected ? selected.getAttribute("data-value") || "" : "";
+}
+
+export function setSelectValue(wrap, value) {
+  if (!wrap) return;
+  const valueEl = wrap.querySelector("[data-select-value]");
+  const items = [...wrap.querySelectorAll("[data-select-item]")];
+  const item = items.find((it) => (it.getAttribute("data-value") || "") === String(value)) || items[0];
+  if (!item) return;
+  const labelEl = item.querySelector("[data-select-item-label]");
+  if (valueEl && labelEl) valueEl.textContent = labelEl.textContent;
+  items.forEach((it) => {
+    const active = it === item;
+    it.setAttribute("aria-selected", String(active));
+    it.classList.toggle("bg-accent", active);
+    it.classList.toggle("text-accent-foreground", active);
+    const chk = it.querySelector("[data-select-check]");
+    if (active && !chk) it.insertAdjacentHTML("beforeend", `<span data-select-check class="shrink-0">${CHECK}</span>`);
+    else if (!active && chk) chk.remove();
+  });
+}

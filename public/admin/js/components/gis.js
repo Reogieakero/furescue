@@ -53,29 +53,27 @@ export function densityRowsHtml(summary) {
     .join("");
 }
 
-export function MapCard() {
+export function GisToolbar() {
   const typeOptions = [
     { value: "", label: "All Report Types" },
     ...Object.entries(REPORT_TYPE_LABELS).map(([value, label]) => ({ value, label })),
   ];
   return `
-  <section class="panel" id="case-density-panel">
+  <section class="panel dash-gis-toolbar" id="case-density-panel">
     <div class="dash-gis-head">
       <div>
-        <p class="dash-gis-kicker">GIS Heatmap View</p>
+        <h3 class="dash-side-title dash-gis-title">GIS Heatmap View</h3>
         <p class="dash-gis-sub">Geographic distribution of animal welfare reports across Mati City.</p>
       </div>
-      <div class="dash-gis-tools">
+    </div>
+    <div class="dash-filters is-open" id="gis-filters">
+      <div class="dash-filters-group dash-filters-group--view">
         <div class="dash-seg" role="group" aria-label="Map display">
           <button type="button" data-map-mode="markers">Markers</button>
           <button type="button" data-map-mode="heatmap" class="is-active">Heatmap</button>
         </div>
-        <button type="button" class="dash-filter-btn" id="gis-filters-toggle">
-          Filters <i data-lucide="chevron-down"></i>
-        </button>
       </div>
-    </div>
-    <div class="dash-filters" id="gis-filters">
+      <div class="dash-filters-group dash-filters-group--data">
       ${DateRangePicker({
         id: "gis-date-range",
         startId: "gis-date-start",
@@ -104,8 +102,15 @@ export function MapCard() {
         className: "dash-select",
       })}
       ${Button({ text: "Apply Filters", icon: "filter", className: "dash-apply", attrs: 'id="gis-apply"' })}
-      <button type="button" class="dash-reset" id="gis-reset"><i data-lucide="rotate-ccw"></i> Reset</button>
+      ${Button({ text: "Reset", variant: "outline", icon: "rotate-ccw", className: "dash-reset", attrs: 'id="gis-reset"' })}
+      </div>
     </div>
+  </section>`;
+}
+
+export function MapCard() {
+  return `
+  <section class="panel dash-gis-map">
     <div class="dash-map-wrap">
       <div id="case-density-map" class="map-canvas map-canvas--leaflet"></div>
       <aside class="dash-legend">
@@ -129,12 +134,17 @@ export function HeatmapSummaryCard(points = state.heatmap) {
 
 export function CategoryCard(reports = state.reports) {
   const items = categoryBreakdown(reports);
+  const total = items.reduce((sum, item) => sum + item.count, 0);
   return `
   <section class="panel dash-side-card">
     <h3 class="dash-side-title">Reports by Category</h3>
     <div class="dash-cat-wrap">
       <div class="dash-donut">
         <canvas id="reports-category-donut"></canvas>
+        <div class="dash-donut-center" id="reports-category-center">
+          <strong>${total}</strong>
+          <span>${total === 1 ? "Report" : "Reports"}</span>
+        </div>
       </div>
       <div class="dash-cat-legend" id="gis-cat-legend">${categoryLegendHtml(items)}</div>
     </div>
@@ -159,11 +169,14 @@ export function QuickActionsCard() {
 export function GisRow() {
   return `
   <div class="dash-gis">
-    <div class="dash-gis-main">${MapCard()}</div>
-    <div class="dash-gis-side">
-      ${HeatmapSummaryCard()}
-      ${CategoryCard()}
-      ${QuickActionsCard()}
+    ${GisToolbar()}
+    <div class="dash-gis-body">
+      <div class="dash-gis-main">${MapCard()}</div>
+      <div class="dash-gis-side">
+        ${HeatmapSummaryCard()}
+        ${CategoryCard()}
+        ${QuickActionsCard()}
+      </div>
     </div>
   </div>`;
 }

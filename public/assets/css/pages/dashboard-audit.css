@@ -1,47 +1,73 @@
 /* Folded from admin 05_audit.css — .audit. */
 
 .audit {
-  background: hsl(var(--ink));
-  color: #fff;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
+
 .audit-head {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 16px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  font-weight: 700;
+  color: hsl(var(--ink));
 }
+
 .audit-head .lucide {
   width: 14px;
   height: 14px;
+  color: hsl(var(--primary));
 }
+
 .audit-list {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 8px 16px 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  font-size: 11px;
+  font-size: 12px;
 }
+
 .audit-item {
   display: flex;
   gap: 8px;
+  align-items: flex-start;
 }
+
 .audit-time {
   font-family: var(--font-mono);
-  color: rgba(255, 255, 255, 0.35);
+  color: hsl(var(--muted-foreground));
   flex-shrink: 0;
 }
+
 .audit-text {
-  color: rgba(255, 255, 255, 0.8);
+  color: hsl(var(--ink));
+  min-width: 0;
 }
+
 .audit-text strong {
-  color: hsl(var(--jungle2));
+  color: hsl(var(--primary));
   font-weight: 600;
+}
+
+.audit-read {
+  margin-left: auto;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+}
+
+.audit-read:hover {
+  color: hsl(var(--primary));
+}
+
+.audit-read .lucide {
+  width: 14px;
+  height: 14px;
 }

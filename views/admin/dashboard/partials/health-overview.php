@@ -20,7 +20,7 @@ foreach ($health['vax'] as $item) {
       </div>';
 }
 if ($health['reminders'] === []) {
-    $remindersHtml = empty_state('bell', 'No upcoming reminders.');
+    $remindersHtml = empty_state('bell', 'No upcoming reminders.', 'empty-state--compact');
 } else {
     $remindersHtml = '';
     foreach ($health['reminders'] as $item) {
@@ -35,7 +35,7 @@ if ($health['reminders'] === []) {
     }
 }
 if ($health['checkups'] === []) {
-    $checkupsHtml = empty_state('stethoscope', 'No recent check-ups.');
+    $checkupsHtml = empty_state('stethoscope', 'No recent check-ups.', 'empty-state--compact');
 } else {
     $checkupsHtml = '';
     foreach ($health['checkups'] as $c) {
@@ -72,7 +72,13 @@ $healthOverviewCard = '
       <div class="dash-subcard">
         <h3>Vaccination Status</h3>
         <div class="dash-cat-wrap">
-          <div class="dash-donut"><canvas id="vax-status-donut"></canvas></div>
+          <div class="dash-donut">
+            <canvas id="vax-status-donut"></canvas>
+            <div class="dash-donut-center" id="vax-status-center">
+              <strong>' . dash_esc((string) $health['totalAnimals']) . '</strong>
+              <span>' . (((int) $health['totalAnimals']) === 1 ? 'Animal' : 'Animals') . '</span>
+            </div>
+          </div>
           <div class="dash-cat-legend">' . $vaxLegend . '</div>
         </div>
       </div>

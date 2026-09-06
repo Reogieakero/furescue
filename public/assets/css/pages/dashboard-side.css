@@ -40,11 +40,52 @@
   height: 120px;
   position: relative;
   flex-shrink: 0;
+  border-radius: 50%;
+  background: conic-gradient(hsl(var(--border)) 0 100%);
+}
+
+.dash-donut::after {
+  content: "";
+  position: absolute;
+  inset: 20%;
+  border-radius: 50%;
+  background: hsl(var(--card));
+  z-index: 0;
 }
 
 .dash-donut canvas {
+  position: relative;
+  z-index: 1;
   width: 100% !important;
   height: 100% !important;
+}
+
+.dash-donut-center {
+  position: absolute;
+  inset: 20%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  text-align: center;
+}
+
+.dash-donut-center strong {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  color: hsl(var(--ink));
+}
+
+.dash-donut-center span {
+  margin-top: 2px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
 }
 
 .dash-cat-wrap {

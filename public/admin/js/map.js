@@ -1,9 +1,10 @@
 import { createIcons, icons } from "lucide";
-import { initSelect } from "/shared/components/select/select.js";
+import { initSelect, setSelectValue } from "/shared/components/select/select.js";
 import { initDateRangePicker, setDateRange } from "/shared/components/date-range-picker/date-range-picker.js";
 import { downloadCsv, datedCsvName } from "/assets/js/lib/csv.js";
 import { classifyReportType, displayStatus, cssVar, hslToken, categoryBreakdown, densitySummary } from "./insights.js";
 import { categoryLegendHtml, densityRowsHtml } from "./components/gis.js";
+import { refreshCategoryChart } from "./components/charts.js";
 
 const MATI_CENTER = [6.95, 126.2];
 const MATI_BOUNDS = [
@@ -56,6 +57,7 @@ function syncSidebar(points) {
   if (densityEl) densityEl.innerHTML = densityRowsHtml(densitySummary(points));
   const legendEl = document.getElementById("gis-cat-legend");
   if (legendEl) legendEl.innerHTML = categoryLegendHtml(categoryBreakdown(points));
+  refreshCategoryChart(points);
   const updated = document.getElementById("gis-updated");
   if (updated) {
     const stamps = points.map((p) => p.created_at).filter(Boolean).map((v) => new Date(v).getTime()).filter((n) => !Number.isNaN(n));
@@ -75,7 +77,11 @@ function renderLayers() {
   if (!mapApi) return;
   const points = filterPoints(allPoints);
   const heatPoints = points.map((p) => [Number(p.latitude), Number(p.longitude), 1]);
-  mapApi.heat.setLatLngs(heatPoints);
+  try {
+    mapApi.heat.setLatLngs(heatPoints);
+  } catch {
+    /* leaflet.heat can throw while the map pane still has no size */
+  }
   mapApi.markers.clearLayers();
   points.forEach((p) => {
     const marker = window.L.circleMarker([Number(p.latitude), Number(p.longitude)], {
@@ -127,17 +133,18 @@ export function initCaseDensityMap(points) {
   mapApi = { map, heat, markers };
   renderLayers();
 
-  window.setTimeout(() => map.invalidateSize(), 0);
+  const safeInvalidate = () => {
+    const box = map.getContainer();
+    if (!box || box.clientWidth < 8 || box.clientHeight < 8) return;
+    map.invalidateSize();
+  };
+  window.setTimeout(safeInvalidate, 0);
+  window.setTimeout(safeInvalidate, 160);
+  window.addEventListener("resize", safeInvalidate);
   return mapApi;
 }
 
 export function bindGisActions() {
-  const toggle = document.getElementById("gis-filters-toggle");
-  const filtersEl = document.getElementById("gis-filters");
-  if (toggle && filtersEl) {
-    toggle.addEventListener("click", () => filtersEl.classList.toggle("is-open"));
-  }
-
   document.querySelectorAll("[data-map-mode]").forEach((btn) => {
     btn.addEventListener("click", () => {
       mode = btn.dataset.mapMode || "heatmap";
@@ -167,6 +174,8 @@ export function bindGisActions() {
   document.getElementById("gis-reset")?.addEventListener("click", () => {
     filters.start = filters.end = filters.type = filters.status = "";
     setDateRange(document.getElementById("gis-date-range"), { start: "", end: "" });
+    setSelectValue(document.getElementById("gis-type"), "");
+    setSelectValue(document.getElementById("gis-status"), "");
     renderLayers();
   });
 

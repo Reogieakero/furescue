@@ -47,7 +47,7 @@ export function HealthOverviewCard() {
     </div>`
         )
         .join("")
-    : EmptyState({ icon: "bell", text: "No upcoming reminders." });
+    : EmptyState({ icon: "bell", text: "No upcoming reminders.", className: "empty-state--compact" });
 
   const checkups = data.checkups.length
     ? data.checkups
@@ -67,7 +67,7 @@ export function HealthOverviewCard() {
     </a>`;
         })
         .join("")
-    : EmptyState({ icon: "stethoscope", text: "No recent check-ups." });
+    : EmptyState({ icon: "stethoscope", text: "No recent check-ups.", className: "empty-state--compact" });
 
   return `
   <section class="panel">
@@ -86,6 +86,10 @@ export function HealthOverviewCard() {
         <div class="dash-cat-wrap">
           <div class="dash-donut">
             <canvas id="vax-status-donut"></canvas>
+            <div class="dash-donut-center" id="vax-status-center">
+              <strong>${data.totalAnimals}</strong>
+              <span>${data.totalAnimals === 1 ? "Animal" : "Animals"}</span>
+            </div>
           </div>
           <div class="dash-cat-legend">${vaxLegend}</div>
         </div>
