@@ -2,7 +2,7 @@ import { createIcons, icons } from "lucide";
 import { AppShell } from "/assets/js/admin/app-shell.js";
 import { Button } from "/shared/components/button/button.js";
 import { state } from "../state.js";
-import { AnimalGrid } from "./grid.js";
+import { AnimalGrid, syncDetailLayout } from "./grid.js";
 import { SidePanel } from "./side.js";
 import { AnimalKpis, renderAnimalKpis } from "./kpis.js";
 
@@ -31,7 +31,7 @@ export function AnimalsPage(user) {
       `<div class="animals-list">
         ${PageHead()}
         ${AnimalKpis()}
-        <div class="animal-split">
+        <div class="animal-split${state.selectedId ? " is-detail-open" : ""}">
           <div class="animal-grid-col">${AnimalGrid()}</div>
           <div id="animal-side" class="animal-side-col">${SidePanel()}</div>
         </div>
@@ -47,6 +47,7 @@ export function rerenderAll() {
     side.innerHTML = SidePanel();
     createIcons({ icons });
   }
+  syncDetailLayout();
   const navBadge = document.querySelector('.sidebar-link[href="/admin/animals/"] .sidebar-badge');
   if (navBadge) navBadge.textContent = String(state.animals.length);
   createIcons({ icons });

@@ -25,8 +25,8 @@ async function refresh() {
 export async function runApprove(id) {
   const row = listing(id);
   const ok = await confirmDialog({
-    title: "Approve listing",
-    message: `Approve ${labelFor(id)} for adoption? This sets the animal as available.`,
+    title: "Approve this listing?",
+    message: `Approve the adoption listing for ${labelFor(id)}? This sets the animal as available.`,
     info: [
       { label: "Animal", value: labelFor(id) },
       { label: "Poster", value: (row && row.poster_name) || "—" },
@@ -44,7 +44,7 @@ export async function runApprove(id) {
 export async function runReject(id) {
   const row = listing(id);
   const ok = await confirmDialog({
-    title: "Reject listing",
+    title: "Reject this listing?",
     message: `Reject the adoption listing for ${labelFor(id)}? Review notes are required.`,
     info: [
       { label: "Animal", value: labelFor(id) },

@@ -1,6 +1,6 @@
 import { toast } from "/shared/components/toast/toast.js";
 import { confirmDialog } from "/shared/components/dialog/dialog.js";
-import * as api from "../../api.js";
+import * as api from "../api.js";
 import { state, loadModules, resetEditor } from "../state.js";
 import { rerenderAll } from "../components.js";
 import { readEditorForm } from "../components/editor.js";
@@ -72,21 +72,22 @@ export async function runSave(event) {
     toast(error, { type: "error" });
     return;
   }
+  const isNew = !(state.editor && state.editor.id);
+  const willPublish = fields.published_status === "published";
   state.saving = true;
-  try {
-    if (state.editor && state.editor.id) {
-      await api.updateModule(state.editor.id, fields);
-      toast("Module saved.", { type: "success" });
-    } else {
-      await api.createModule(fields);
-      toast("Module created.", { type: "success" });
-    }
-    await reloadLibrary();
-  } catch (err) {
-    toast(err.message || "Could not save the module.", { type: "error" });
-  } finally {
-    state.saving = false;
-  }
+  const ok = await confirmDialog({
+    title: isNew ? "Create this module?" : "Save changes to this module?",
+    message: isNew
+      ? `Create "${fields.title}" as a ${willPublish ? "published" : "draft"} module?`
+      : `Save changes to "${fields.title}"?${willPublish ? " Residents will see the published version." : ""}`,
+    confirmText: isNew ? "Create" : "Save",
+    cancelText: "Cancel",
+    run: () => (isNew ? api.createModule(fields) : api.updateModule(state.editor.id, fields)),
+  });
+  state.saving = false;
+  if (!ok) return;
+  toast(isNew ? "Module created." : "Module saved.", { type: "success" });
+  await reloadLibrary();
 }
 
 function editorPayload(status) {
@@ -107,9 +108,10 @@ export async function runPublish(id) {
     return;
   }
   const ok = await confirmDialog({
-    title: "Publish module",
-    message: `Publish “${moduleTitle(id)}”? Residents will see it on the Learning Hub.`,
+    title: "Publish this module?",
+    message: `Publish "${moduleTitle(id)}" to the resident Learning Hub?`,
     confirmText: "Publish",
+    cancelText: "Cancel",
     run: () => api.updateModule(id, payload),
   });
   if (!ok) return;
@@ -125,10 +127,11 @@ export async function runUnpublish(id) {
     return;
   }
   const ok = await confirmDialog({
-    title: "Unpublish module",
-    message: `Unpublish “${moduleTitle(id)}”? It will leave the resident Learning Hub until you publish again.`,
+    title: "Unpublish this module?",
+    message: `Unpublish "${moduleTitle(id)}" from the resident Learning Hub? It will stay hidden until you publish again.`,
     danger: true,
     confirmText: "Unpublish",
+    cancelText: "Cancel",
     run: () => api.updateModule(id, payload),
   });
   if (!ok) return;

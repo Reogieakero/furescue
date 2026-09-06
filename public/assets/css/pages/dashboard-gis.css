@@ -1,21 +1,16 @@
 /* Folded from admin 15_dashboard.css — GIS / map / legend. */
 
 /* ---- GIS layout ---- */
-.dash-gis,
-.dash-gis-body {
+.dash-gis {
   display: flex;
   flex-direction: column;
   gap: 16px;
   min-width: 0;
 }
 
-.dash-gis-body {
-  display: grid;
-  grid-template-columns: 1fr;
-}
-
 @media (min-width: 1024px) {
-  .dash-gis-body {
+  .dash-gis {
+    display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
     align-items: stretch;
   }
@@ -31,14 +26,14 @@
 
 @media (min-width: 1024px) {
   .dash-gis-main,
-  .dash-gis-side,
-  .dash-gis-map {
+  .dash-gis-side {
     height: 100%;
   }
 
-  .dash-gis-map {
+  #case-density-panel {
     display: flex;
     flex-direction: column;
+    height: 100%;
     min-height: 0;
   }
 
@@ -128,13 +123,6 @@
   padding: 0 16px 16px;
 }
 
-@media (min-width: 1024px) {
-  .dash-filters,
-  .dash-filters-group--data {
-    flex-wrap: nowrap;
-  }
-}
-
 .dash-filters-group {
   display: flex;
   flex-wrap: wrap;
@@ -179,10 +167,22 @@
   width: 100%;
 }
 
-@media (min-width: 768px) {
-  .dash-filters .dash-date-range {
-    width: 12rem;
-  }
+/* Match shared select closed state (h-8 / rounded-md / text-sm / font-medium).
+   Compact picker radius is 10px and reads as a pill beside the boxier selects. */
+.dash-filters .dash-date-range .dp-trigger {
+  height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid hsl(var(--input));
+  border-radius: calc(var(--radius) - 2px);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+}
+
+.dash-filters .dash-date-range .dp-trigger-label.is-placeholder {
+  font-weight: 500;
 }
 
 .dash-filters [data-select] {
@@ -190,17 +190,45 @@
   width: 100%;
 }
 
+.dash-filters [data-select] [data-select-value] {
+  flex: 0 1 auto;
+  min-width: auto;
+  overflow: visible;
+  text-overflow: clip;
+}
+
 @media (min-width: 768px) {
+  .dash-filters .dash-date-range,
   .dash-filters [data-select] {
-    width: 9.25rem;
+    width: fit-content;
+    max-width: 100%;
+    flex-shrink: 0;
+  }
+
+  .dash-filters .dash-date-range {
+    min-width: 11rem;
+  }
+
+  .dash-filters #gis-type {
+    min-width: 13rem;
+  }
+
+  .dash-filters #gis-status {
+    min-width: 10rem;
+  }
+
+  .dash-filters #gis-type [data-select-trigger],
+  .dash-filters #gis-status [data-select-trigger] {
+    width: max-content;
+    min-width: 100%;
   }
 }
 
 .dash-filters .btn,
 .dash-apply,
 .dash-reset {
-  height: 36px;
-  border-radius: 10px;
+  height: 2rem;
+  border-radius: calc(var(--radius) - 2px);
   white-space: nowrap;
 }
 

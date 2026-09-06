@@ -1,6 +1,7 @@
 import { createIcons, icons } from "lucide";
 import { apiFetchFull, clearSession, homePathForRole, setSession } from "/assets/js/lib/api.js";
 import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 
 function initPasswordToggle() {
   const toggle = document.getElementById("toggle-pw");
@@ -142,6 +143,14 @@ function initSignupForm() {
     if (password.length < 8) {
       return showFormError("Password must be at least 8 characters.");
     }
+
+    const roleLabel = role === "rescuer" ? "rescuer" : "resident";
+    const ok = await confirmDialog({
+      title: "Create this account?",
+      message: `This will register a new ${roleLabel} account.`,
+      confirmText: "Create account",
+    });
+    if (!ok) return;
 
     const btn = document.getElementById("signup-submit");
     if (btn) btn.disabled = true;

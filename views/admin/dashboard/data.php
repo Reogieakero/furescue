@@ -22,39 +22,30 @@ require __DIR__ . '/insights.php';
 $pdo = Database::connect();
 $uid = (string) $_SESSION['user']['id'];
 
-$countAll = static function (string $table) use ($pdo): int {
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM {$table}");
-    $stmt->execute();
-    return (int) $stmt->fetchColumn();
-};
-$countWhere = static function (string $table, string $where) use ($pdo): int {
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM {$table} WHERE {$where}");
-    $stmt->execute();
-    return (int) $stmt->fetchColumn();
-};
-
-$overview = [
-    'reports' => $countAll('reports'),
-    'reports_verified' => $countWhere("reports", "status = 'verified'"),
-    'cases' => $countAll('cases'),
-    'cases_resolved' => $countWhere("cases", "status = 'resolved'"),
-    'animals' => $countAll('animals'),
-    'animals_adopted' => $countWhere("animals", "adoption_status = 'adopted'"),
-    'adoptions_pending' => $countWhere("adoptions", "status = 'pending'"),
-    'adoptions_completed' => $countWhere("adoptions", "status = 'completed'"),
-    'rescuers_active' => $countWhere("users", "role = 'rescuer' AND account_status = 'active'"),
-    'rescuers_on_duty' => $countWhere(
-        "rescuer_duty_status d JOIN users u ON u.id = d.user_id",
-        "d.status = 'on_duty' AND u.account_status = 'active' AND u.role = 'rescuer'"
-    ),
-    'residents' => $countWhere("users", "role = 'resident'"),
-    'cases_in_progress' => $countWhere("cases", "status IN ('assigned','in_progress')"),
-    'reports_pending' => $countWhere("reports", "status = 'pending_verification'"),
-    'reports_today' => $countWhere("reports", "DATE(created_at) = CURDATE()"),
-    'pending_today' => $countWhere("reports", "status = 'pending_verification' AND DATE(created_at) = CURDATE()"),
-    'in_progress_today' => $countWhere("cases", "status IN ('assigned','in_progress') AND DATE(updated_at) = CURDATE()"),
-    'resolved_today' => $countWhere("cases", "status = 'resolved' AND DATE(updated_at) = CURDATE()"),
-];
+$overviewStmt = $pdo->query(
+    "SELECT
+        (SELECT COUNT(*) FROM reports) AS reports,
+        (SELECT COUNT(*) FROM reports WHERE status = 'verified') AS reports_verified,
+        (SELECT COUNT(*) FROM reports WHERE status = 'pending_verification') AS reports_pending,
+        (SELECT COUNT(*) FROM reports WHERE DATE(created_at) = CURDATE()) AS reports_today,
+        (SELECT COUNT(*) FROM reports WHERE status = 'pending_verification' AND DATE(created_at) = CURDATE()) AS pending_today,
+        (SELECT COUNT(*) FROM cases) AS cases,
+        (SELECT COUNT(*) FROM cases WHERE status = 'resolved') AS cases_resolved,
+        (SELECT COUNT(*) FROM cases WHERE status IN ('assigned','in_progress')) AS cases_in_progress,
+        (SELECT COUNT(*) FROM cases WHERE status IN ('assigned','in_progress') AND DATE(updated_at) = CURDATE()) AS in_progress_today,
+        (SELECT COUNT(*) FROM cases WHERE status = 'resolved' AND DATE(updated_at) = CURDATE()) AS resolved_today,
+        (SELECT COUNT(*) FROM animals) AS animals,
+        (SELECT COUNT(*) FROM animals WHERE adoption_status = 'adopted') AS animals_adopted,
+        (SELECT COUNT(*) FROM adoptions WHERE status = 'pending') AS adoptions_pending,
+        (SELECT COUNT(*) FROM adoptions WHERE status = 'completed') AS adoptions_completed,
+        (SELECT COUNT(*) FROM users WHERE role = 'rescuer' AND account_status = 'active') AS rescuers_active,
+        (SELECT COUNT(*) FROM rescuer_duty_status d JOIN users u ON u.id = d.user_id WHERE d.status = 'on_duty' AND u.account_status = 'active' AND u.role = 'rescuer') AS rescuers_on_duty,
+        (SELECT COUNT(*) FROM users WHERE role = 'resident') AS residents"
+);
+$overview = [];
+foreach (($overviewStmt ? $overviewStmt->fetch(\PDO::FETCH_ASSOC) : []) ?: [] as $key => $value) {
+    $overview[$key] = (int) $value;
+}
 $overview['rescuers_off_duty'] = max(0, (int) $overview['rescuers_active'] - (int) $overview['rescuers_on_duty']);
 
 $reportRepo = new ReportRepository($pdo);
@@ -94,9 +85,7 @@ $freshRescuersByStatus = static function (string $accountStatus) use ($pdo): arr
 $rescuersPendingItems = $freshRescuersByStatus('pending');
 $rescuersActive = $freshRescuersByStatus('active');
 
-$totalStmt = $pdo->prepare("SELECT COUNT(*) FROM adoptions a WHERE a.status = ?");
-$totalStmt->execute(['pending']);
-$adoptionsTotal = (int) $totalStmt->fetchColumn();
+$adoptionsTotal = (int) $overview['adoptions_pending'];
 $stmt = $pdo->prepare(
     "SELECT a.*, u.full_name AS applicant_name, an.name AS animal_name
      FROM adoptions a
@@ -109,9 +98,6 @@ $stmt = $pdo->prepare(
 $stmt->execute(['pending']);
 $adoptionsPendingItems = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-$totalStmt = $pdo->prepare('SELECT COUNT(*) FROM cases c');
-$totalStmt->execute();
-$casesTotal = (int) $totalStmt->fetchColumn();
 $stmt = $pdo->prepare(
     "SELECT c.*, r.animal_description, r.address_text, u.full_name AS assigned_rescuer_name
      FROM cases c

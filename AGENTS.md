@@ -16,7 +16,7 @@ The frontend is PHP-rendered pages with ES-module islands. Shared chrome lives i
 
 - **Follow the existing system design first.** All frontend styling must come from the shared design tokens, never ad-hoc values:
   - Colors, radius, shadows, fonts: CSS variables in `:root` / `.dark` in `public/assets/css/tokens.css` (e.g. `--primary`, `--border`, `--radius`, `--shadow-md`, brand colors `--brand-1/2`, palette `paper`/`ink`/`jungle`/`coral`/...), mapped to Tailwind classes in `tailwind.config.js`. Edit the cascade via `public/assets/css/input.css`; the compiled sheet is `public/assets/css/style.css`.
-  - Icons: Lucide only (`lucide.createIcons()` via the esm.sh import map), sized with the existing `.lucide` conventions — never inline SVG or emoji as icons.
+  - Icons: Lucide only (`lucide.createIcons()` via the local `/assets/js/vendor/lucide.js` import map), sized with the existing `.lucide` conventions — never inline SVG or emoji as icons.
   - Shared components/patterns (`.input`, `.toast`, `.loader-overlay`, `.logo-mark`, `.badge-icon`, admin/resident shells) already exist in the `public/assets/css/` cascade and `views/layouts/` / `views/components/` — reuse them instead of restyling from scratch.
 - **New reusable style = add it to the system.** If you introduce a new border radius, color, shadow, spacing scale, font, icon set, or component pattern that could be used by other pages, promote it into `public/assets/css/` (token in `tokens.css` and/or a shared class imported from `input.css`) plus a mapping in `tailwind.config.js` if it needs Tailwind utilities — then use the token everywhere. Do not hardcode one-off values in page-level styles.
 - Never hardcode raw hex/hsl colors, radii, or font stacks in markup or JS when a token exists; if no suitable token exists, create one first.
@@ -44,10 +44,12 @@ php vendor\phpunit\phpunit\phpunit          :: tests (no composer test script; v
 php vendor\phpunit\phpunit\phpunit --filter DedupServiceTest   :: single class
 php bin\migrate.php                          :: apply migrations/*.sql
 php bin\migrate.php --fresh --yes            :: drop all tables, re-apply migrations
-php seeders\seed.php                         :: idempotent demo data
+php seeders\seed.php                         :: idempotent full demo data (orchestrates domain seeders)
 php seeders\seed_users.php                   :: users, roles, and permissions only
 php -S 127.0.0.1:8000 -t public public\index.php   :: run everything
-npm run build                                :: compile Tailwind after editing CSS
+npm run build                                :: copy vendor ESM + rebuild Lucide subset + compile Tailwind
+npm run build:vendor                         :: copy clsx / tailwind-merge / cva into public/assets/js/vendor/
+npm run build:lucide                         :: rebuild local Lucide subset after adding icons
 ```
 
 - Tests are pure unit tests (`tests/`) — no database or server needed.
@@ -57,9 +59,9 @@ npm run build                                :: compile Tailwind after editing C
 
 - **DB driver defaults to pgsql**: `src/Database.php` falls back to Postgres when `DB_DRIVER` is unset. The schema (e.g. `DEFAULT (UUID())`) requires MySQL 8.0.13+. Always have `.env` (copy `.env.example`) before migrate/serve.
 - **Migrations are plain SQL files** in `migrations/`, applied once by filename order and logged in `migrations_log`. Add new ones as `YYYY_MM_DD_NNNNNN_name.sql`; never edit applied files.
-- **CSS**: edit `public/assets/css/input.css` (and the files it `@import`s, including `tokens.css`), never the compiled `public/assets/css/style.css` (both are git-tracked; rebuild with `npm run build`). `npm run build` is `-i ./public/assets/css/input.css -o ./public/assets/css/style.css`. Tailwind `content:` in `tailwind.config.js` covers `./public/**/*.{php,js,html}` and `./views/**/*.{php,js}` — classes used only outside those globs get purged on rebuild.
+- **CSS**: edit `public/assets/css/input.css` (and the files it `@import`s, including `tokens.css`), never the compiled `public/assets/css/style.css` (both are git-tracked; rebuild with `npm run build`). `npm run build` copies `clsx` / `tailwind-merge` / `cva` into `/assets/js/vendor/`, regenerates `/assets/js/vendor/lucide.js`, then runs Tailwind (`-i ./public/assets/css/input.css -o ./public/assets/css/style.css`). Tailwind `content:` in `tailwind.config.js` covers `./public/**/*.{php,js,html}` and `./views/**/*.{php,js}` — classes used only outside those globs get purged on rebuild. Icons stay local: the HTML import map points `lucide` at `/assets/js/vendor/lucide.js`. After adding a new `data-lucide` name, run `npm run build:lucide`.
 - **Compatibility shims** (keep until inbound grep is empty **and** the user confirms delete): `/css/style.css` `@import`s `/assets/css/style.css`; `/js/lib/*` re-exports `/assets/js/lib/*`; leftover `public/css/input.css` is a comment-only pointer; `public/includes/*` are one-line `require`s of the `views/` files. Leftover 302 stubs (`public/admin/reports.php`, `animals.php`, `cases.php`, `rescuers.php`, `health-records.php`, `health-record.php`, `case-detail.php`) still redirect — URL freeze: `docs/technical/FOLDER_OVERHAUL_SPEC.md` §4.
-- **Frontend deps don't come from npm**: browser pages load `clsx`/`tailwind-merge`/`cva`/`lucide` via esm.sh import maps in the HTML; Leaflet from unpkg CDN. `node_modules` is build-time only.
+- **Frontend vendor JS**: `clsx`, `tailwind-merge`, `class-variance-authority`, and `lucide` are copied/generated into `public/assets/js/vendor/` at build time (`npm run build` / `build:vendor` / `build:lucide`). The HTML import map points at those local files — not esm.sh. Leaflet still loads from CDN, but only when a map is in view. `node_modules` is build-time only.
 
 ## Architecture
 

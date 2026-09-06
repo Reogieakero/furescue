@@ -59,12 +59,9 @@ export function GisToolbar() {
     ...Object.entries(REPORT_TYPE_LABELS).map(([value, label]) => ({ value, label })),
   ];
   return `
-  <section class="panel dash-gis-toolbar" id="case-density-panel">
     <div class="dash-gis-head">
-      <div>
-        <h3 class="dash-side-title dash-gis-title">GIS Heatmap View</h3>
-        <p class="dash-gis-sub">Geographic distribution of animal welfare reports across Mati City.</p>
-      </div>
+      <h3 class="dash-side-title dash-gis-title">GIS Heatmap View</h3>
+      <p class="dash-gis-sub">Geographic distribution of animal welfare reports across Mati City.</p>
     </div>
     <div class="dash-filters is-open" id="gis-filters">
       <div class="dash-filters-group dash-filters-group--view">
@@ -104,13 +101,13 @@ export function GisToolbar() {
       ${Button({ text: "Apply Filters", icon: "filter", className: "dash-apply", attrs: 'id="gis-apply"' })}
       ${Button({ text: "Reset", variant: "outline", icon: "rotate-ccw", className: "dash-reset", attrs: 'id="gis-reset"' })}
       </div>
-    </div>
-  </section>`;
+    </div>`;
 }
 
 export function MapCard() {
   return `
-  <section class="panel dash-gis-map">
+  <section class="panel" id="case-density-panel">
+    ${GisToolbar()}
     <div class="dash-map-wrap">
       <div id="case-density-map" class="map-canvas map-canvas--leaflet"></div>
       <aside class="dash-legend">
@@ -169,14 +166,11 @@ export function QuickActionsCard() {
 export function GisRow() {
   return `
   <div class="dash-gis">
-    ${GisToolbar()}
-    <div class="dash-gis-body">
-      <div class="dash-gis-main">${MapCard()}</div>
-      <div class="dash-gis-side">
-        ${HeatmapSummaryCard()}
-        ${CategoryCard()}
-        ${QuickActionsCard()}
-      </div>
+    <div class="dash-gis-main">${MapCard()}</div>
+    <div class="dash-gis-side">
+      ${HeatmapSummaryCard()}
+      ${CategoryCard()}
+      ${QuickActionsCard()}
     </div>
   </div>`;
 }

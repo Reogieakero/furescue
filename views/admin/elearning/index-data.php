@@ -16,7 +16,7 @@ require views_path('components/admin-ui-helpers.php');
 
 $pdo = Database::connect();
 
-const ELEARN_PAGE_SIZE = 10;
+const ELEARN_PAGE_SIZE = 20;
 
 const ELEARN_CATEGORIES = [
     ['key' => 'dog_behavior', 'label' => 'Dog Behavior'],

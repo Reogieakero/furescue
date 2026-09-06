@@ -72,6 +72,13 @@ class UserRepository
         return $stmt->rowCount() > 0;
     }
 
+    public function delete(string $id): bool
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM users WHERE id = ?');
+        $stmt->execute([$id]);
+        return $stmt->rowCount() > 0;
+    }
+
     public function paginate(int $page, int $perPage, array $filters = [], string $orderBy = 'created_at', string $direction = 'DESC'): array
     {
         $page = max(1, $page);
@@ -110,6 +117,9 @@ class UserRepository
     {
         $clauses = [];
         $params = [];
+        $q = isset($filters['q']) ? trim((string) $filters['q']) : '';
+        unset($filters['q']);
+
         foreach ($filters as $column => $value) {
             $this->assertColumn($column);
             if (is_array($value)) {
@@ -122,6 +132,13 @@ class UserRepository
                 $clauses[] = "{$column} = ?";
                 $params[] = $value;
             }
+        }
+        if ($q !== '') {
+            $clauses[] = '(full_name LIKE ? OR email LIKE ? OR COALESCE(phone_number, \'\') LIKE ?)';
+            $like = '%' . $q . '%';
+            $params[] = $like;
+            $params[] = $like;
+            $params[] = $like;
         }
         $where = $clauses ? ('WHERE ' . implode(' AND ', $clauses)) : '';
         return [$where, $params];

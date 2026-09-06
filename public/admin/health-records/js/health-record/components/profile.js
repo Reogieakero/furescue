@@ -7,9 +7,13 @@ export function ProfilePanel(r, { editing = false } = {}) {
   const adoptionOptions = ADOPTION_OPTIONS.filter(
     (o) => o.value !== "available" || ready || r.adoptionStatus === "available"
   );
+  const displayName = cap(r.name);
   const photo = r.photoUrl
     ? `<img src="${esc(r.photoUrl)}" alt="${esc(r.name)}" class="hr-photo">`
     : `<span class="hr-photo hr-photo--ph">${esc((r.name || "?").charAt(0).toUpperCase())}</span>`;
+  const nameHtml = displayName
+    ? `<p class="hr-profile-name" title="${esc(displayName)}">${esc(displayName)}</p>`
+    : "";
 
   const rows = [
     ["paw-print", "Species", r.species],
@@ -39,12 +43,12 @@ export function ProfilePanel(r, { editing = false } = {}) {
   <section class="panel hr-profile-panel">
     <div class="panel-head">
       <div class="panel-title-wrap"><i data-lucide="dog"></i><h3 class="panel-title">Animal Profile</h3></div>
+      ${nameHtml}
     </div>
     <div class="panel-body hr-profile-body">
       <div class="hr-profile">
         ${photo}
         <div class="hr-profile-info">
-          <h2 class="hr-profile-name">${esc(cap(r.name))}</h2>
           <div class="hr-info-card">
             <ul class="hr-detail-list">
             ${rows

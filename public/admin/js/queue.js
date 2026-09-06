@@ -1,9 +1,11 @@
 import { createIcons, icons } from "lucide";
-import { queueState, state, refreshQueue } from "./state.js";
+import { readPageClick, readPageSizeChange } from "/shared/components/pagination/pagination.js";
+import { queueState, queuePageSize, state, refreshQueue } from "./state.js";
 import { toast } from "/shared/components/toast/toast.js";
 import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { openDrawer } from "/shared/components/drawer/drawer.js";
 import { Button } from "/shared/components/button/button.js";
+import { mountPinMap } from "/assets/js/lib/leaflet.js";
 import * as api from "/assets/js/admin/admin-data.js";
 import { shortId, titleCase } from "./helpers.js";
 import { firstPhoto } from "./insights.js";
@@ -80,16 +82,9 @@ function openReportDetails(id) {
       const lat = Number(r.latitude);
       const lng = Number(r.longitude);
       const mapEl = bodyEl.querySelector("#report-detail-map");
-      if (!window.L || !mapEl || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
-      const map = window.L.map(mapEl).setView([lat, lng], 15);
-      window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors",
-      }).addTo(map);
-      window.L
-        .marker([lat, lng])
-        .addTo(map)
-        .bindPopup(esc(r.address_text || "Report location"));
-      setTimeout(() => map.invalidateSize(), 300);
+      if (mapEl && Number.isFinite(lat) && Number.isFinite(lng)) {
+        void mountPinMap(mapEl, lat, lng, { popup: esc(r.address_text || "Report location") });
+      }
 
       const capEl = bodyEl.querySelector("#drawer-reported-text");
       if (capEl) {
@@ -215,13 +210,13 @@ function buildDetailsInfo(key, id) {
 const ACTIONS = {
   verify: {
     queue: "reports",
-    title: "Verify report",
+    title: "Verify this report?",
     confirmText: "Verify",
     run: (id) => api.verifyReport(id),
   },
   dismiss: {
     queue: "reports",
-    title: "Dismiss report",
+    title: "Dismiss this report?",
     confirmText: "Dismiss",
     danger: true,
     withReason: true,
@@ -231,26 +226,26 @@ const ACTIONS = {
   },
   "approve-rescuer": {
     queue: "rescuers",
-    title: "Approve rescuer",
+    title: "Approve this rescuer?",
     confirmText: "Approve",
     run: (id) => api.approveRescuer(id),
   },
   "reject-rescuer": {
     queue: "rescuers",
-    title: "Reject rescuer",
+    title: "Reject this rescuer?",
     confirmText: "Reject",
     danger: true,
     run: (id) => api.rejectRescuer(id),
   },
   "approve-adoption": {
     queue: "adopt",
-    title: "Approve adoption",
+    title: "Approve this adoption?",
     confirmText: "Approve",
     run: (id) => api.approveAdoption(id),
   },
   "decline-adoption": {
     queue: "adopt",
-    title: "Decline adoption",
+    title: "Decline this adoption?",
     confirmText: "Decline",
     danger: true,
     withReason: true,
@@ -283,13 +278,18 @@ export function renderQueuePanel(key) {
 
 export function initQueuePagination() {
   document.querySelectorAll(".queue-panel").forEach((panel) => {
+    const key = panel.id.replace("queue-", "");
     panel.addEventListener("click", (e) => {
-      const btn = e.target.closest("button[data-page]");
-      if (!btn || btn.getAttribute("aria-disabled") === "true") return;
-      const key = panel.id.replace("queue-", "");
-      const page = parseInt(btn.dataset.page, 10);
-      if (!page || page === queueState[key]) return;
+      const page = readPageClick(e.target, queueState[key]);
+      if (!page) return;
       queueState[key] = page;
+      renderQueuePanel(key);
+    });
+    panel.addEventListener("change", (e) => {
+      const next = readPageSizeChange(e.target, queuePageSize[key]);
+      if (!next) return;
+      queuePageSize[key] = next;
+      queueState[key] = 1;
       renderQueuePanel(key);
     });
   });
@@ -320,6 +320,31 @@ function updateDecisionCount() {
   if (el) {
     el.textContent = `${state.decisionCount} items need a decision today across reports, rescuers, health records, and adoptions.`;
   }
+}
+
+function confirmMessage(action, id) {
+  if (action === "verify") {
+    return `Verify report ${shortId(id)}? This will create a case.`;
+  }
+  if (action === "dismiss") {
+    return `Dismiss report ${shortId(id)}? This report will be closed.`;
+  }
+  if (action === "approve-rescuer" || action === "reject-rescuer") {
+    const u = state.rescuersPending.items.find((i) => i.id === id);
+    const name = (u && u.full_name) || shortId(id);
+    return action === "approve-rescuer"
+      ? `Approve ${name} as a rescuer?`
+      : `Reject ${name}'s rescuer application?`;
+  }
+  if (action === "approve-adoption" || action === "decline-adoption") {
+    const a = state.adoptionsPending.items.find((i) => i.id === id);
+    const applicant = (a && a.applicant_name) || shortId(id);
+    const animal = (a && a.animal_name) || "this animal";
+    return action === "approve-adoption"
+      ? `Approve the adoption application for ${applicant} · ${animal}?`
+      : `Decline the adoption application for ${applicant} · ${animal}?`;
+  }
+  return `Are you sure you want to ${ACTIONS[action].confirmText.toLowerCase()} ${shortId(id)}?`;
 }
 
 function buildInfo(action, id) {
@@ -390,7 +415,7 @@ async function runAction(action, id) {
   if (!cfg || !id) return;
   const ok = await confirmDialog({
     title: cfg.title,
-    message: `Are you sure you want to ${cfg.confirmText.toLowerCase()} ${shortId(id)}?`,
+    message: confirmMessage(action, id),
     info: buildInfo(action, id),
     confirmText: cfg.confirmText,
     cancelText: "Cancel",

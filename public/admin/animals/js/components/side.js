@@ -1,6 +1,7 @@
 import { createIcons, icons } from "lucide";
 import { state, getAnimal, statusTone } from "../state.js";
 import { Button } from "/shared/components/button/button.js";
+import { syncDetailLayout } from "./grid.js";
 import { esc } from "./util.js";
 
 export function DetailPanel() {
@@ -81,6 +82,7 @@ export function renderSideStats() {
   if (wrap) {
     wrap.innerHTML = SidePanel();
     createIcons({ icons });
+    syncDetailLayout();
     revealDetailIfStacked();
   }
 }
@@ -90,6 +92,7 @@ export function renderDetail() {
   if (wrap) {
     wrap.innerHTML = DetailPanel();
     createIcons({ icons });
+    syncDetailLayout();
     revealDetailIfStacked();
   }
 }

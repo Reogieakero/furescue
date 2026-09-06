@@ -50,18 +50,22 @@ async function saveRecord() {
     return;
   }
   ui.saving = true;
-  try {
-    await updateAnimal(record.id, { name, adoption_status: adoptionStatus });
-    await upsertAnimalMedical(record.id, { deworming_status: deworming, neutered });
-    toast("Demographics and status saved.", { type: "success" });
-    ui.editing = false;
-    ui.mode = null;
-    ui.saving = false;
-    await reloadRecord();
-  } catch (err) {
-    ui.saving = false;
-    toast(err && err.message ? err.message : "Could not save record.", { type: "error" });
-  }
+  const ok = await confirmDialog({
+    title: "Save changes to this health record?",
+    message: `Save demographics and status for "${name}"?`,
+    confirmText: "Save",
+    cancelText: "Cancel",
+    run: async () => {
+      await updateAnimal(record.id, { name, adoption_status: adoptionStatus });
+      await upsertAnimalMedical(record.id, { deworming_status: deworming, neutered });
+    },
+  });
+  ui.saving = false;
+  if (!ok) return;
+  toast("Demographics and status saved.", { type: "success" });
+  ui.editing = false;
+  ui.mode = null;
+  await reloadRecord();
 }
 
 async function postForAdoption() {
@@ -70,32 +74,31 @@ async function postForAdoption() {
     toast(HEALTH_READY_HINT, { type: "error" });
     return;
   }
-  try {
-    await createAdoptionListing(record.id);
-    toast("Listed for adoption.", { type: "success" });
-    await reloadRecord();
-  } catch (err) {
-    toast(err && err.message ? err.message : "Could not list for adoption.", { type: "error" });
-  }
+  const ok = await confirmDialog({
+    title: "List this animal for adoption?",
+    message: `Post "${record.name || "this animal"}" as available for adoption?`,
+    confirmText: "Post",
+    cancelText: "Cancel",
+    run: () => createAdoptionListing(record.id),
+  });
+  if (!ok) return;
+  toast("Listed for adoption.", { type: "success" });
+  await reloadRecord();
 }
 
 async function deleteRecord() {
   if (!record || !record.id) return;
   const ok = await confirmDialog({
-    title: "Delete animal?",
-    message: `Remove "${record.name || "this animal"}"? Confirm to delete, or cancel to keep the record.`,
+    title: "Delete this animal?",
+    message: `Delete "${record.name || "this animal"}"? This is a soft delete and can be restored by an admin.`,
     confirmText: "Delete",
     cancelText: "Cancel",
     danger: true,
+    run: () => deleteAnimal(record.id),
   });
   if (!ok) return;
-  try {
-    await deleteAnimal(record.id);
-    toast("Animal deleted.", { type: "success" });
-    window.location.href = "/admin/health-records/";
-  } catch (err) {
-    toast(err && err.message ? err.message : "Could not delete animal.", { type: "error" });
-  }
+  toast("Animal deleted.", { type: "success" });
+  window.location.href = "/admin/health-records/";
 }
 
 export function handleAction(actionEl) {

@@ -43,10 +43,10 @@ $importMapExtras = $importMapExtras ?? [];
     <script type="importmap">
       {
         "imports": {
-          "clsx": "https://esm.sh/clsx@2.1.1",
-          "tailwind-merge": "https://esm.sh/tailwind-merge@2.5.5",
-          "class-variance-authority": "https://esm.sh/class-variance-authority@0.7.1",
-          "lucide": "https://esm.sh/lucide@0.469.0"<?php foreach ($importMapExtras as $importMapName => $importMapUrl): ?>,
+          "clsx": "/assets/js/vendor/clsx.js",
+          "tailwind-merge": "/assets/js/vendor/tailwind-merge.js",
+          "class-variance-authority": "/assets/js/vendor/cva.js",
+          "lucide": "/assets/js/vendor/lucide.js"<?php foreach ($importMapExtras as $importMapName => $importMapUrl): ?>,
           <?= json_encode((string) $importMapName, JSON_UNESCAPED_SLASHES) ?>: <?= json_encode((string) $importMapUrl, JSON_UNESCAPED_SLASHES) ?><?php endforeach; ?>
         }
       }

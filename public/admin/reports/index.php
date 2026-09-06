@@ -18,32 +18,23 @@ require views_path('components/admin-ui-helpers.php');
 $pdo = Database::connect();
 $uid = (string) $_SESSION['user']['id'];
 
-$countAll = static function (string $table) use ($pdo): int {
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM {$table}");
-    $stmt->execute();
-    return (int) $stmt->fetchColumn();
-};
-$countWhere = static function (string $table, string $where) use ($pdo): int {
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM {$table} WHERE {$where}");
-    $stmt->execute();
-    return (int) $stmt->fetchColumn();
-};
-
-$overview = [
-    'reports' => $countAll('reports'),
-    'reports_verified' => $countWhere("reports", "status = 'verified'"),
-    'cases' => $countAll('cases'),
-    'cases_resolved' => $countWhere("cases", "status = 'resolved'"),
-    'animals' => $countAll('animals'),
-    'animals_adopted' => $countWhere("animals", "adoption_status = 'adopted'"),
-    'adoptions_pending' => $countWhere("adoptions", "status = 'pending'"),
-    'adoptions_completed' => $countWhere("adoptions", "status = 'completed'"),
-    'rescuers_on_duty' => $countWhere(
-        "rescuer_duty_status d JOIN users u ON u.id = d.user_id",
-        "d.status = 'on_duty' AND u.account_status = 'active' AND u.role = 'rescuer'"
-    ),
-    'residents' => $countWhere("users", "role = 'resident'"),
-];
+$overviewStmt = $pdo->query(
+    "SELECT
+        (SELECT COUNT(*) FROM reports) AS reports,
+        (SELECT COUNT(*) FROM reports WHERE status = 'verified') AS reports_verified,
+        (SELECT COUNT(*) FROM cases) AS cases,
+        (SELECT COUNT(*) FROM cases WHERE status = 'resolved') AS cases_resolved,
+        (SELECT COUNT(*) FROM animals) AS animals,
+        (SELECT COUNT(*) FROM animals WHERE adoption_status = 'adopted') AS animals_adopted,
+        (SELECT COUNT(*) FROM adoptions WHERE status = 'pending') AS adoptions_pending,
+        (SELECT COUNT(*) FROM adoptions WHERE status = 'completed') AS adoptions_completed,
+        (SELECT COUNT(*) FROM rescuer_duty_status d JOIN users u ON u.id = d.user_id WHERE d.status = 'on_duty' AND u.account_status = 'active' AND u.role = 'rescuer') AS rescuers_on_duty,
+        (SELECT COUNT(*) FROM users WHERE role = 'resident') AS residents"
+);
+$overview = [];
+foreach (($overviewStmt ? $overviewStmt->fetch(\PDO::FETCH_ASSOC) : []) ?: [] as $key => $value) {
+    $overview[$key] = (int) $value;
+}
 
 $reportRepo = new ReportRepository($pdo);
 $allReportsResult = $reportRepo->paginate(1, 100, []);
@@ -115,7 +106,6 @@ $pageTitle = 'FurEscue — Reports';
 $pageDescription = 'FurEscue admin reports — verify, dismiss, assign rescuers and track case workflow for City of Mati.';
 $pageCss = [
     '/admin/css/admin.css',
-    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
 ];
 $fontsHref = 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
 require views_path('components/site-head.php');
@@ -123,7 +113,6 @@ require views_path('components/site-head.php');
   <body>
     <div id="app"><?= $pageHtml ?></div>
     <script>window.__PAGE_STATE__ = <?= json_encode($state, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module" src="/admin/reports/js/reports.js"></script>
   </body>
 </html>

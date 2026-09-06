@@ -21,14 +21,16 @@ export function FilterTabs() {
     off_duty: c.offDuty,
     pending: c.pending,
   };
+  return TabStrip({
+    id: "rescuer-tabs",
+    children: FILTERS.map((f) =>
+      FilterTab({ key: f.key, label: `${f.label} &middot; ${count[f.key]}`, active: state.filter === f.key })
+    ).join(""),
+  });
+}
+
+export function FilterToolbar() {
   return Toolbar({
-    children: `
-    ${TabStrip({
-      id: "rescuer-tabs",
-      children: FILTERS.map((f) =>
-        FilterTab({ key: f.key, label: `${f.label} &middot; ${count[f.key]}`, active: state.filter === f.key })
-      ).join(""),
-    })}
-    ${Search({ id: "rescuer-search", placeholder: "Search name, email, phone…", value: state.query })}`,
+    children: Search({ id: "rescuer-search", placeholder: "Search name, email, phone…", value: state.query }),
   });
 }

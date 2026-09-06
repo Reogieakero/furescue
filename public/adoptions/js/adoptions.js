@@ -3,6 +3,7 @@ import { apiFetch, apiFetchFull, redirectToLogin } from "/assets/js/lib/api.js";
 import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { initResidentShell } from "/assets/js/components/resident-shell.js";
 import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { esc, timeAgo } from "/assets/js/lib/format.js";
 import { openApplyModal } from "/animals/js/apply-modal.js";
 
@@ -23,7 +24,7 @@ function rowHtml(row) {
   const name = row.animal_name && String(row.animal_name).trim() !== "" ? String(row.animal_name).trim() : "an animal";
 
   return `
-  <li class="rrow" data-id="${esc(row.id)}">
+  <li class="rrow" data-id="${esc(row.id)}" data-name="${esc(name)}">
     <span class="rrow-icon"><i data-lucide="paw-print"></i></span>
     <div class="rrow-main">
       <p class="rrow-title">Application for ${esc(name)}</p>
@@ -82,6 +83,14 @@ async function load() {
 async function cancelApplication(rowEl) {
   const btn = rowEl.querySelector("[data-cancel]");
   if (!btn) return;
+  const name = rowEl.dataset.name || "this animal";
+  const ok = await confirmDialog({
+    title: "Cancel this adoption application?",
+    message: `This will cancel your application for ${name}.`,
+    confirmText: "Cancel application",
+    danger: true,
+  });
+  if (!ok) return;
   btn.disabled = true;
   try {
     await apiFetch(`/adoptions/${encodeURIComponent(rowEl.dataset.id)}/cancel`, { method: "POST" });

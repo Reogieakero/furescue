@@ -4,7 +4,7 @@ import { Button } from "/shared/components/button/button.js";
 import { SkeletonTable } from "/shared/components/skeleton/skeleton.js";
 import { state } from "../state.js";
 import { buildKpis, KpiTile } from "./kpis.js";
-import { FilterTabs } from "./filters.js";
+import { FilterTabs, StatusTabs } from "./filters.js";
 import { LibraryBody } from "./table.js";
 import { Editor } from "./editor.js";
 
@@ -29,6 +29,9 @@ function LibraryPanel() {
       <div class="panel-title-wrap">
         <i data-lucide="book-open"></i>
         <h2 class="panel-title">Module library</h2>
+      </div>
+      <div class="panel-head-tools">
+        <div id="elearn-status-tabs-wrap">${StatusTabs()}</div>
       </div>
     </div>
     <div id="elearn-filters">${FilterTabs()}</div>
@@ -70,6 +73,8 @@ export function ElearningPage(user, { loading = false } = {}) {
 export function rerenderLibrary() {
   const kpis = document.getElementById("elearn-kpis");
   if (kpis) kpis.innerHTML = buildKpis().map(KpiTile).join("");
+  const statusTabs = document.getElementById("elearn-status-tabs-wrap");
+  if (statusTabs) statusTabs.innerHTML = StatusTabs();
   const filters = document.getElementById("elearn-filters");
   if (filters) filters.innerHTML = FilterTabs();
   const table = document.getElementById("elearn-table");

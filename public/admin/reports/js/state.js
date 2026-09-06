@@ -10,6 +10,7 @@ export const state = {
   query: "",
   sort: "assigned",
   page: 1,
+  pageSize: 20,
 };
 
 /** Copy PHP first-paint lists onto `state`. Safe to call more than once. */

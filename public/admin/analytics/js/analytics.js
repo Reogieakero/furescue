@@ -6,7 +6,7 @@ import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu
 import { toast } from "/shared/components/toast/toast.js";
 import { OVERVIEW_LABELS } from "./format.js";
 import { renderAll } from "./render.js";
-import { initDateRangePicker, setDateRange } from "/shared/components/date-range-picker/date-range-picker.js";
+import { initDateRangePicker } from "/shared/components/date-range-picker/date-range-picker.js";
 
 const state = {
   range: { start: "", end: "" },
@@ -34,14 +34,6 @@ function rangeQuery() {
   if (state.range.end) params.set("end", state.range.end);
   const qs = params.toString();
   return qs ? `?${qs}` : "";
-}
-
-function updateRangeLabel() {
-  const el = document.getElementById("range-label");
-  if (!el) return;
-  el.textContent = state.range.start && state.range.end
-    ? `${state.range.start} to ${state.range.end}`
-    : "Last 30 adoption days · 50 latest health updates";
 }
 
 async function apiFetchJson(path) {
@@ -115,8 +107,6 @@ function setBusy(busy) {
     el.setAttribute("aria-busy", busy ? "true" : "false");
     if (el.disabled !== undefined) el.disabled = busy;
   });
-  const apply = document.getElementById("range-apply");
-  if (apply) apply.disabled = busy;
 }
 
 function bindEvents() {
@@ -137,51 +127,22 @@ function bindEvents() {
     });
   });
 
-  const applyBtn = document.getElementById("range-apply");
-  const resetBtn = document.getElementById("range-reset");
   const rangeWrap = document.getElementById("analytics-range");
   initDateRangePicker(rangeWrap, {
-    "analytics-range": ({ start, end }) => {
+    "analytics-range": async ({ start, end }) => {
       state.range.start = start || "";
       state.range.end = end || "";
+      setBusy(true);
+      try {
+        await refreshData();
+      } catch (err) {
+        console.error(err);
+        toast(err.message || "Could not refresh analytics.", { type: "error" });
+      } finally {
+        setBusy(false);
+      }
     },
   });
-
-  const readInputs = () => {
-    state.range.start = document.getElementById("range-start")?.value.trim() || "";
-    state.range.end = document.getElementById("range-end")?.value.trim() || "";
-  };
-
-  applyBtn?.addEventListener("click", async () => {
-    if (applyBtn.disabled) return;
-    readInputs();
-    setBusy(true);
-    try {
-      await refreshData();
-      updateRangeLabel();
-    } catch (err) {
-      console.error(err);
-      toast(err.message || "Could not refresh analytics.", { type: "error" });
-    } finally {
-      setBusy(false);
-    }
-  });
-
-  resetBtn?.addEventListener("click", async () => {
-    setDateRange(rangeWrap, { start: "", end: "" });
-    readInputs();
-    setBusy(true);
-    try {
-      await refreshData();
-      updateRangeLabel();
-    } catch (err) {
-      console.error(err);
-      toast(err.message || "Could not refresh analytics.", { type: "error" });
-    } finally {
-      setBusy(false);
-    }
-  });
-
 }
 
 function initDate() {

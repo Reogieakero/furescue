@@ -60,9 +60,10 @@ $hrQueueCards = '';
 foreach (array_slice($attentionItems, 0, $QUEUE_LIMIT) as $it) {
     $tier = (string) $it['tier'];
     $speciesCap = $hrCap((string) $it['species']);
-    $title = e((string) $it['animalName']) . ' · ' . e((string) $it['barangay']) . ' · ' . e((string) $it['text']) . ' — open in records';
+    $title = e((string) $it['animalName']) . ' · ' . e((string) $it['barangay']) . ' · ' . e((string) $it['text']) . ' — open record';
+    $href = e($hrRecordHref($it['id']));
     $hrQueueCards .= '
-  <button type="button" class="hr-queue-card ' . e(HR_QUEUE_TIER[$tier]) . '" data-queue-card data-animal="' . e((string) $it['animalName']) . '" title="' . $title . '">
+  <a class="hr-queue-card ' . e(HR_QUEUE_TIER[$tier]) . '" href="' . $href . '" title="' . $title . '">
     <span class="hr-qc-head">
       <span class="hr-qc-kind"><i data-lucide="' . e((string) $it['icon']) . '"></i></span>
       <span class="stamp stamp--sm hr-qc-days hr-qc-days--' . e($tier) . '">' . e($hrDaysLabel((int) $it['days'])) . '</span>
@@ -74,7 +75,7 @@ foreach (array_slice($attentionItems, 0, $QUEUE_LIMIT) as $it) {
       <span class="hr-qc-date"><i data-lucide="calendar"></i>' . e($hrFmtDate((string) $it['date'], 'short')) . '</span>
       <span class="hr-qc-go"><i data-lucide="chevron-right"></i></span>
     </span>
-  </button>';
+  </a>';
 }
 $queueBody = $attTotal
     ? $hrQueueCards
@@ -98,6 +99,7 @@ foreach ($records as $r) {
     }
 }
 
+$queueGridCls = 'hr-queue-grid' . ($attTotal ? '' : ' hr-queue-grid--empty');
 $queuePanel = "
   <div class=\"panel\">
     <div class=\"panel-head\">
@@ -107,7 +109,7 @@ $queuePanel = "
       </div>
       <div class=\"hr-queue-tally\">{$tally}</div>
     </div>
-    <div class=\"hr-queue-grid\">{$queueBody}</div>
+    <div class=\"{$queueGridCls}\">{$queueBody}</div>
     " . ($attTotal > $QUEUE_LIMIT
         ? '<button class="hr-queue-all" data-queue-all type="button">View all ' . e((string) $attTotal) . '</button>'
         : '') . '

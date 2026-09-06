@@ -7,17 +7,21 @@ use App\Http\Request;
 use App\Http\Response;
 use App\Repositories\UserRepository;
 use App\Services\NotificationService;
+use App\Services\UserAdminException;
+use App\Services\UserAdminService;
 use App\Services\UserProfileUpload;
 use PDO;
 
 class UserController extends AbstractController
 {
     private UserRepository $users;
+    private UserAdminService $admin;
 
     public function __construct(PDO $pdo)
     {
         parent::__construct($pdo);
         $this->users = new UserRepository($pdo);
+        $this->admin = new UserAdminService($pdo, $this->users);
     }
 
     public function me(Request $req): void
@@ -44,6 +48,9 @@ class UserController extends AbstractController
         }
         if (!empty($req->query['account_status'])) {
             $filters['account_status'] = $req->query['account_status'];
+        }
+        if (!empty($req->query['q'])) {
+            $filters['q'] = trim((string) $req->query['q']);
         }
         $result = $this->users->paginate($this->page($req), $this->perPage($req), $filters);
         $clean = array_map(fn($u) => $u->toArray(), $result['items']);
@@ -100,6 +107,49 @@ class UserController extends AbstractController
         Response::success(['user' => $user->toArray()]);
     }
 
+    public function create(Request $req): void
+    {
+        $v = new \App\Validation\Validator($req->body);
+        $v->required('full_name')->string('full_name', 150)
+            ->required('email')->email()
+            ->required('password')->minLen('password', 8)
+            ->optional('role')->in('role', ['resident', 'rescuer', 'admin'])
+            ->optional('account_status')->in('account_status', ['active', 'pending', 'rejected', 'suspended'])
+            ->optional('phone_number')->string('phone_number', 20)
+            ->optional('address')->string('address', 1000);
+        if (!$v->passes()) {
+            Response::error('VALIDATION_ERROR', $v->firstError(), 400);
+            return;
+        }
+
+        try {
+            $user = $this->admin->create($req->body);
+        } catch (UserAdminException $e) {
+            Response::error($e->errorCode(), $e->getMessage(), $e->httpStatus());
+            return;
+        }
+
+        Response::success(['user' => $user->toArray()], 201);
+    }
+
+    public function destroy(Request $req): void
+    {
+        $user = $this->users->find($req->params['id']);
+        if (!$user) {
+            Response::error('NOT_FOUND', 'User not found', 404);
+            return;
+        }
+
+        try {
+            $this->admin->delete($user, $req->user);
+        } catch (UserAdminException $e) {
+            Response::error($e->errorCode(), $e->getMessage(), $e->httpStatus());
+            return;
+        }
+
+        Response::success(['deleted' => true, 'id' => $user->id()]);
+    }
+
     public function update(Request $req): void
     {
         $id = $req->params['id'];
@@ -132,10 +182,6 @@ class UserController extends AbstractController
                 $data[$field] = $req->body[$field];
             }
         }
-        if ($data === []) {
-            Response::error('VALIDATION_ERROR', 'No updatable fields provided', 400);
-            return;
-        }
         $v = new \App\Validation\Validator($data);
         if (array_key_exists('full_name', $data)) {
             $v->optional('full_name')->string('full_name', 150);
@@ -166,6 +212,16 @@ class UserController extends AbstractController
         }
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
+            return;
+        }
+        try {
+            $data = $this->admin->prepareUpdate($user, $data, $req->body, $isAdmin, $isSelf);
+        } catch (UserAdminException $e) {
+            Response::error($e->errorCode(), $e->getMessage(), $e->httpStatus());
+            return;
+        }
+        if ($data === []) {
+            Response::error('VALIDATION_ERROR', 'No updatable fields provided', 400);
             return;
         }
         $previousPhoto = (string) ($user->profilePhotoUrl() ?? '');

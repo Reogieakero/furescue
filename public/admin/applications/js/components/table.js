@@ -4,8 +4,6 @@ import { esc, stampCls, applicantName, animalName } from "./util.js";
 import { shortId, timeAgo, titleCase, truncate } from "/admin/js/helpers.js";
 import { state } from "../state.js";
 
-export const PAGE_SIZE = 15;
-
 export function filteredApplications() {
   const q = state.query.trim().toLowerCase();
   let list = state.items;
@@ -64,9 +62,9 @@ export function ApplicationTable() {
     const empty = emptyCopy();
     return `<div class="queue-empty"><div class="empty-state"><i data-lucide="${empty.icon}"></i><span>${esc(empty.text)}</span></div></div>`;
   }
-  const start = (state.page - 1) * PAGE_SIZE;
+  const start = (state.page - 1) * state.pageSize;
   const rows = list
-    .slice(start, start + PAGE_SIZE)
+    .slice(start, start + state.pageSize)
     .map((a) => {
       const name = applicantName(a) || shortId(a.applicant_id);
       const animal = animalName(a) || shortId(a.animal_id);
@@ -85,10 +83,7 @@ export function ApplicationTable() {
     </tr>`;
     })
     .join("");
-  const pagination =
-    list.length > PAGE_SIZE
-      ? `<div class="queue-pagination">${PaginationBar({ total: list.length, perPage: PAGE_SIZE, page: state.page })}</div>`
-      : "";
+  const pagination = `<div class="queue-pagination">${PaginationBar({ total: list.length, perPage: state.pageSize, page: state.page })}</div>`;
   return `
     <div class="table-wrap">
       <table class="table">

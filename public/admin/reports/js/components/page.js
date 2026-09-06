@@ -7,7 +7,7 @@ import { initSelect } from "/shared/components/select/select.js";
 import { state } from "../state.js";
 import { KpiGrid } from "/shared/components/kpi-card/kpi-card.js";
 import { buildKpis, KpiTile, toKpiCardProps } from "./kpis.js";
-import { FilterTabs } from "./filters.js";
+import { FilterTabs, FilterToolbar } from "./filters.js";
 import { ReportTable } from "./table.js";
 import { attachReportTooltips } from "./tooltips.js";
 
@@ -33,8 +33,11 @@ function ReportsPanel() {
         <i data-lucide="map-pin"></i>
         <h2 class="panel-title">All reports</h2>
       </div>
+      <div class="panel-head-tools">
+        <div id="report-tabs-wrap">${FilterTabs()}</div>
+      </div>
     </div>
-    <div id="report-filters">${FilterTabs()}</div>
+    <div id="report-filters">${FilterToolbar()}</div>
     <div id="report-table" class="panel-body">${ReportTable()}</div>
   </div>`;
 }
@@ -84,8 +87,8 @@ export function initReportSort() {
 export function rerenderAll() {
   const kpis = document.getElementById("report-kpis");
   if (kpis) kpis.innerHTML = buildKpis().map(KpiTile).join("");
-  const filters = document.getElementById("report-filters");
-  if (filters) filters.innerHTML = FilterTabs();
+  const tabs = document.getElementById("report-tabs-wrap");
+  if (tabs) tabs.innerHTML = FilterTabs();
   const table = document.getElementById("report-table");
   if (table) table.innerHTML = ReportTable();
   attachReportTooltips();

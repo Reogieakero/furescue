@@ -1,4 +1,5 @@
 import { createIcons, icons } from "lucide";
+import { readPageClick, readPageSizeChange } from "/shared/components/pagination/pagination.js";
 import { state } from "../state.js";
 import { ApplicationTable } from "../components.js";
 import { filteredApplications } from "../components/table.js";
@@ -49,19 +50,16 @@ export function initApplicationEvents() {
     if (tab) {
       state.filter = tab.dataset.filter;
       state.page = 1;
-      const filters = document.getElementById("application-filters");
-      if (filters) {
-        filters.querySelectorAll("[data-filter]").forEach((b) => b.classList.toggle("is-active", b === tab));
+      const tabs = document.getElementById("application-tabs");
+      if (tabs) {
+        tabs.querySelectorAll("[data-filter]").forEach((b) => b.classList.toggle("is-active", b === tab));
       }
       paintTable();
       return;
     }
 
-    const pageBtn = e.target.closest("button[data-page]");
-    if (pageBtn) {
-      if (pageBtn.getAttribute("aria-disabled") === "true") return;
-      const page = parseInt(pageBtn.dataset.page, 10);
-      if (!page || page === state.page) return;
+    const page = readPageClick(e.target, state.page);
+    if (page) {
       state.page = page;
       paintTable();
       return;
@@ -93,6 +91,14 @@ export function initApplicationEvents() {
       paintTable();
       openDetailsDrawer(row.dataset.id);
     }
+  });
+
+  main.addEventListener("change", (e) => {
+    const next = readPageSizeChange(e.target, state.pageSize);
+    if (!next) return;
+    state.pageSize = next;
+    state.page = 1;
+    paintTable();
   });
 
   main.addEventListener("input", (e) => {

@@ -1,5 +1,6 @@
 import { state } from "../state.js";
-import { Chart } from "chart.js";
+import { loadChart } from "/assets/js/lib/load-chart.js";
+import { whenVisible } from "/assets/js/lib/when-visible.js";
 import { createIcons, icons } from "lucide";
 import { Select } from "/shared/components/select/select.js";
 import { Search } from "/shared/components/search/search.js";
@@ -123,6 +124,11 @@ export function CaseToolbar() {
   });
 }
 
+function tokenHsl(name, fallback) {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return raw ? `hsl(${raw})` : fallback;
+}
+
 function StatusChart() {
   const c = caseCounts();
   const legend = [
@@ -137,7 +143,7 @@ function StatusChart() {
   <div class="panel panel--padded">
     <div class="panel-title-wrap"><i data-lucide="pie-chart"></i><h2 class="panel-title panel-title--sm">Case status breakdown</h2></div>
     <div class="donut-wrap">
-      <div class="donut">
+      <div class="donut${c.all ? "" : " donut--empty"}">
         <canvas id="status-donut"></canvas>
         <div class="donut-center"><span class="donut-total">${c.all}</span><span class="donut-label">Cases</span></div>
       </div>
@@ -147,26 +153,38 @@ function StatusChart() {
 }
 
 let statusDonutInstance = null;
+let statusDonutGen = 0;
 
-function mountStatusDonut() {
+async function mountStatusDonut() {
   const canvas = document.getElementById("status-donut");
   if (!canvas) return;
+  const gen = ++statusDonutGen;
   if (statusDonutInstance) {
     statusDonutInstance.destroy();
     statusDonutInstance = null;
   }
   const c = caseCounts();
+  const total = c.all;
+  if (!total) return;
+  await whenVisible(canvas);
+  if (gen !== statusDonutGen || !canvas.isConnected) return;
+  const Chart = await loadChart();
+  if (!Chart || gen !== statusDonutGen || !canvas.isConnected) return;
+  const muted = tokenHsl("--border", "hsl(0 6% 88%)");
+  const card = tokenHsl("--card", "#fff");
   statusDonutInstance = new Chart(canvas, {
     type: "doughnut",
     data: {
-      labels: ["Open", "Assigned", "In progress", "Resolved"],
+      labels: total ? ["Open", "Assigned", "In progress", "Resolved"] : ["No data"],
       datasets: [
         {
-          data: [c.open, c.assigned, c.in_progress, c.resolved],
-          backgroundColor: [STATUS_PALETTE.open, STATUS_PALETTE.assigned, STATUS_PALETTE.in_progress, STATUS_PALETTE.resolved],
-          borderColor: "#fff",
+          data: total ? [c.open, c.assigned, c.in_progress, c.resolved] : [1],
+          backgroundColor: total
+            ? [STATUS_PALETTE.open, STATUS_PALETTE.assigned, STATUS_PALETTE.in_progress, STATUS_PALETTE.resolved]
+            : [muted],
+          borderColor: card,
           borderWidth: 2,
-          hoverOffset: 4,
+          hoverOffset: total ? 4 : 0,
         },
       ],
     },
@@ -176,7 +194,7 @@ function mountStatusDonut() {
       cutout: "68%",
       plugins: {
         legend: { display: false },
-        tooltip: { enabled: true },
+        tooltip: { enabled: Boolean(total) },
       },
     },
   });
@@ -187,6 +205,6 @@ export function renderStatusBreakdown() {
   if (wrap) {
     wrap.innerHTML = StatusChart();
     createIcons({ icons });
-    mountStatusDonut();
+    void mountStatusDonut();
   }
 }

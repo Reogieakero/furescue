@@ -1,4 +1,5 @@
 import { createIcons, icons } from "lucide";
+import { readPageClick, readPageSizeChange } from "/shared/components/pagination/pagination.js";
 import { state } from "../state.js";
 import { LibraryBody, rerenderLibrary } from "../components.js";
 import { closeEditor, openEdit, openNew, runPublish, runSave, runUnpublish } from "./actions.js";
@@ -25,10 +26,8 @@ export function initElearningEvents() {
       return;
     }
 
-    const pageBtn = e.target.closest("button[data-page]");
-    if (pageBtn) {
-      const page = parseInt(pageBtn.dataset.page, 10);
-      if (!page || page === state.page) return;
+    const page = readPageClick(e.target, state.page);
+    if (page) {
       state.page = page;
       const table = document.getElementById("elearn-table");
       if (table) {
@@ -49,6 +48,18 @@ export function initElearningEvents() {
     if (action === "save") return runSave(e);
     if (action === "publish") return runPublish(id);
     if (action === "unpublish") return runUnpublish(id);
+  });
+
+  main.addEventListener("change", (e) => {
+    const next = readPageSizeChange(e.target, state.pageSize);
+    if (!next) return;
+    state.pageSize = next;
+    state.page = 1;
+    const table = document.getElementById("elearn-table");
+    if (table) {
+      table.innerHTML = LibraryBody();
+      createIcons({ icons });
+    }
   });
 
   main.addEventListener("submit", (e) => {

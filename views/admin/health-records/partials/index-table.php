@@ -4,7 +4,7 @@
 $hrUpdatedTs = static fn(?string $v): int => $v ? (strtotime((string) $v) ?: 0) : 0; // new Date(null) -> epoch 0
 $sortedRecords = $visible;
 usort($sortedRecords, static fn(array $a, array $b): int => $hrUpdatedTs($b['updatedAt']) <=> $hrUpdatedTs($a['updatedAt']));
-$PAGE_SIZE = 8;
+$PAGE_SIZE = pagination_default_page_size();
 $pageOne = array_slice($sortedRecords, 0, $PAGE_SIZE);
 $totalInView = count($sortedRecords);
 
@@ -21,13 +21,14 @@ foreach ($pageOne as $r) {
     $dueStamp = $due < 0 ? 'stamp--coral' : ($due <= 14 ? 'stamp--muted' : 'stamp--accent');
     $initials = mb_strtoupper(mb_substr((string) $r['animalName'], 0, 2, 'UTF-8'), 'UTF-8');
     $condVariant = $r['condition'] === 'Healthy' ? 'success' : 'destructive';
+    $href = $hrRecordHref($r['id']);
     $tableBody .= '
-    <tr>
+    <tr data-href="' . e($href) . '">
       <td class="table-cell">
         <span class="hr-cell-animal">
           <span class="hr-avatar">' . e($initials) . '</span>
           <span>
-            <span class="table-cell--strong"><a href="/admin/health-records/health-record.php?id=' . e((string) $r['id']) . '">' . e((string) $r['animalName']) . '</a></span><br>
+            <span class="table-cell--strong"><a href="' . e($href) . '">' . e((string) $r['animalName']) . '</a></span><br>
             <span class="hr-id">' . e((string) $r['id']) . '</span>
           </span>
         </span>
@@ -44,9 +45,7 @@ foreach ($pageOne as $r) {
 if ($tableBody === '') {
     $recordsTableInner = '<div class="queue-empty"><div class="empty-state"><i data-lucide="clipboard-list"></i><span>No records match the current filters.</span></div></div>';
 } else {
-    $pagination = $totalInView > $PAGE_SIZE
-        ? '<div class="queue-pagination" id="hr-pagination">' . pagination_bar($totalInView, $PAGE_SIZE, 1) . '</div>'
-        : '';
+    $pagination = '<div class="queue-pagination" id="hr-pagination">' . pagination_bar($totalInView, $PAGE_SIZE, 1) . '</div>';
     $recordsTableInner = '
     <div class="table-wrap">
       <table class="table hr-table">
@@ -69,7 +68,10 @@ $recordsPanel = '
         <i data-lucide="clipboard-list"></i>
         <h2 class="panel-title">Health records</h2>
       </div>
-      <span class="stamp stamp--sm stamp--accent">' . e((string) $totalInView) . ' in view</span>
+      <div class="panel-head-tools">
+        <div id="hr-tabs-wrap">' . filter_tabs_html('hr-tabs', $hrTabs) . '</div>
+        <span class="stamp stamp--sm stamp--accent">' . e((string) $totalInView) . ' in view</span>
+      </div>
     </div>
     <div class="panel-body" id="hr-records-body">' . $recordsTableInner . '</div>
   </div>';

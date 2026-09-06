@@ -1,6 +1,7 @@
 import { createIcons, icons } from "lucide";
 import { apiFetch } from "/assets/js/lib/api.js";
 import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { esc } from "/assets/js/lib/format.js";
 
 // Shared "Apply to adopt" dialog. `animal` needs at least { id, name }.
@@ -53,6 +54,13 @@ export function openApplyModal(animal, { onApplied } = {}) {
   overlay.querySelector(".rmodal-x").addEventListener("click", close);
 
   overlay.querySelector('[data-act="submit"]').addEventListener("click", async (e) => {
+    const animalName = animal.name || "this animal";
+    const ok = await confirmDialog({
+      title: "Create this adoption application?",
+      message: `This will submit an adoption application for ${animalName}.`,
+      confirmText: "Create application",
+    });
+    if (!ok) return;
     const btn = e.currentTarget;
     const errorEl = overlay.querySelector("#apply-error");
     errorEl.hidden = true;

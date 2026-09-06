@@ -5,7 +5,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tailwindcss -i ./public/assets/css/input.css -o ./public/assets/css/style.css --minify",
+    "build": "node scripts/build-vendor.mjs && node scripts/build-lucide.mjs && tailwindcss -i ./public/assets/css/input.css -o ./public/assets/css/style.css --minify",
+    "build:vendor": "node scripts/build-vendor.mjs",
+    "build:lucide": "node scripts/build-lucide.mjs",
     "watch": "tailwindcss -i ./public/assets/css/input.css -o ./public/assets/css/style.css --watch",
     "dev": "tailwindcss -i ./public/assets/css/input.css -o ./public/assets/css/style.css --watch"
   },
@@ -16,6 +18,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
+    "lucide": "0.469.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17"
   }

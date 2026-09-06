@@ -58,9 +58,10 @@ export function formatPretty(iso) {
 
 export function formatRangeLabel(start, end, placeholder = "Pick dates") {
   if (start && end) {
-    return start === end ? formatPretty(start) : `${formatPretty(start)} to ${formatPretty(end)}`;
+    return start === end ? formatPretty(start) : `${formatPretty(start)} \u2013 ${formatPretty(end)}`;
   }
-  if (start) return `${formatPretty(start)} to \u2026`;
+  if (start) return `From ${formatPretty(start)}`;
+  if (end) return `Through ${formatPretty(end)}`;
   return placeholder;
 }
 
@@ -110,7 +111,7 @@ export function presetRange(id, { min = "", max = "" } = {}) {
   return orderedRange(clampISO(start, min, max), clampISO(end, min, max));
 }
 
-function dayClass({ iso, selected, start, end, hover, today, disabled }) {
+function dayClass({ iso, selected, start, end, hover, today, disabled, outside }) {
   const { start: lo, end: hi } = orderedRange(start, end || hover);
   const isStart = iso === start;
   const isEnd = Boolean(end) && iso === end;
@@ -118,6 +119,7 @@ function dayClass({ iso, selected, start, end, hover, today, disabled }) {
   const isSel = Boolean(selected) && iso === selected;
   const classes = ["dp-day"];
   if (disabled) classes.push("dp-day--disabled");
+  if (outside) classes.push("dp-day--outside");
   if (iso === today) classes.push("dp-day--today");
   if (isSel || isStart || isEnd) classes.push("dp-day--selected");
   if (isStart) classes.push("dp-day--start");
@@ -136,17 +138,35 @@ export function monthGridHtml(view, opts = {}) {
     max = "",
     today = todayISO(),
     showNav = true,
+    fillWeeks = false,
   } = opts;
-  const startWeekday = new Date(view.y, view.m, 1).getDay();
-  const daysInMonth = new Date(view.y, view.m + 1, 0).getDate();
   const cells = [];
-  for (let i = 0; i < startWeekday; i++) cells.push('<span class="dp-day-pad"></span>');
-  for (let d = 1; d <= daysInMonth; d++) {
-    const iso = toISO(view.y, view.m, d);
-    const disabled = isDisabledISO(iso, min, max);
-    cells.push(
-      `<button type="button" class="${dayClass({ iso, selected, start, end, hover, today, disabled })}" data-date-day="${iso}"${disabled ? " disabled" : ""} aria-label="${esc(formatPretty(iso))}">${d}</button>`
-    );
+  if (fillWeeks) {
+    const cursor = new Date(view.y, view.m, 1);
+    cursor.setDate(1 - cursor.getDay());
+    for (let i = 0; i < 42; i++) {
+      const y = cursor.getFullYear();
+      const m = cursor.getMonth();
+      const d = cursor.getDate();
+      const iso = toISO(y, m, d);
+      const disabled = isDisabledISO(iso, min, max);
+      const outside = m !== view.m;
+      cells.push(
+        `<button type="button" class="${dayClass({ iso, selected, start, end, hover, today, disabled, outside })}" data-date-day="${iso}"${disabled ? " disabled" : ""} aria-label="${esc(formatPretty(iso))}">${d}</button>`
+      );
+      cursor.setDate(cursor.getDate() + 1);
+    }
+  } else {
+    const startWeekday = new Date(view.y, view.m, 1).getDay();
+    const daysInMonth = new Date(view.y, view.m + 1, 0).getDate();
+    for (let i = 0; i < startWeekday; i++) cells.push('<span class="dp-day-pad"></span>');
+    for (let d = 1; d <= daysInMonth; d++) {
+      const iso = toISO(view.y, view.m, d);
+      const disabled = isDisabledISO(iso, min, max);
+      cells.push(
+        `<button type="button" class="${dayClass({ iso, selected, start, end, hover, today, disabled })}" data-date-day="${iso}"${disabled ? " disabled" : ""} aria-label="${esc(formatPretty(iso))}">${d}</button>`
+      );
+    }
   }
   const title = `${MONTHS[view.m]} ${view.y}`;
   const head = showNav

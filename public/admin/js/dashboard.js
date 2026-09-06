@@ -1,4 +1,5 @@
 import { createIcons, icons } from "lucide";
+import { readPageClick, readPageSizeChange } from "/shared/components/pagination/pagination.js";
 import { requireAuth, getSessionUser } from "/assets/js/lib/api.js";
 import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { initShell } from "/assets/js/admin/app-shell.js";
@@ -28,11 +29,17 @@ function initActivityPagination() {
   const wrap = document.getElementById("activity-table");
   if (!wrap) return;
   wrap.addEventListener("click", (e) => {
-    const btn = e.target.closest("button[data-page]");
-    if (!btn || btn.getAttribute("aria-disabled") === "true") return;
-    const page = parseInt(btn.dataset.page, 10);
-    if (!page || page === state.activityPage) return;
+    const page = readPageClick(e.target, state.activityPage);
+    if (!page) return;
     state.activityPage = page;
+    wrap.innerHTML = ActivityInner();
+    createIcons({ icons });
+  });
+  wrap.addEventListener("change", (e) => {
+    const next = readPageSizeChange(e.target, state.activityPageSize);
+    if (!next) return;
+    state.activityPageSize = next;
+    state.activityPage = 1;
     wrap.innerHTML = ActivityInner();
     createIcons({ icons });
   });

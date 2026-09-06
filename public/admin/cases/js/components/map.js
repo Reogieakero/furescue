@@ -1,5 +1,7 @@
 import { state } from "../state.js";
 import { createIcons, icons } from "lucide";
+import { ensureLeaflet } from "/assets/js/lib/leaflet.js";
+import { whenVisible } from "/assets/js/lib/when-visible.js";
 import { esc, enrich } from "./util.js";
 import { Select, initSelect } from "/shared/components/select/select.js";
 
@@ -27,7 +29,7 @@ let currentIntensity = "medium";
 let caseMapInstance = null;
 let caseHeat = null;
 
-export function renderCaseMap() {
+export async function renderCaseMap() {
   const el = document.getElementById("case-map");
   if (!el) return;
   if (caseMapInstance) {
@@ -35,7 +37,14 @@ export function renderCaseMap() {
     caseMapInstance = null;
     caseHeat = null;
   }
-  if (!window.L) return;
+
+  const token = String(Date.now());
+  el.dataset.mapToken = token;
+  await whenVisible(el);
+  if (el.dataset.mapToken !== token || !el.isConnected) return;
+
+  const ready = await ensureLeaflet({ heat: caseMapMode === "heatmap" });
+  if (!ready || !window.L || el.dataset.mapToken !== token || !el.isConnected) return;
 
   const map = window.L.map(el, {
     center: MATI_CENTER,

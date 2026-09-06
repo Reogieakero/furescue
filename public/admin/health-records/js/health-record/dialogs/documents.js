@@ -1,9 +1,9 @@
 import { createIcons, icons } from "lucide";
 import { Button } from "/shared/components/button/button.js";
-import { Spinner } from "/shared/components/spinner/spinner.js";
 import { toast } from "/shared/components/toast/toast.js";
 import { openDrawer, closeDrawer } from "/shared/components/drawer/drawer.js";
 import { uploadAnimalDocument, updateAnimalDocument } from "/assets/js/admin/admin-data.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { record, reloadRecord } from "../context.js";
 import { resolveDocUrl } from "../util.js";
 import { esc } from "../../health-records/components/util.js";
@@ -148,10 +148,11 @@ export function openDocumentDialog(editIdx = null) {
   }
 
   const errorEl = overlay.querySelector("#doc-error");
-  const okBtn = overlay.querySelector('[data-act="ok"]');
   const close = () => overlay.remove();
+  let busy = false;
 
   const submit = async () => {
+    if (busy) return;
     const name = (overlay.querySelector("#doc-name")?.value || "").trim();
     const type = (overlay.querySelector("#doc-type")?.value || "").trim() || null;
     const meta = (overlay.querySelector("#doc-meta")?.value || "").trim() || null;
@@ -160,38 +161,43 @@ export function openDocumentDialog(editIdx = null) {
       errorEl.hidden = false;
       return;
     }
-    okBtn.disabled = true;
-    okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Saving…</span>`;
-    try {
-      if (editing) {
-        await updateAnimalDocument(current.id, { name, doc_type: type, meta });
-        toast("Document updated.", { type: "success" });
-      } else {
-        const fileInputEl = overlay.querySelector("#doc-file");
-        if (!fileInputEl || !fileInputEl.files || !fileInputEl.files[0]) {
-          errorEl.textContent = "Please choose a PDF or image file.";
-          errorEl.hidden = false;
-          okBtn.disabled = false;
-          okBtn.innerHTML = `<span>Upload</span>`;
-          return;
-        }
-        const fd = new FormData();
-        fd.append("file", fileInputEl.files[0]);
-        fd.append("name", name);
-        if (type) fd.append("doc_type", type);
-        if (meta) fd.append("meta", meta);
-        await uploadAnimalDocument(record.id, fd);
-        toast("Document uploaded.", { type: "success" });
+    if (!editing) {
+      const fileInputEl = overlay.querySelector("#doc-file");
+      if (!fileInputEl || !fileInputEl.files || !fileInputEl.files[0]) {
+        errorEl.textContent = "Please choose a PDF or image file.";
+        errorEl.hidden = false;
+        return;
       }
-      close();
-      await reloadRecord();
-    } catch (err) {
-      okBtn.disabled = false;
-      okBtn.innerHTML = `<span>${editing ? "Save" : "Upload"}</span>`;
-      createIcons({ icons });
-      errorEl.textContent = err && err.message ? err.message : "Could not save document.";
-      errorEl.hidden = false;
     }
+    busy = true;
+    const confirmed = await confirmDialog({
+      title: editing ? "Save changes to this document?" : "Upload this document?",
+      message: editing
+        ? `Save changes to "${name}" on this health record?`
+        : `Upload "${name}" to this health record?`,
+      confirmText: editing ? "Save" : "Upload",
+      cancelText: "Cancel",
+      run: async () => {
+        if (editing) {
+          await updateAnimalDocument(current.id, { name, doc_type: type, meta });
+        } else {
+          const fileInputEl = overlay.querySelector("#doc-file");
+          const fd = new FormData();
+          fd.append("file", fileInputEl.files[0]);
+          fd.append("name", name);
+          if (type) fd.append("doc_type", type);
+          if (meta) fd.append("meta", meta);
+          await uploadAnimalDocument(record.id, fd);
+        }
+      },
+    });
+    if (!confirmed) {
+      busy = false;
+      return;
+    }
+    toast(editing ? "Document updated." : "Document uploaded.", { type: "success" });
+    close();
+    await reloadRecord();
   };
 
   overlay.querySelector('[data-act="cancel"]').addEventListener("click", close);

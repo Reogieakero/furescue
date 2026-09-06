@@ -1,4 +1,5 @@
 import { openDrawer } from "/shared/components/drawer/drawer.js";
+import { mountPinMap } from "/assets/js/lib/leaflet.js";
 import * as api from "/assets/js/admin/admin-data.js";
 import { titleCase } from "/admin/js/helpers.js";
 
@@ -49,18 +50,12 @@ export function openLocationDrawer({
       const mapEl = bodyEl.querySelector(`#${mapElId}`);
       const fallback = address ? titleCase(address) : "Unknown location";
       let marker = null;
-      if (window.L && mapEl) {
-        const map = window.L.map(mapEl).setView([latitude, longitude], 15);
-        window.L
-          .tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: "&copy; OpenStreetMap contributors",
-          })
-          .addTo(map);
-        marker = window.L
-          .marker([latitude, longitude])
-          .addTo(map)
-          .bindPopup(esc(address || "Report location"));
-        setTimeout(() => map.invalidateSize(), 300);
+      let pendingPopup = null;
+      if (mapEl) {
+        void mountPinMap(mapEl, latitude, longitude, { popup: esc(address || "Report location") }).then((mapApi) => {
+          marker = mapApi?.marker || null;
+          if (pendingPopup && marker) marker.setPopupContent(pendingPopup);
+        });
       }
       const nameEl = bodyEl.querySelector("#loc-drawer-name");
       const subEl = bodyEl.querySelector("#loc-drawer-sub");
@@ -74,7 +69,10 @@ export function openLocationDrawer({
             nameEl.classList.remove("loc-loading");
           }
           if (subEl) subEl.textContent = sub || (specific ? "" : fallback);
-          if (specific && marker) marker.setPopupContent(esc(specific));
+          if (specific) {
+            pendingPopup = esc(specific);
+            if (marker) marker.setPopupContent(pendingPopup);
+          }
         })
         .catch(() => {
           if (nameEl) {

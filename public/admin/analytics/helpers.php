@@ -24,7 +24,7 @@ function overview_rows_html(array $rows): string
         $html .= "
     <tr>
       <td class=\"table-cell\">" . e($r['label'] ?? '') . "</td>
-      <td class=\"table-cell table-cell--mono table-cell--strong\">" . e($r['value'] ?? '') . '</td>
+      <td class=\"table-cell table-cell--mono table-cell--strong table-cell--right\">" . e($r['value'] ?? '') . '</td>
     </tr>';
     }
     return $html;
@@ -37,7 +37,7 @@ function trend_rows_html(array $trends): string
         $html .= "
     <tr>
       <td class=\"table-cell table-cell--mono\">" . e($t['day'] ?? '') . "</td>
-      <td class=\"table-cell table-cell--mono table-cell--strong\">" . e($t['completed'] ?? 0) . '</td>
+      <td class=\"table-cell table-cell--mono table-cell--strong table-cell--right\">" . e($t['completed'] ?? 0) . '</td>
     </tr>';
     }
     return $html;

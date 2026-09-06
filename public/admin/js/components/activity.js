@@ -10,9 +10,10 @@ export function ActivityInner() {
     return `<div class="activity-empty">${EmptyState({ icon: "list", text: "No records." })}</div>`;
   }
   const page = state.activityPage || 1;
-  const start = (page - 1) * ACTIVITY_PAGE_SIZE;
+  const perPage = state.activityPageSize || ACTIVITY_PAGE_SIZE;
+  const start = (page - 1) * perPage;
   const rows =
-    list.slice(start, start + ACTIVITY_PAGE_SIZE).map(
+    list.slice(start, start + perPage).map(
       (r) => `
     <tr>
       <td class="table-cell table-cell--mono table-cell--strong">${r.id}</td>
@@ -23,10 +24,7 @@ export function ActivityInner() {
       <td class="table-cell table-cell--mono table-cell--muted">${r.when}</td>
     </tr>`
     ).join("");
-  const pagination =
-    list.length > ACTIVITY_PAGE_SIZE
-      ? `<div class="queue-pagination">${PaginationBar({ total: list.length, perPage: ACTIVITY_PAGE_SIZE, page })}</div>`
-      : "";
+  const pagination = `<div class="queue-pagination">${PaginationBar({ total: list.length, perPage, page })}</div>`;
   return `
     <div class="table-wrap">
       <table class="table">

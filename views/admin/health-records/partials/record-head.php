@@ -3,7 +3,7 @@
 $pageHeadHtml = '
   <div class="page-head">
     <div>
-      <a href="/admin/health-records/" class="cd-back"><i data-lucide="chevron-left"></i> Back to health records</a>
+      ' . button_anchor_html('/admin/health-records/', 'Back to health records', 'outline', 'sm', '', 'arrow-left') . '
     </div>
     <div class="page-head-actions">
       ' . $actionsHtml . '

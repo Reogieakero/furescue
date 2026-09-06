@@ -11,7 +11,6 @@ export function buildKpis() {
       value: c.all,
       label: "Total",
       tone: "jungle",
-      filter: "all",
       desc: "Every animal currently in the shelter system.",
     },
     {
@@ -19,7 +18,6 @@ export function buildKpis() {
       value: c.Available,
       label: "Available",
       tone: "sky",
-      filter: "Available",
       desc: "Animals listed and ready for adoption.",
     },
     {
@@ -27,7 +25,6 @@ export function buildKpis() {
       value: c.Pending,
       label: "Pending",
       tone: "amber",
-      filter: "Pending",
       desc: "In-care animals on hold pending adoption or review.",
     },
     {
@@ -35,7 +32,6 @@ export function buildKpis() {
       value: c.Adopted,
       label: "Adopted",
       tone: "ink",
-      filter: "Adopted",
       desc: "Animals that have already been adopted.",
     },
     {
@@ -53,7 +49,6 @@ export function buildKpis() {
 export function toKpiCardProps(k) {
   const extra = [];
   if (k.desc) extra.push(`title="${esc(k.desc)}"`);
-  if (k.filter) extra.push(`data-filter="${esc(k.filter)}"`);
   return {
     icon: k.icon,
     tone: k.tone,
@@ -61,7 +56,6 @@ export function toKpiCardProps(k) {
     value: k.value,
     trend: k.trend || "",
     trendTone: k.trendTone || "neutral",
-    interactive: Boolean(k.filter),
     attrs: extra.join(" "),
   };
 }

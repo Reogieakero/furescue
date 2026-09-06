@@ -8,12 +8,13 @@ export const state = {
   range: "30d", // 30d | 90d | 12mo
   species: "all", // all | dog | cat
   page: 1,
+  pageSize: 20,
   queueExpanded: false, // attention queue shows all items when true
   records: [],
   activity: [],
 };
 
-export const PAGE_SIZE = 8;
+export const PAGE_SIZE = 20;
 
 const FILTERS = [
   { key: "all", label: "All" },
@@ -280,9 +281,9 @@ export function sortedRecords() {
 
 export function pagedRecords() {
   const list = sortedRecords();
-  const start = (state.page - 1) * PAGE_SIZE;
+  const start = (state.page - 1) * state.pageSize;
   return {
-    rows: list.slice(start, start + PAGE_SIZE),
+    rows: list.slice(start, start + state.pageSize),
     total: list.length,
     page: state.page,
   };

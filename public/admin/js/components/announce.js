@@ -1,4 +1,4 @@
-import { openDialog } from "/shared/components/dialog/dialog.js";
+import { openDialog, confirmDialog } from "/shared/components/dialog/dialog.js";
 import { Button } from "/shared/components/button/button.js";
 import { Select, initSelect, getSelectValue } from "/shared/components/select/select.js";
 import { toast } from "/shared/components/toast/toast.js";
@@ -47,7 +47,17 @@ export function AnnounceDialog() {
           toast("Please enter a message", { type: "error" });
           return;
         }
+        const audience = (TARGETS.find((t) => t.value === targetValue) || {}).label || "the selected audience";
         sendBtn.disabled = true;
+        const ok = await confirmDialog({
+          title: "Send this announcement?",
+          message: `This will notify ${audience.toLowerCase()}.`,
+          confirmText: "Send",
+        });
+        if (!ok) {
+          sendBtn.disabled = false;
+          return;
+        }
         try {
           await broadcastAnnouncement({ type: "admin_announcement", targets: [targetValue], message });
           toast("Announcement sent", { type: "success" });

@@ -1,7 +1,8 @@
 import { createIcons, icons } from "lucide";
 import { Button } from "/shared/components/button/button.js";
 import { toast } from "/shared/components/toast/toast.js";
-import { fetchPendingAdoptions, fetchReports, fetchCases } from "../../api.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
+import { fetchPendingAdoptions, fetchReports, fetchCases } from "../api.js";
 import { state } from "../state.js";
 import { buildComposeTargets, contextLabel, esc } from "../util.js";
 import { startConversation } from "../workflow/actions.js";
@@ -112,6 +113,16 @@ export async function openComposeDialog() {
     }
     sending = true;
     sendBtn.disabled = true;
+    const ok = await confirmDialog({
+      title: "Send this message?",
+      message: `This will start a conversation with ${name} about this ${contextLabel(related_type).toLowerCase()}.`,
+      confirmText: "Send",
+    });
+    if (!ok) {
+      sending = false;
+      sendBtn.disabled = false;
+      return;
+    }
     try {
       await startConversation({
         related_type,

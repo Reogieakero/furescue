@@ -3,6 +3,7 @@ import { Button } from "/shared/components/button/button.js";
 import { DatePicker, initDatePicker } from "/shared/components/date-picker/date-picker.js";
 import { Spinner } from "/shared/components/spinner/spinner.js";
 import { createAnimal, fetchCase, fetchReport, updateAnimal } from "/assets/js/admin/admin-data.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { addAnimal, parsePhoto360, setSelectedId } from "../state.js";
 import { bindProfileAssets, clientAssetError, profileAssetsFields, readProfileAssets } from "./profile-assets.js";
 import { esc, resizeImage, ageFromBirthDate, shortId } from "./util.js";
@@ -251,7 +252,9 @@ export function openAddAnimalDialog(prefill = {}) {
       resolve(null);
     };
 
+    let busy = false;
     const submit = async () => {
+      if (busy) return;
       const name = nameEl.value.trim();
       if (!name) {
         errorEl.hidden = false;
@@ -277,6 +280,20 @@ export function openAddAnimalDialog(prefill = {}) {
           errorEl.hidden = false;
           return;
         }
+      }
+      const isRegister = Boolean(caseId);
+      busy = true;
+      const confirmed = await confirmDialog({
+        title: isRegister ? "Register this animal?" : "Create this animal?",
+        message: isRegister
+          ? `Register "${name}" and link it to this rescued case?`
+          : `Create "${name}" and add it to the animal roster?`,
+        confirmText: isRegister ? "Register" : "Create",
+        cancelText: "Cancel",
+      });
+      if (!confirmed) {
+        busy = false;
+        return;
       }
       const okBtn = overlay.querySelector('[data-act="ok"]');
       okBtn.disabled = true;
@@ -333,6 +350,7 @@ export function openAddAnimalDialog(prefill = {}) {
         }
       } catch (err) {
         if (err && err.animalId) form.pendingId = err.animalId;
+        busy = false;
         okBtn.disabled = false;
         okBtn.innerHTML = `<i data-lucide="plus"></i><span>Add animal</span>`;
         createIcons({ icons });

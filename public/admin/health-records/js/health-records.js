@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initHealthRecordsEvents();
     initAnimalsFlyout();
     initDate();
-    mountCharts();
+    void mountCharts();
     return;
   }
   const user = requireAuth(["admin"]);

@@ -180,9 +180,21 @@ export function confirmDialog({
     const errorEl = withReason ? overlay.querySelector(".dialog-error") : null;
     let settled = false;
 
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      close();
+    };
+
+    const unbind = () => {
+      document.removeEventListener("keydown", onKey, true);
+    };
+
     const close = () => {
       if (settled) return;
       settled = true;
+      unbind();
       overlay.remove();
       resolve(false);
     };
@@ -205,6 +217,7 @@ export function confirmDialog({
       try {
         const result = run ? await run({ reason: reasonEl ? reasonEl.value.trim() : "" }) : null;
         settled = true;
+        unbind();
         overlay.remove();
         resolve(result ?? true);
       } catch (err) {
@@ -214,6 +227,7 @@ export function confirmDialog({
       }
     };
 
+    document.addEventListener("keydown", onKey, true);
     okBtn.addEventListener("click", submit);
     cancelBtn.addEventListener("click", close);
     xBtn.addEventListener("click", close);

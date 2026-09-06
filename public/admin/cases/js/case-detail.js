@@ -3,6 +3,7 @@ import { requireAuth } from "/assets/js/lib/api.js";
 import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { initShell } from "/assets/js/admin/app-shell.js";
 import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
+import { Button } from "/shared/components/button/button.js";
 import { state, loadCaseDetail, hydrateFromCache } from "./case-detail/state.js";
 import { CaseDetailPage, initCaseDetailEvents } from "./case-detail/components.js";
 import "./case-detail/components/register-animal.js";
@@ -23,7 +24,7 @@ function renderNotFound() {
         <div class="empty-state" style="margin-top:48px">
           <i data-lucide="alert-circle"></i>
           <span>${""}</span>
-          <a href="/admin/cases/" class="cd-back"><i data-lucide="arrow-left"></i> Back to cases</a>
+          ${Button({ text: "Back to cases", variant: "outline", size: "sm", icon: "arrow-left", href: "/admin/cases/" })}
         </div>
       </main>
     </div>`;

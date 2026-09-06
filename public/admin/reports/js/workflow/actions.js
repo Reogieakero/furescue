@@ -14,8 +14,8 @@ import { report } from "./helpers.js";
 async function runVerify(id) {
   const r = report(id);
   const ok = await confirmDialog({
-    title: "Verify report",
-    message: `Are you sure you want to verify ${shortId(id)}?`,
+    title: "Verify this report?",
+    message: `Verify report ${shortId(id)}? This will create a case.`,
     info: [
       { label: "Case", value: shortId(id) },
       { label: "Barangay", value: r && r.address_text ? titleCase(r.address_text) : "—" },
@@ -38,8 +38,8 @@ async function runVerify(id) {
 async function runDismiss(id) {
   const r = report(id);
   const ok = await confirmDialog({
-    title: "Dismiss report",
-    message: `Are you sure you want to dismiss ${shortId(id)}?`,
+    title: "Dismiss this report?",
+    message: `Dismiss report ${shortId(id)}? This report will be closed.`,
     info: [
       { label: "Case", value: shortId(id) },
       { label: "Barangay", value: r && r.address_text ? titleCase(r.address_text) : "—" },
@@ -61,7 +61,7 @@ async function runDismiss(id) {
 
 async function runCaseStatus(caseId, reportId, status, label, verb) {
   const ok = await confirmDialog({
-    title: label,
+    title: `${label} this case?`,
     message: `Mark case ${shortId(caseId)} as ${status.replace("_", " ")}?`,
     info: [
       { label: "Case", value: shortId(caseId) },
@@ -128,6 +128,20 @@ function assignDialog(caseId, reportId) {
         toast("Please select a rescuer.", { type: "error" });
         return;
       }
+      const rescuer = rescuers.find((u) => u.id === selected);
+      const rescuerName = (rescuer && rescuer.full_name) || "this rescuer";
+      const confirmed = await confirmDialog({
+        title: "Assign this rescuer?",
+        message: `Assign ${rescuerName} to case ${shortId(caseId)}?`,
+        info: [
+          { label: "Case", value: shortId(caseId) },
+          { label: "Report", value: shortId(reportId) },
+          { label: "Rescuer", value: rescuerName },
+        ],
+        confirmText: "Assign",
+        cancelText: "Cancel",
+      });
+      if (!confirmed) return;
       const okBtn = overlay.querySelector('[data-act="ok"]');
       okBtn.disabled = true;
       okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Assign</span>`;

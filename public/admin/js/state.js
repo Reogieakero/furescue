@@ -47,9 +47,11 @@ export const state = {
   reportTrend: [],
   decisionCount: 0,
   activityPage: 1,
+  activityPageSize: 10,
 };
 
 export const queueState = { reports: 1, rescuers: 1, health: 1, adopt: 1 };
+export const queuePageSize = { reports: 10, rescuers: 10, health: 10, adopt: 10 };
 
 export async function loadDashboard() {
   const [overview, reports, allReports, rescuersPending, rescuers, adoptions, cases, notifications, unreadCount, elearning, trends, heatmap, healthUpdates, healthRecords] =

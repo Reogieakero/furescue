@@ -23,19 +23,21 @@ export function FilterTabs() {
     completed: c.completed,
     cancelled: c.cancelled,
   };
+  return TabStrip({
+    id: "application-tabs",
+    children: FILTERS.map((f) =>
+      FilterTab({
+        key: f.key,
+        label: `${f.label} &middot; ${count[f.key]}`,
+        active: state.filter === f.key,
+        attrs: 'type="button"',
+      })
+    ).join(""),
+  });
+}
+
+export function FilterToolbar() {
   return Toolbar({
-    children: `
-    ${TabStrip({
-      id: "application-tabs",
-      children: FILTERS.map((f) =>
-        FilterTab({
-          key: f.key,
-          label: `${f.label} &middot; ${count[f.key]}`,
-          active: state.filter === f.key,
-          attrs: 'type="button"',
-        })
-      ).join(""),
-    })}
-    ${Search({ id: "application-search", placeholder: "Search applicant, animal, message…", value: state.query })}`,
+    children: Search({ id: "application-search", placeholder: "Search applicant, animal, message…", value: state.query }),
   });
 }

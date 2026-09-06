@@ -30,13 +30,11 @@ foreach (ELEARN_CATEGORIES as $c) {
       <button type="button" data-category="' . e($c['key']) . '" class="q-btn">' . e($c['label']) . ' &middot; ' . e((string) $elearnCatCounts[$c['key']]) . '</button>';
 }
 
-$filterTabs = toolbar_html(
-    filter_tabs_html('elearn-status-tabs', $statusTabs)
-    . search_control('elearn-search', 'Search title…')
-) . toolbar_html(
-    filter_tabs_html('elearn-category-tabs', $categoryTabs),
-    'elearn-cat-toolbar'
-);
+$filterTabs = toolbar_html(search_control('elearn-search', 'Search title…', '', '', 'aria-label="Search modules by title"'))
+    . toolbar_html(
+        filter_tabs_html('elearn-category-tabs', $categoryTabs),
+        'elearn-cat-toolbar'
+    );
 
 if ($modules === []) {
     $emptyBlock = '<div class="queue-empty">' . empty_state('book-open', 'No modules yet. Create your first lesson.') . '</div>';
@@ -71,9 +69,7 @@ if ($modules === []) {
       <td class="table-cell table-cell--right table-cell--nowrap">' . $actions . '</td>
     </tr>';
     }
-    $pagination = count($modules) > ELEARN_PAGE_SIZE
-        ? '<div class="queue-pagination">' . pagination_bar(count($modules), ELEARN_PAGE_SIZE, 1) . '</div>'
-        : '';
+    $pagination = '<div class="queue-pagination">' . pagination_bar(count($modules), ELEARN_PAGE_SIZE, 1) . '</div>';
     $libraryBody = '
     <div class="elearn-cards">' . $cardsHtml . '</div>
     <div class="elearn-table table-wrap">
@@ -110,6 +106,9 @@ $adminChildren = '
       <div class="panel-title-wrap">
         <i data-lucide="book-open"></i>
         <h2 class="panel-title">Module library</h2>
+      </div>
+      <div class="panel-head-tools">
+        <div id="elearn-status-tabs-wrap">' . filter_tabs_html('elearn-status-tabs', $statusTabs) . '</div>
       </div>
     </div>
     <div id="elearn-filters">' . $filterTabs . '</div>

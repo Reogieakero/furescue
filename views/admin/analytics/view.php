@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Page-local partial for /admin/analytics/ — renders $adminChildren.
- * Consumes (from index.php scope): $start, $end, $ranged, $overviewRows,
+ * Consumes (from index.php scope): $start, $end, $overviewRows,
  * $trends, $updates, $personnel, plus shared ui-helpers.
  */
 
@@ -13,14 +13,12 @@ $today = date('Y-m-d');
 $btnOverview = button_html('Export Overview CSV', 'outline', icon: 'download', attrs: 'id="export-overview" data-export="overview"');
 $btnTrends = button_html('Export Adoption Trends CSV', 'outline', icon: 'download', attrs: 'id="export-trends" data-export="adoption-trends"');
 $btnHealth = button_html('Export Health CSV', 'outline', icon: 'download', attrs: 'id="export-health" data-export="health-updates"');
-
-$rangeLabel = $ranged ? "{$start} to {$end}" : 'Last 30 adoption days · 50 latest health updates';
 ?>
   <div class="page-head">
     <div>
       <span class="stamp stamp--jungle">Analytics</span>
       <h1 class="page-title">Analytics &amp; exports</h1>
-      <p class="page-sub">Shelter-wide metrics for City of Mati &middot; Filter: <span id="range-label"><?= e($rangeLabel) ?></span></p>
+      <p class="page-sub">Shelter-wide metrics for City of Mati</p>
     </div>
     <div class="page-head-actions analytics-actions">
       <?= $btnOverview ?>
@@ -38,44 +36,30 @@ $rangeLabel = $ranged ? "{$start} to {$end}" : 'Last 30 adoption days · 50 late
         'value' => overview_value($overviewRows, 'adoptions_pending'),
         'label' => 'Adoptions pending',
         'tone' => 'coral',
-        'trend' => overview_value($overviewRows, 'adoptions_pending') ? 'Needs Review' : '',
-        'trendTone' => 'down',
     ],
     [
         'icon' => 'siren',
         'value' => overview_value($overviewRows, 'rescuers_on_duty'),
         'label' => 'Rescuers on duty',
         'tone' => 'sky',
-        'trend' => overview_value($overviewRows, 'rescuers_active')
-            ? overview_value($overviewRows, 'rescuers_on_duty') . ' of ' . overview_value($overviewRows, 'rescuers_active') . ' active'
-            : 'No active rescuers',
-        'trendTone' => overview_value($overviewRows, 'rescuers_on_duty') ? 'up' : 'neutral',
         'href' => '/admin/rescuers/',
     ],
 ]) ?>
 
-  <div class="panel panel--padded analytics-range">
-    <div class="panel-title-wrap"><i data-lucide="calendar-range"></i><h2 class="panel-title panel-title--sm">Date range</h2></div>
-    <div class="range-controls">
-      <?= date_range_picker([
-          'id' => 'analytics-range',
-          'start_id' => 'range-start',
-          'end_id' => 'range-end',
-          'start' => $start,
-          'end' => $end,
-          'max' => $today,
-          'placeholder' => 'All dates',
-          'className' => 'analytics-range-picker',
-      ]) ?>
-      <div class="range-actions">
-        <?= button_html('Apply range', 'default', icon: 'check', attrs: 'id="range-apply"') ?>
-        <?= button_html('Reset', 'ghost', attrs: 'id="range-reset"') ?>
-      </div>
-    </div>
-    <p class="range-note">Range filters adoption completions and health updates. Overview metrics are shelter-wide totals.</p>
+  <div class="analytics-range">
+    <?= date_range_picker([
+        'id' => 'analytics-range',
+        'start_id' => 'range-start',
+        'end_id' => 'range-end',
+        'start' => $start,
+        'end' => $end,
+        'max' => $today,
+        'placeholder' => 'All dates',
+        'className' => 'analytics-range-picker',
+    ]) ?>
   </div>
 
-  <div class="cols cols--two">
+  <div class="cols cols--two analytics-split">
     <div class="panel">
       <div class="panel-head">
         <div class="panel-title-wrap"><i data-lucide="bar-chart-3"></i><h2 class="panel-title panel-title--sm">Overview metrics</h2></div>

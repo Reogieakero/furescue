@@ -3,7 +3,7 @@ import { AppShell } from "/assets/js/admin/app-shell.js";
 import { Button } from "/shared/components/button/button.js";
 import { state } from "../state.js";
 import { buildKpis, KpiTile } from "./kpis.js";
-import { FilterTabs } from "./filters.js";
+import { FilterTabs, FilterToolbar } from "./filters.js";
 import { ListingTable } from "./table.js";
 import { panelTitle } from "./util.js";
 
@@ -29,8 +29,11 @@ function ListingsPanel() {
         <i data-lucide="home"></i>
         <h2 class="panel-title" id="listing-panel-title">${panelTitle(state.filter)}</h2>
       </div>
+      <div class="panel-head-tools">
+        <div id="listing-tabs-wrap">${FilterTabs()}</div>
+      </div>
     </div>
-    <div id="listing-filters">${FilterTabs()}</div>
+    <div id="listing-filters">${FilterToolbar()}</div>
     <div id="listing-table" class="panel-body">${ListingTable()}</div>
   </div>`;
 }
@@ -51,8 +54,8 @@ export function rerenderAll() {
   if (kpis) kpis.innerHTML = buildKpis().map(KpiTile).join("");
   const title = document.getElementById("listing-panel-title");
   if (title) title.textContent = panelTitle(state.filter);
-  const filters = document.getElementById("listing-filters");
-  if (filters) filters.innerHTML = FilterTabs();
+  const tabs = document.getElementById("listing-tabs-wrap");
+  if (tabs) tabs.innerHTML = FilterTabs();
   const table = document.getElementById("listing-table");
   if (table) table.innerHTML = ListingTable();
   createIcons({ icons });

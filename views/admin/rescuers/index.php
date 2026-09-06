@@ -48,14 +48,7 @@ $kpiTiles = '';
 $kpiData = [
     ['icon' => 'users', 'value' => $totalCount, 'label' => 'Total rescuers', 'tone' => 'jungle', 'trend' => '', 'trendTone' => 'neutral'],
     ['icon' => 'badge-check', 'value' => count($activeRows), 'label' => 'Active', 'tone' => 'jungle', 'trend' => '', 'trendTone' => 'neutral'],
-    [
-        'icon' => 'siren',
-        'value' => $onDutyCount,
-        'label' => 'On duty',
-        'tone' => 'sky',
-        'trend' => $onDutyCount > 0 ? 'On duty' : '',
-        'trendTone' => 'up',
-    ],
+    ['icon' => 'siren', 'value' => $onDutyCount, 'label' => 'On duty', 'tone' => 'sky', 'trend' => '', 'trendTone' => 'neutral'],
     [
         'icon' => 'clock',
         'value' => $pendingCount,
@@ -97,14 +90,10 @@ $tabButtons = '';
 foreach ($filterDefs as $f) {
     $activeCls = $f['key'] === 'all' ? ' is-active' : '';
     $tabButtons .= '
-        <button data-filter="' . e($f['key']) . '" class="q-btn' . $activeCls . '">' . e($f['label']) . ' &middot; ' . e($f['count']) . '</button>';
+        <button type="button" data-filter="' . e($f['key']) . '" class="q-btn' . $activeCls . '">' . e($f['label']) . ' &middot; ' . e($f['count']) . '</button>';
 }
-$filterTabs = toolbar_html(
-    filter_tabs_html('rescuer-tabs', $tabButtons)
-    . search_control('rescuer-search', 'Search name, email, phone…')
-);
 
-const RESCUERS_PAGE_SIZE = 10;
+const RESCUERS_PAGE_SIZE = 20;
 $pagedRows = array_slice($rescuerRowsAll, 0, RESCUERS_PAGE_SIZE);
 
 $rescuerRowHtml = static function (array $r) use ($rescuersButton, $dutyOf): string {
@@ -134,9 +123,7 @@ if ($pagedRows === []) {
     foreach ($pagedRows as $r) {
         $rowsHtml .= $rescuerRowHtml($r);
     }
-    $pagination = count($rescuerRowsAll) > RESCUERS_PAGE_SIZE
-        ? '<div class="queue-pagination">' . pagination_bar(count($rescuerRowsAll), RESCUERS_PAGE_SIZE, 1) . '</div>'
-        : '';
+    $pagination = '<div class="queue-pagination">' . pagination_bar(count($rescuerRowsAll), RESCUERS_PAGE_SIZE, 1) . '</div>';
     $tableInner = '
     <div class="table-wrap">
       <table class="table">
@@ -158,8 +145,11 @@ $rescuersPanel = '
         <i data-lucide="siren"></i>
         <h2 class="panel-title">Rescuers</h2>
       </div>
+      <div class="panel-head-tools">
+        <div id="rescuer-tabs-wrap">' . filter_tabs_html('rescuer-tabs', $tabButtons) . '</div>
+      </div>
     </div>
-    <div id="rescuer-filters">' . $filterTabs . '</div>
+    <div id="rescuer-filters">' . toolbar_html(search_control('rescuer-search', 'Search name, email, phone…')) . '</div>
     <div id="rescuer-table" class="panel-body">' . $tableInner . '</div>
   </div>';
 

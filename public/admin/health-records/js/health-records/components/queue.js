@@ -1,5 +1,5 @@
 import { attentionItems, attentionBreakdown, state } from "../state.js";
-import { esc, fmtDate, shortId } from "./util.js";
+import { esc, fmtDate, shortId, recordHref } from "./util.js";
 
 const QUEUE_LIMIT = 6;
 
@@ -20,10 +20,11 @@ function daysLabel(d) {
 }
 
 function Card(it) {
+  const href = recordHref(it.id);
   return `
-  <button type="button" class="hr-queue-card ${TIER[it.tier]}" data-queue-card data-animal="${esc(it.animalName)}" title="${esc(
+  <a class="hr-queue-card ${TIER[it.tier]}" href="${esc(href)}" title="${esc(
     it.animalName
-  )} · ${esc(it.barangay)} · ${esc(it.text)} — open in records">
+  )} · ${esc(it.barangay)} · ${esc(it.text)} — open record">
     <span class="hr-qc-head">
       <span class="hr-qc-kind"><i data-lucide="${it.icon}"></i></span>
       <span class="stamp stamp--sm hr-qc-days hr-qc-days--${it.tier}">${daysLabel(it.days)}</span>
@@ -35,7 +36,7 @@ function Card(it) {
       <span class="hr-qc-date"><i data-lucide="calendar"></i>${fmtDate(it.date, "short")}</span>
       <span class="hr-qc-go"><i data-lucide="chevron-right"></i></span>
     </span>
-  </button>`;
+  </a>`;
 }
 
 export function AttentionPanel() {
@@ -58,7 +59,7 @@ export function AttentionPanel() {
       </div>
       <div class="hr-queue-tally">${tally}</div>
     </div>
-    <div class="hr-queue-grid${state.queueExpanded ? " is-expanded" : ""}">${body}</div>
+    <div class="hr-queue-grid${state.queueExpanded ? " is-expanded" : ""}${items.length ? "" : " hr-queue-grid--empty"}">${body}</div>
     ${
       b.total > QUEUE_LIMIT
         ? `<button class="hr-queue-all" data-queue-all type="button">${

@@ -4,6 +4,7 @@ import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { esc } from "/assets/js/lib/format.js";
 import { initResidentShell } from "/assets/js/components/resident-shell.js";
 import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 
 const CATEGORY_META = {
   dog_behavior: { label: "Dog Behavior", icon: "dog" },
@@ -171,6 +172,13 @@ async function openLesson(moduleId) {
 
 async function markComplete() {
   if (!state.currentId || state.busy) return;
+  const title = document.getElementById("learn-lesson-title")?.textContent || "this module";
+  const ok = await confirmDialog({
+    title: "Mark this module complete?",
+    message: `This will mark "${title}" as completed.`,
+    confirmText: "Mark complete",
+  });
+  if (!ok) return;
   bootstrapPageAuth();
   const btn = document.getElementById("learn-complete");
   state.busy = true;

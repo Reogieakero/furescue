@@ -21,6 +21,7 @@
 @import "../../shared/components/card/card.css";
 @import "../../shared/components/empty-state/empty-state.css";
 @import "../../shared/components/table/table.css";
+@import "../../shared/components/pagination/pagination.css";
 @import "../../shared/components/search/search.css";
 @import "../../shared/components/select/select.css";
 @import "../../shared/components/date-picker/date-picker.css";

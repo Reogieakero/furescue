@@ -46,12 +46,9 @@ foreach ($filterDefs as $f) {
     $tabButtons .= '
         <button type="button" data-filter="' . e($f['key']) . '" class="q-btn' . $activeCls . '">' . e($f['label']) . ' &middot; ' . e($f['count']) . '</button>';
 }
-$filterTabs = toolbar_html(
-    filter_tabs_html('application-tabs', $tabButtons)
-    . search_control('application-search', 'Search applicant, animal, message…')
-);
+$filterTabs = toolbar_html(search_control('application-search', 'Search applicant, animal, message…'));
 
-const APPLICATIONS_PAGE_SIZE = 15;
+const APPLICATIONS_PAGE_SIZE = 20;
 $actionLinksFor = static function (array $a) use ($appButton): string {
     $id = e((string) ($a['id'] ?? ''));
     $view = $appButton('View application', 'outline', 'sm', 'eye', 'data-action="view" data-id="' . $id . '"');
@@ -89,9 +86,7 @@ if ($loadError !== '') {
       </td>
     </tr>';
     }
-    $pagination = count($items) > APPLICATIONS_PAGE_SIZE
-        ? '<div class="queue-pagination">' . pagination_bar(count($items), APPLICATIONS_PAGE_SIZE, 1) . '</div>'
-        : '';
+    $pagination = '<div class="queue-pagination">' . pagination_bar(count($items), APPLICATIONS_PAGE_SIZE, 1) . '</div>';
     $tableInner = '
     <div class="table-wrap">
       <table class="table">
@@ -123,6 +118,9 @@ $adminChildren = '
       <div class="panel-title-wrap">
         <i data-lucide="file-check"></i>
         <h2 class="panel-title">Applications</h2>
+      </div>
+      <div class="panel-head-tools">
+        <div id="application-tabs-wrap">' . filter_tabs_html('application-tabs', $tabButtons) . '</div>
       </div>
     </div>
     <div id="application-filters">' . $filterTabs . '</div>

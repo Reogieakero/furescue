@@ -18,6 +18,10 @@ class PaginationBarTest extends TestCase
         $this->assertStringContainsString('data-page="2"', $html);
         $this->assertStringContainsString('Previous', $html);
         $this->assertStringContainsString('Next', $html);
+        $this->assertStringContainsString('data-per-page', $html);
+        $this->assertStringContainsString('Rows per page', $html);
+        $this->assertStringContainsString('option value="20"', $html);
+        $this->assertStringContainsString('11–20 of 25', $html);
     }
 
     public function testFactoryFileDefinesFunctionWithoutOutput(): void

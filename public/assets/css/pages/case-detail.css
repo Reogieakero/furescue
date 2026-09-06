@@ -46,19 +46,7 @@
   flex: 1;
 }
 
-/* header actions + back link */
-.cd-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: hsl(var(--muted-foreground));
-  text-decoration: none;
-}
-.cd-back:hover {
-  color: hsl(var(--jungle));
-}
+/* header actions */
 .cd-actions {
   display: flex;
   gap: 8px;

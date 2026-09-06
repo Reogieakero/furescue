@@ -48,6 +48,13 @@
 .panel-head-tools {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 12px;
   margin-left: auto;
+  flex-wrap: wrap;
+  min-width: 0;
+  max-width: 100%;
+}
+.panel-head-tools .q-tabs {
+  min-width: 0;
 }

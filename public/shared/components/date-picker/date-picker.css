@@ -211,6 +211,11 @@
   border-radius: 6px;
 }
 
+.dp-day--outside {
+  color: hsl(var(--muted-foreground));
+  opacity: 0.55;
+}
+
 .dp-day--disabled {
   opacity: 0.35;
   cursor: not-allowed;

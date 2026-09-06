@@ -5,7 +5,7 @@ import { esc, CATEGORIES, STATUS_FILTERS } from "./util.js";
 import { state } from "../state.js";
 import { moduleCounts } from "./kpis.js";
 
-export function FilterTabs() {
+function counts() {
   const c = moduleCounts();
   const statusCount = {
     all: c.total,
@@ -16,21 +16,29 @@ export function FilterTabs() {
   CATEGORIES.forEach((cat) => {
     catCount[cat.key] = state.modules.filter((m) => m.category === cat.key).length;
   });
+  return { statusCount, catCount };
+}
+
+export function StatusTabs() {
+  const { statusCount } = counts();
+  return TabStrip({
+    id: "elearn-status-tabs",
+    children: STATUS_FILTERS.map((f) =>
+      FilterTab({
+        key: f.key,
+        label: `${f.label} &middot; ${statusCount[f.key]}`,
+        active: state.filter === f.key,
+        attrs: 'type="button"',
+      })
+    ).join(""),
+  });
+}
+
+export function FilterTabs() {
+  const { catCount } = counts();
   return (
     Toolbar({
-      children: `
-    ${TabStrip({
-      id: "elearn-status-tabs",
-      children: STATUS_FILTERS.map((f) =>
-        FilterTab({
-          key: f.key,
-          label: `${f.label} &middot; ${statusCount[f.key]}`,
-          active: state.filter === f.key,
-          attrs: 'type="button"',
-        })
-      ).join(""),
-    })}
-    ${Search({ id: "elearn-search", placeholder: "Search title…", value: state.query })}`,
+      children: Search({ id: "elearn-search", placeholder: "Search title…", value: state.query }),
     }) +
     Toolbar({
       className: "elearn-cat-toolbar",

@@ -44,11 +44,9 @@ $pageState = [
     'user' => $residentUser,
     'bounds' => $bounds,
 ];
-$pageScripts = ['https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'];
 $pageModules = ['/report/js/report.js'];
 
 $pageTitle = 'FurEscue — Report an animal';
 $pageDescription = 'Report a stray animal in Mati City — pin the location, describe the situation and attach photos.';
-$pageCss = ['https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'];
 
 require views_path('layouts/resident.php');

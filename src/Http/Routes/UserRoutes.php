@@ -17,8 +17,10 @@ class UserRoutes
 
         $router->add('GET', '/api/v1/users/me', fn(Request $r) => (new UserController($pdo))->me($r), [$authMw]);
         $router->add('GET', '/api/v1/users', fn(Request $r) => (new UserController($pdo))->index($r), [$authMw, new PermissionMiddleware('users.read')]);
+        $router->add('POST', '/api/v1/users', fn(Request $r) => (new UserController($pdo))->create($r), [$authMw, new PermissionMiddleware('users.create')]);
         $router->add('GET', '/api/v1/users/{id}', fn(Request $r) => (new UserController($pdo))->show($r), [$authMw]);
         $router->add('PATCH', '/api/v1/users/{id}', fn(Request $r) => (new UserController($pdo))->update($r), [$authMw]);
+        $router->add('DELETE', '/api/v1/users/{id}', fn(Request $r) => (new UserController($pdo))->destroy($r), [$authMw, new PermissionMiddleware('users.delete')]);
         $router->add('POST', '/api/v1/users/{id}/profile-photo', fn(Request $r) => (new UserProfileController($pdo))->upload($r), [$authMw]);
         $router->add('DELETE', '/api/v1/users/{id}/profile-photo', fn(Request $r) => (new UserProfileController($pdo))->delete($r), [$authMw]);
         $router->add('POST', '/api/v1/admin/rescuers/{id}/approve', fn(Request $r) => (new UserController($pdo))->approveRescuer($r), [$authMw, new PermissionMiddleware('users.approve_rescuers')]);

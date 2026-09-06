@@ -104,6 +104,15 @@
   display: inline;
   color: hsl(var(--coral));
 }
+.dialog-hint {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: rgba(11, 37, 69, 0.45);
+  margin-left: 6px;
+}
 .dialog-input {
   font-family: var(--font-sans);
   font-weight: 400;
@@ -185,6 +194,31 @@
   line-height: 1.4;
   max-width: 42ch;
   color: hsl(var(--muted-foreground));
+}
+
+.dialog--wide {
+  width: min(680px, 100%);
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dialog-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .dialog-row {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .dialog--compact {

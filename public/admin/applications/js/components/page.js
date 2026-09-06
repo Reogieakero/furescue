@@ -5,7 +5,7 @@ import { SkeletonRescuers } from "/shared/components/skeleton/skeleton.js";
 import { setNavBadge } from "/assets/js/lib/swr.js";
 import { state } from "../state.js";
 import { buildKpis, KpiTile, applicationCounts } from "./kpis.js";
-import { FilterTabs } from "./filters.js";
+import { FilterTabs, FilterToolbar } from "./filters.js";
 import { ApplicationTable } from "./table.js";
 
 function PageHead() {
@@ -30,8 +30,11 @@ function ApplicationsPanel() {
         <i data-lucide="file-check"></i>
         <h2 class="panel-title">Applications</h2>
       </div>
+      <div class="panel-head-tools">
+        <div id="application-tabs-wrap">${FilterTabs()}</div>
+      </div>
     </div>
-    <div id="application-filters">${FilterTabs()}</div>
+    <div id="application-filters">${FilterToolbar()}</div>
     <div id="application-table" class="panel-body">${ApplicationTable()}</div>
   </div>`;
 }
@@ -60,8 +63,8 @@ export function ApplicationsPage(user, { loading = false } = {}) {
 export function rerenderAll() {
   const kpis = document.getElementById("application-kpis");
   if (kpis) kpis.innerHTML = buildKpis().map(KpiTile).join("");
-  const filters = document.getElementById("application-filters");
-  if (filters) filters.innerHTML = FilterTabs();
+  const tabs = document.getElementById("application-tabs-wrap");
+  if (tabs) tabs.innerHTML = FilterTabs();
   const table = document.getElementById("application-table");
   if (table) table.innerHTML = ApplicationTable();
   const pending = applicationCounts().pending;

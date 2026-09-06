@@ -2,11 +2,6 @@
 
 require_once shared_path('search/search.php');
 
-$hrTabs = '';
-foreach ($hrFilters as $f) {
-    $activeCls = $f['key'] === 'all' ? ' is-active' : '';
-    $hrTabs .= '<button data-filter="' . e($f['key']) . '" class="q-btn' . $activeCls . '">' . e($f['label']) . ' &middot; ' . e((string) $f['count']) . '</button>';
-}
 // ui/button.js final tailwind-merge-resolved string (cva base incl. disabled:* groups
 // which shared BTN_BASE lacks — same local-emission pattern as reports/rescuers units).
 const HR_BTN_BASE = 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50';
@@ -27,10 +22,9 @@ $pageHead = '
   </div>';
 
 $controlsPanel = '
-  <div class="panel hr-toolbar-panel">
+    <div class="hr-toolbar">
     ' . toolbar_html(
-        filter_tabs_html('hr-tabs', $hrTabs)
-        . search_control('hr-search', 'Search animal, barangay, condition, vet, id…')
+        search_control('hr-search', 'Search animal, barangay, condition, vet, id…')
         . '<div class="report-sort">
         <label for="hr-range" class="report-sort-label">Range</label>
         ' . select_control('hr-range', [
@@ -49,12 +43,12 @@ $trendPanel = '
   </div>';
 
 $stackedToggle = ''
-    . '<button class="hr-toggle-btn is-active" data-species="all">All</button>'
-    . '<button class="hr-toggle-btn" data-species="dog">Dogs</button>'
-    . '<button class="hr-toggle-btn" data-species="cat">Cats</button>';
+    . '<button type="button" class="q-btn is-active" data-species="all">All &middot; ' . e((string) $countsAll) . '</button>'
+    . '<button type="button" class="q-btn" data-species="dog">Dogs &middot; ' . e((string) $countsDog) . '</button>'
+    . '<button type="button" class="q-btn" data-species="cat">Cats &middot; ' . e((string) $countsCat) . '</button>';
 $stackedPanel = '
   <div class="panel panel--padded">
     <div class="panel-title-wrap"><i data-lucide="bar-chart-3"></i><h2 class="panel-title panel-title--sm">Health by barangay</h2></div>
-    <div class="report-sort" style="margin:8px 0 12px;"><span class="hr-toggle">' . $stackedToggle . '</span></div>
+    <div class="report-sort" style="margin:8px 0 12px;">' . filter_tabs_html('hr-species-tabs', $stackedToggle) . '</div>
     <div class="hr-chart"><canvas id="hr-stacked-canvas"></canvas></div>
   </div>';

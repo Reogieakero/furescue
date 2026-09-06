@@ -15,14 +15,17 @@ export const FILTERS = [
 export function FilterTabs() {
   const c = reportCounts();
   const count = { all: c.all, pending_verification: c.pending, verified: c.verified, dismissed: c.dismissed };
+  return TabStrip({
+    id: "report-tabs",
+    children: FILTERS.map((f) =>
+      FilterTab({ key: f.key, label: `${f.label} &middot; ${count[f.key]}`, active: state.filter === f.key })
+    ).join(""),
+  });
+}
+
+export function FilterToolbar() {
   return Toolbar({
     children: `
-    ${TabStrip({
-      id: "report-tabs",
-      children: FILTERS.map((f) =>
-        FilterTab({ key: f.key, label: `${f.label} &middot; ${count[f.key]}`, active: state.filter === f.key })
-      ).join(""),
-    })}
     ${Search({ id: "report-search", placeholder: "Search case #, barangay, description…", value: state.query })}
     <div class="report-sort">
       <label for="report-sort" class="report-sort-label">Sort</label>

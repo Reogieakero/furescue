@@ -19,14 +19,16 @@ export function FilterTabs() {
     approved: c.live,
     rejected: c.rejected,
   };
+  return TabStrip({
+    id: "listing-tabs",
+    children: FILTERS.map((f) =>
+      FilterTab({ key: f.key, label: `${f.label} &middot; ${count[f.key]}`, active: state.filter === f.key })
+    ).join(""),
+  });
+}
+
+export function FilterToolbar() {
   return Toolbar({
-    children: `
-    ${TabStrip({
-      id: "listing-tabs",
-      children: FILTERS.map((f) =>
-        FilterTab({ key: f.key, label: `${f.label} &middot; ${count[f.key]}`, active: state.filter === f.key })
-      ).join(""),
-    })}
-    ${Search({ id: "listing-search", placeholder: "Search animal, poster…", value: state.query })}`,
+    children: Search({ id: "listing-search", placeholder: "Search animal, poster…", value: state.query }),
   });
 }

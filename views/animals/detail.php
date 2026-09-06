@@ -1,5 +1,5 @@
     <div class="mx-auto w-full max-w-6xl">
-      <p><a href="/animals/" class="inline-flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-primary"><i data-lucide="arrow-left" class="h-4 w-4"></i>Back to gallery</a></p>
+      <p><a href="/animals/" class="rbtn rbtn--ghost rbtn--sm"><i data-lucide="arrow-left"></i><span>Back to gallery</span></a></p>
       <div id="detail-root" aria-live="polite">
         <div class="rempty">
           <i data-lucide="loader-circle"></i>

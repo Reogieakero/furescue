@@ -4,7 +4,6 @@ import { Button } from "/shared/components/button/button.js";
 import { Select } from "/shared/components/select/select.js";
 import { Search } from "/shared/components/search/search.js";
 import { Toolbar } from "/shared/components/toolbar/toolbar.js";
-import { FilterTabs as TabStrip } from "/shared/components/filter-tabs/filter-tabs.js";
 import { setNavBadge } from "/assets/js/lib/swr.js";
 import { state, allAttentionCount } from "../state.js";
 import { KpiStrip } from "./kpis.js";
@@ -17,7 +16,7 @@ import {
   mountCharts,
   destroyCharts,
 } from "./charts.js";
-import { RecordsPanel, FilterTabs } from "./table.js";
+import { RecordsPanel } from "./table.js";
 import { AttentionPanel } from "./queue.js";
 
 function PageHead() {
@@ -37,10 +36,9 @@ function PageHead() {
 
 function ControlsPanel() {
   return `
-  <div class="panel hr-toolbar-panel">
+  <div class="hr-toolbar">
     ${Toolbar({
       children: `
-      ${TabStrip({ id: "hr-tabs", children: FilterTabs() })}
       ${Search({ id: "hr-search", placeholder: "Search animal, barangay, condition, vet, id…", value: state.query })}
       <div class="report-sort">
         <label for="hr-range" class="report-sort-label">Range</label>
@@ -98,7 +96,7 @@ export function rerenderAll() {
   set("hr-records", RecordsPanel());
 
   createIcons({ icons });
-  mountCharts();
+  void mountCharts();
 
   const attention = allAttentionCount();
   const navBadge = document.querySelector('.sidebar-link[href="/admin/health-records/"] .sidebar-badge');

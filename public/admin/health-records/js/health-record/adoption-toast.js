@@ -2,6 +2,7 @@ import { createIcons, icons } from "lucide";
 import { toast } from "/shared/components/toast/toast.js";
 import { esc } from "../health-records/components/util.js";
 import { createAdoptionListing } from "/assets/js/admin/admin-data.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { ui, record } from "./context.js";
 
 const ADOPTION_NOTIFY_MS = 15 * 60 * 1000;
@@ -100,16 +101,16 @@ function showAdoptionToast(entry) {
   el.className = "toast toast--adoption is-visible";
   el.setAttribute("role", "status");
   el.innerHTML = `
-    <i data-lucide="list-plus" class="toast-icon"></i>
-    <div class="toast-adoption-body">
+    <div class="toast-adoption-header">
+      <i data-lucide="list-plus" class="toast-icon"></i>
       <p class="toast-message">Health record updated. You can list <strong>${esc(stored.animalName || "this animal")}</strong> for adoption.</p>
-      <div class="toast-countdown">
-        <div class="toast-countdown-bar"><span class="toast-countdown-fill"></span></div>
-        <span class="toast-countdown-text">Ready in 15:00</span>
-      </div>
-      <button type="button" class="toast-adoption-btn">Add to adoption list</button>
+      <button type="button" class="toast-close" aria-label="Dismiss"><i data-lucide="x"></i></button>
     </div>
-    <button class="toast-close" aria-label="Dismiss"><i data-lucide="x"></i></button>`;
+    <div class="toast-countdown">
+      <div class="toast-countdown-bar" aria-hidden="true"><span class="toast-countdown-fill"></span></div>
+      <span class="toast-countdown-text">Ready in 15:00</span>
+    </div>
+    <button type="button" class="toast-adoption-btn">Add to adoption list</button>`;
   viewport.appendChild(el);
   createIcons({ icons });
   adoptionToastEl = el;
@@ -135,20 +136,20 @@ function showAdoptionToast(entry) {
 
   btn.addEventListener("click", async () => {
     if (btn.disabled) return;
+    const ok = await confirmDialog({
+      title: "List this animal for adoption?",
+      message: `Add "${stored.animalName || "this animal"}" to the adoption list?`,
+      confirmText: "Add",
+      cancelText: "Cancel",
+      run: () => createAdoptionListing(stored.animalId),
+    });
+    if (!ok) return;
+    stored.listed = true;
+    writeAdoptionStore(stored);
     btn.disabled = true;
-    btn.innerHTML = `<span>Saving…</span>`;
-    try {
-      await createAdoptionListing(stored.animalId);
-      stored.listed = true;
-      writeAdoptionStore(stored);
-      btn.innerHTML = `<span>Added to adoption list</span>`;
-      toast("Added to adoption list.", { type: "success" });
-      setTimeout(dismissAdoptionToast, 1500);
-    } catch (err) {
-      btn.disabled = false;
-      btn.innerHTML = `<span>Add to adoption list</span>`;
-      toast(err && err.message ? err.message : "Could not add to adoption list.", { type: "error" });
-    }
+    btn.innerHTML = `<span>Added to adoption list</span>`;
+    toast("Added to adoption list.", { type: "success" });
+    setTimeout(dismissAdoptionToast, 1500);
   });
 
   el.querySelector(".toast-close").addEventListener("click", dismissAdoptionToast);

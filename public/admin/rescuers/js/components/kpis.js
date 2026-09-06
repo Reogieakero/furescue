@@ -21,14 +21,7 @@ export function buildKpis() {
   return [
     { icon: "users", value: c.total, label: "Total rescuers", tone: "jungle" },
     { icon: "badge-check", value: c.active, label: "Active", tone: "jungle" },
-    {
-      icon: "siren",
-      value: c.onDuty,
-      label: "On duty",
-      tone: "sky",
-      trend: c.onDuty ? "On duty" : "",
-      trendTone: "up",
-    },
+    { icon: "siren", value: c.onDuty, label: "On duty", tone: "sky" },
     {
       icon: "clock",
       value: c.pending,

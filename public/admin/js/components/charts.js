@@ -1,4 +1,6 @@
 import { state } from "../state.js";
+import { loadChart } from "/assets/js/lib/load-chart.js";
+import { whenVisible } from "/assets/js/lib/when-visible.js";
 import { categoryBreakdown, healthOverview, hslToken, cssVar } from "../insights.js";
 
 const charts = { category: null, vax: null, trend: null };
@@ -52,13 +54,27 @@ function palette() {
   };
 }
 
-export function refreshCategoryChart(reports) {
+export async function refreshCategoryChart(reports) {
   const canvas = document.getElementById("reports-category-donut");
-  if (!canvas || !charts.category) return;
+  if (!canvas) return;
   const cats = categoryBreakdown(reports || []);
   const total = cats.reduce((sum, item) => sum + item.count, 0);
   const colors = palette();
   const muted = hslToken("--border") || "hsl(220 14% 88%)";
+  setCenter("reports-category-center", total, total === 1 ? "Report" : "Reports");
+  if (!charts.category) {
+    if (!total) return;
+    const Chart = await loadChart();
+    if (!Chart || !canvas.isConnected) return;
+    charts.category = donut(
+      Chart,
+      canvas,
+      cats.map((c) => c.label),
+      cats.map((c) => c.count),
+      [colors.green, colors.pending, colors.danger, colors.progress]
+    );
+    return;
+  }
   charts.category.data.labels = total ? cats.map((c) => c.label) : ["No data"];
   charts.category.data.datasets[0].data = total ? cats.map((c) => c.count) : [1];
   charts.category.data.datasets[0].backgroundColor = total
@@ -66,92 +82,115 @@ export function refreshCategoryChart(reports) {
     : [muted];
   charts.category.options.plugins.tooltip.enabled = Boolean(total);
   charts.category.update();
-  setCenter("reports-category-center", total, total === 1 ? "Report" : "Reports");
+}
+
+function seriesHasData(values) {
+  return values.some((n) => n);
 }
 
 export async function mountDashboardCharts() {
-  let Chart;
-  try {
-    ({ Chart } = await import("chart.js"));
-  } catch (err) {
-    console.warn("Chart.js failed to load", err);
-    return;
-  }
-
   Object.values(charts).forEach((c) => c && c.destroy());
   charts.category = charts.vax = charts.trend = null;
 
-  Chart.defaults.font.family = cssVar("--font-dash") || "DM Sans, sans-serif";
-  Chart.defaults.color = hslToken("--muted-foreground");
-
   const colors = palette();
   const cats = categoryBreakdown(state.reports || []);
-  charts.category = donut(
-    Chart,
-    document.getElementById("reports-category-donut"),
-    cats.map((c) => c.label),
-    cats.map((c) => c.count),
-    [colors.green, colors.pending, colors.danger, colors.progress]
-  );
-  setCenter(
-    "reports-category-center",
-    cats.reduce((sum, item) => sum + item.count, 0),
-    cats.reduce((sum, item) => sum + item.count, 0) === 1 ? "Report" : "Reports"
-  );
-
+  const catCounts = cats.map((c) => c.count);
+  const catTotal = catCounts.reduce((sum, n) => sum + n, 0);
   const health = healthOverview(state.healthRecords || []);
-  charts.vax = donut(
-    Chart,
-    document.getElementById("vax-status-donut"),
-    health.vax.map((v) => v.label),
-    health.vax.map((v) => v.count),
-    [colors.green, colors.pending, colors.danger, colors.progress]
-  );
-  setCenter(
-    "vax-status-center",
-    health.totalAnimals,
-    health.totalAnimals === 1 ? "Animal" : "Animals"
-  );
-
-  const trendCanvas = document.getElementById("reports-trend-chart");
+  const healthCounts = health.vax.map((v) => v.count);
+  const healthTotal = healthCounts.reduce((sum, n) => sum + n, 0);
   const trend = state.reportTrend || state.overview.reports_monthly || [];
-  if (trendCanvas) {
-    const counts = trend.map((d) => d.count);
-    const empty = !trend.length || counts.every((n) => !n);
-    charts.trend = new Chart(trendCanvas, {
-      type: "line",
-      data: {
-        labels: trend.length ? trend.map((d) => d.month) : ["—"],
-        datasets: [
-          {
-            label: "Reports",
-            data: trend.length ? counts : [0],
-            borderColor: colors.green,
-            backgroundColor: "transparent",
-            pointBackgroundColor: colors.green,
-            pointBorderColor: hslToken("--card") || "#fff",
-            pointBorderWidth: 2,
-            pointRadius: 5,
-            tension: 0.35,
-            borderWidth: 3,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: hslToken("--muted-foreground") } },
-          y: {
-            beginAtZero: true,
-            suggestedMax: empty ? 4 : undefined,
-            ticks: { precision: 0, color: hslToken("--muted-foreground") },
-            grid: { color: hslToken("--border") },
-            border: { display: false },
-          },
-        },
+  const trendCounts = trend.map((d) => d.count);
+  const trendHasData = trend.length && seriesHasData(trendCounts);
+
+  setCenter("reports-category-center", catTotal, catTotal === 1 ? "Report" : "Reports");
+  setCenter("vax-status-center", health.totalAnimals, health.totalAnimals === 1 ? "Animal" : "Animals");
+
+  const jobs = [];
+  if (catTotal) {
+    jobs.push({
+      el: document.getElementById("reports-category-donut"),
+      mount: (Chart) => {
+        charts.category = donut(
+          Chart,
+          document.getElementById("reports-category-donut"),
+          cats.map((c) => c.label),
+          catCounts,
+          [colors.green, colors.pending, colors.danger, colors.progress]
+        );
       },
     });
   }
+  if (healthTotal) {
+    jobs.push({
+      el: document.getElementById("vax-status-donut"),
+      mount: (Chart) => {
+        charts.vax = donut(
+          Chart,
+          document.getElementById("vax-status-donut"),
+          health.vax.map((v) => v.label),
+          healthCounts,
+          [colors.green, colors.pending, colors.danger, colors.progress]
+        );
+      },
+    });
+  }
+  if (trendHasData) {
+    jobs.push({
+      el: document.getElementById("reports-trend-chart"),
+      mount: (Chart) => {
+        const trendCanvas = document.getElementById("reports-trend-chart");
+        if (!trendCanvas) return;
+        charts.trend = new Chart(trendCanvas, {
+          type: "line",
+          data: {
+            labels: trend.map((d) => d.month),
+            datasets: [
+              {
+                label: "Reports",
+                data: trendCounts,
+                borderColor: colors.green,
+                backgroundColor: "transparent",
+                pointBackgroundColor: colors.green,
+                pointBorderColor: hslToken("--card") || "#fff",
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                tension: 0.35,
+                borderWidth: 3,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: hslToken("--muted-foreground") } },
+              y: {
+                beginAtZero: true,
+                ticks: { precision: 0, color: hslToken("--muted-foreground") },
+                grid: { color: hslToken("--border") },
+                border: { display: false },
+              },
+            },
+          },
+        });
+      },
+    });
+  }
+
+  const readyJobs = jobs.filter((job) => job.el);
+  if (!readyJobs.length) return;
+
+  await Promise.all(
+    readyJobs.map(async (job) => {
+      await whenVisible(job.el);
+      if (!job.el.isConnected) return;
+      const Chart = await loadChart();
+      if (!Chart || !job.el.isConnected) return;
+      Chart.defaults.font.family = cssVar("--font-dash") || "DM Sans, sans-serif";
+      Chart.defaults.color = hslToken("--muted-foreground");
+      job.mount(Chart);
+    })
+  );
 }

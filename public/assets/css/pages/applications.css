@@ -7,7 +7,7 @@
 }
 
 #application-table .table-wrap {
-  overflow-x: auto;
+  overflow: auto;
   max-width: 100%;
 }
 

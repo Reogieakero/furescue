@@ -3,7 +3,6 @@ import { Button } from "/shared/components/button/button.js";
 import { timeAgo } from "/admin/js/helpers.js";
 import { state } from "../state.js";
 import {
-  PAGE_SIZE,
   categoryMeta,
   esc,
   emptyState,
@@ -85,14 +84,11 @@ export function LibraryBody() {
     const block = `<div class="queue-empty">${emptyState(empty.icon, empty.text)}</div>`;
     return `<div class="elearn-cards">${block}</div><div class="elearn-table">${block}</div>`;
   }
-  const start = (state.page - 1) * PAGE_SIZE;
-  const pageRows = list.slice(start, start + PAGE_SIZE);
+  const start = (state.page - 1) * state.pageSize;
+  const pageRows = list.slice(start, start + state.pageSize);
   const cards = pageRows.map(moduleCard).join("");
   const rows = pageRows.map(moduleRow).join("");
-  const pagination =
-    list.length > PAGE_SIZE
-      ? `<div class="queue-pagination">${PaginationBar({ total: list.length, perPage: PAGE_SIZE, page: state.page })}</div>`
-      : "";
+  const pagination = `<div class="queue-pagination">${PaginationBar({ total: list.length, perPage: state.pageSize, page: state.page })}</div>`;
   return `
     <div class="elearn-cards">${cards}</div>
     <div class="elearn-table table-wrap">

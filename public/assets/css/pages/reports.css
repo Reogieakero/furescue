@@ -1,8 +1,7 @@
 /* Report table pagination from 05_audit.css. */
 
 #report-table .queue-pagination {
-  display: flex;
-  justify-content: flex-end;
+  display: block;
 }
 #report-table .queue-pagination nav[aria-label="Pagination"] {
   width: auto;

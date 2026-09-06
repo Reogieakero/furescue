@@ -62,7 +62,7 @@ if ($isResolved) {
 $pageHeadHtml = '
   <div class="page-head">
     <div>
-      <a href="/admin/cases/" class="cd-back"><i data-lucide="chevron-left"></i> Back to cases</a>
+      ' . button_anchor_html('/admin/cases/', 'Back to cases', 'outline', 'sm', '', 'arrow-left') . '
     </div>
     ' . $actionsHtml . '
   </div>';

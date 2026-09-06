@@ -15,11 +15,11 @@ export function renderOverview(rows) {
   }
   wrap.innerHTML = `
     <table class="table">
-      <thead><tr class="table-head"><th>Metric</th><th>Value</th></tr></thead>
+      <thead><tr class="table-head"><th>Metric</th><th class="table-cell--right">Value</th></tr></thead>
       <tbody>${rows.map((r) => `
         <tr>
           <td class="table-cell">${esc(OVERVIEW_LABELS[r.key] ?? r.key ?? "")}</td>
-          <td class="table-cell table-cell--mono table-cell--strong">${esc(r.value ?? 0)}</td>
+          <td class="table-cell table-cell--mono table-cell--strong table-cell--right">${esc(r.value ?? 0)}</td>
         </tr>`).join("")}</tbody>
     </table>`;
 }
@@ -34,11 +34,11 @@ export function renderTrends(rows) {
   }
   wrap.innerHTML = `
     <table class="table">
-      <thead><tr class="table-head"><th>Day</th><th>Completed adoptions</th></tr></thead>
+      <thead><tr class="table-head"><th>Day</th><th class="table-cell--right">Completed adoptions</th></tr></thead>
       <tbody>${rows.map((t) => `
         <tr>
           <td class="table-cell table-cell--mono">${esc(t.day ?? "")}</td>
-          <td class="table-cell table-cell--mono table-cell--strong">${esc(t.completed ?? 0)}</td>
+          <td class="table-cell table-cell--mono table-cell--strong table-cell--right">${esc(t.completed ?? 0)}</td>
         </tr>`).join("")}</tbody>
     </table>`;
 }

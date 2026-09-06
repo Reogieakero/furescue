@@ -1,4 +1,5 @@
 import { createIcons, icons } from "lucide";
+import { readPageClick, readPageSizeChange } from "/shared/components/pagination/pagination.js";
 import { state } from "../state.js";
 import { ListingTable, rerenderAll } from "../components.js";
 import { filteredListings } from "../components/table.js";
@@ -36,10 +37,8 @@ export function initListingsEvents() {
       return;
     }
 
-    const pageBtn = e.target.closest("button[data-page]");
-    if (pageBtn) {
-      const page = parseInt(pageBtn.dataset.page, 10);
-      if (!page || page === state.page) return;
+    const page = readPageClick(e.target, state.page);
+    if (page) {
       state.page = page;
       const table = document.getElementById("listing-table");
       if (table) {
@@ -56,6 +55,18 @@ export function initListingsEvents() {
       const id = actionEl.dataset.id;
       if (action === "approve") return runApprove(id);
       if (action === "reject") return runReject(id);
+    }
+  });
+
+  main.addEventListener("change", (e) => {
+    const next = readPageSizeChange(e.target, state.pageSize);
+    if (!next) return;
+    state.pageSize = next;
+    state.page = 1;
+    const table = document.getElementById("listing-table");
+    if (table) {
+      table.innerHTML = ListingTable();
+      createIcons({ icons });
     }
   });
 

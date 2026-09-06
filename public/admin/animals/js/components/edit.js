@@ -2,6 +2,7 @@ import { createIcons, icons } from "lucide";
 import { Button } from "/shared/components/button/button.js";
 import { Spinner } from "/shared/components/spinner/spinner.js";
 import { fetchAnimalHealthRecord, updateAnimal } from "/assets/js/admin/admin-data.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { parsePhoto360, saveAnimalAssets } from "../state.js";
 import { bindProfileAssets, clientAssetError, profileAssetsFields, readProfileAssets } from "./profile-assets.js";
 import { resizeImage } from "./util.js";
@@ -208,7 +209,9 @@ export async function openEditAnimalDialog(animal) {
       resolve(null);
     };
 
+    let busy = false;
     const submit = async () => {
+      if (busy) return;
       const name = nameEl.value.trim();
       const age = ageEl && ageEl.value.trim() ? `${ageEl.value.trim()} ${form.ageUnit}` : null;
       const assets = readProfileAssets(overlay, "ea");
@@ -254,6 +257,25 @@ export async function openEditAnimalDialog(animal) {
         }
       }
       if (form.photo && form.photo !== animal.photo) body.photo_urls = [form.photo];
+      const removals = [];
+      if (assets.removeModel && !assets.modelFile) removals.push("the attached 3D model");
+      if (assets.remove360 && !(assets.photo360Files && assets.photo360Files.length)) {
+        removals.push("the 360° photo set");
+      }
+      busy = true;
+      const confirmed = await confirmDialog({
+        title: "Save changes to this animal?",
+        message: removals.length
+          ? `Save changes to "${name || animal.name}"? This will also delete ${removals.join(" and ")}.`
+          : `Save changes to "${name || animal.name}"?`,
+        confirmText: "Save",
+        cancelText: "Cancel",
+        danger: removals.length > 0,
+      });
+      if (!confirmed) {
+        busy = false;
+        return;
+      }
       const okBtn = overlay.querySelector('[data-act="ok"]');
       okBtn.disabled = true;
       okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Saving…</span>`;
@@ -265,6 +287,7 @@ export async function openEditAnimalDialog(animal) {
         overlay.remove();
         resolve(updated || animal);
       } catch (err) {
+        busy = false;
         okBtn.disabled = false;
         okBtn.innerHTML = `<i data-lucide="check"></i><span>Save changes</span>`;
         createIcons({ icons });

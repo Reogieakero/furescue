@@ -65,4 +65,10 @@ $adminNav = [
             ['key' => 'notifications', 'label' => 'Notifications', 'href' => '/admin/notifications/', 'icon' => 'bell', 'badgeKey' => 'notifications', 'badgeCls' => 'stamp--coral'],
         ],
     ],
+    [
+        'label' => 'System',
+        'items' => [
+            ['key' => 'users', 'label' => 'Users', 'href' => '/admin/users/', 'icon' => 'users'],
+        ],
+    ],
 ];

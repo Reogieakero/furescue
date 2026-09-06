@@ -176,6 +176,17 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .dash > .kpi-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .dash > .kpi-grid .kpi-card {
+    padding: 1rem;
+  }
+}
+
 .dash-kicker {
   display: inline-flex;
   align-items: center;
@@ -219,15 +230,22 @@
 }
 
 .dash .table-head th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: hsl(var(--card));
   font-family: var(--font-dash);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.04em;
   color: hsl(var(--muted-foreground));
   border-bottom: 1px solid hsl(var(--border));
 }
 
-.dash .table tbody tr {
+.dash .table tbody td {
   border-bottom: 1px solid hsl(var(--border));
+}
+.dash .table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .dash .table tbody tr:hover {

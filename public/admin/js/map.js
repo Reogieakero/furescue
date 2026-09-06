@@ -2,6 +2,8 @@ import { createIcons, icons } from "lucide";
 import { initSelect, setSelectValue } from "/shared/components/select/select.js";
 import { initDateRangePicker, setDateRange } from "/shared/components/date-range-picker/date-range-picker.js";
 import { downloadCsv, datedCsvName } from "/assets/js/lib/csv.js";
+import { ensureLeaflet } from "/assets/js/lib/leaflet.js";
+import { whenVisible } from "/assets/js/lib/when-visible.js";
 import { classifyReportType, displayStatus, cssVar, hslToken, categoryBreakdown, densitySummary } from "./insights.js";
 import { categoryLegendHtml, densityRowsHtml } from "./components/gis.js";
 import { refreshCategoryChart } from "./components/charts.js";
@@ -104,14 +106,27 @@ function renderLayers() {
   syncSidebar(points);
 }
 
-export function initCaseDensityMap(points) {
+export async function initCaseDensityMap(points) {
   const el = document.getElementById("case-density-map");
   allPoints = points || [];
-  if (!el || !window.L || !window.L.heatLayer) {
-    if (el && !window.L) console.warn("Leaflet not loaded; heatmap skipped.");
-    if (el && window.L && !window.L.heatLayer) console.warn("leaflet.heat not loaded; heatmap skipped.");
+  if (!el) return null;
+  if (mapApi?.map && mapApi.map.getContainer() === el) {
+    renderLayers();
+    return mapApi;
+  }
+
+  const token = String(Date.now());
+  el.dataset.mapToken = token;
+  await whenVisible(el);
+  if (el.dataset.mapToken !== token || !el.isConnected) return null;
+
+  const ready = await ensureLeaflet({ heat: true });
+  if (!ready || !window.L || !window.L.heatLayer) {
+    if (!window.L) console.warn("Leaflet not loaded; heatmap skipped.");
+    else if (!window.L.heatLayer) console.warn("leaflet.heat not loaded; heatmap skipped.");
     return null;
   }
+  if (el.dataset.mapToken !== token || !el.isConnected) return null;
 
   const map = L.map(el, {
     center: MATI_CENTER,

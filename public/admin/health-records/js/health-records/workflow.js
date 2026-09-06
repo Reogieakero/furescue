@@ -1,7 +1,8 @@
 import { createIcons, icons } from "lucide";
+import { readPageClick, readPageSizeChange } from "/shared/components/pagination/pagination.js";
 import { state, visibleRecords } from "./state.js";
 import { rerenderAll } from "./components.js";
-import { RecordsPanel, FilterTabs } from "./components/table.js";
+import { RecordsPanel } from "./components/table.js";
 import { AttentionPanel } from "./components/queue.js";
 import { StackedPanel, destroyCharts, mountCharts } from "./components/charts.js";
 import { initSelect } from "/shared/components/select/select.js";
@@ -10,7 +11,6 @@ import { datedCsvName, downloadCsv } from "/assets/js/lib/csv.js";
 
 let eventsReady = false;
 let searchTimer = null;
-let ignoreSearchInput = false;
 
 function setRegion(id, html) {
   const el = document.getElementById(id);
@@ -23,7 +23,7 @@ function remountStacked() {
   destroyCharts();
   setRegion("hr-stacked", StackedPanel());
   createIcons({ icons });
-  mountCharts();
+  void mountCharts();
 }
 
 function refreshRecords() {
@@ -62,43 +62,25 @@ export function initHealthRecordsEvents() {
       if (species) {
         state.species = species.dataset.species;
         state.page = 1;
-        const toggle = document.querySelector(".hr-toggle");
+        const toggle = document.getElementById("hr-species-tabs");
         if (toggle)
           toggle.querySelectorAll("[data-species]").forEach((b) => b.classList.toggle("is-active", b === species));
         remountStacked();
         return;
       }
 
-      const pageBtn = e.target.closest("button[data-page]");
-      if (pageBtn) {
-        const page = parseInt(pageBtn.dataset.page, 10);
-        if (!page || page === state.page) return;
+      const page = readPageClick(e.target, state.page);
+      if (page) {
         state.page = page;
         refreshRecords();
         return;
       }
 
-      const card = e.target.closest("button[data-queue-card]");
-      if (card) {
-        const name = card.dataset.animal || "";
-        clearTimeout(searchTimer);
-        ignoreSearchInput = true;
-        state.query = name;
-        state.filter = "all";
-        state.page = 1;
-        const tabs = document.getElementById("hr-tabs");
-        if (tabs) tabs.innerHTML = FilterTabs();
-        rerenderAll();
-        const search = document.getElementById("hr-search");
-        if (search) search.value = name;
-        setTimeout(() => {
-          ignoreSearchInput = false;
-        }, 250);
-        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        document.getElementById("hr-records")?.scrollIntoView({
-          behavior: reduce ? "auto" : "smooth",
-          block: "start",
-        });
+      const row = e.target.closest("#hr-records tr[data-href]");
+      if (row) {
+        if (e.target.closest("a, button")) return;
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        window.location.href = row.dataset.href;
         return;
       }
 
@@ -136,9 +118,17 @@ export function initHealthRecordsEvents() {
       }
     });
 
+    app.addEventListener("change", (e) => {
+      const next = readPageSizeChange(e.target, state.pageSize);
+      if (!next) return;
+      state.pageSize = next;
+      state.page = 1;
+      refreshRecords();
+    });
+
     app.addEventListener("input", (e) => {
       const s = e.target.closest("#hr-search");
-      if (!s || ignoreSearchInput) return;
+      if (!s) return;
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
         state.query = s.value;

@@ -1,12 +1,12 @@
-import { queueState } from "../state.js";
+import { queueState, queuePageSize } from "../state.js";
 import { initials } from "../helpers.js";
 import { PaginationBar } from "/shared/components/pagination/pagination.js";
 
 export { EmptyState } from "/shared/components/empty-state/empty-state.js";
 export { TableHead } from "/shared/components/table/table.js";
 
-export const QUEUE_PAGE_SIZE = 7;
-export const ACTIVITY_PAGE_SIZE = 5;
+export const QUEUE_PAGE_SIZE = 10;
+export const ACTIVITY_PAGE_SIZE = 10;
 
 export const ChevronRight = () => '<i data-lucide="chevron-right" class="link-chevron"></i>';
 
@@ -24,11 +24,12 @@ export function rescuerAvatar(src, name) {
 
 export function slicePage(items, key) {
   const page = queueState[key] || 1;
-  const start = (page - 1) * QUEUE_PAGE_SIZE;
-  return items.slice(start, start + QUEUE_PAGE_SIZE);
+  const perPage = queuePageSize[key] || QUEUE_PAGE_SIZE;
+  const start = (page - 1) * perPage;
+  return items.slice(start, start + perPage);
 }
 
 export function paginationBar(key, total) {
-  if (total <= QUEUE_PAGE_SIZE) return "";
-  return `<div class="queue-pagination">${PaginationBar({ total, perPage: QUEUE_PAGE_SIZE, page: queueState[key] || 1 })}</div>`;
+  const perPage = queuePageSize[key] || QUEUE_PAGE_SIZE;
+  return `<div class="queue-pagination">${PaginationBar({ total, perPage, page: queueState[key] || 1 })}</div>`;
 }

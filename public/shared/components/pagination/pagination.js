@@ -1,11 +1,41 @@
 import { cn } from "/assets/js/lib/utils.js";
 
+export const TABLE_PAGE_SIZES = [10, 20, 50, 100];
+export const DEFAULT_TABLE_PAGE_SIZE = 20;
+
+export function clampPageSize(value, fallback = DEFAULT_TABLE_PAGE_SIZE) {
+  const n = Number(value);
+  return TABLE_PAGE_SIZES.includes(n) ? n : fallback;
+}
+
+export function pageSizeOptions(current) {
+  const n = Number(current);
+  if (!n || TABLE_PAGE_SIZES.includes(n)) return TABLE_PAGE_SIZES;
+  return [...TABLE_PAGE_SIZES, n].sort((a, b) => a - b);
+}
+
+export function readPageClick(target, currentPage) {
+  const btn = target && target.closest && target.closest("button[data-page]");
+  if (!btn || btn.getAttribute("aria-disabled") === "true") return null;
+  const page = parseInt(btn.dataset.page, 10);
+  if (!page || page === currentPage) return null;
+  return page;
+}
+
+export function readPageSizeChange(target, currentSize) {
+  const sel = target && target.closest && target.closest("[data-per-page]");
+  if (!sel) return null;
+  const next = Number(sel.value);
+  if (!Number.isFinite(next) || next < 1 || next === currentSize) return null;
+  return next;
+}
+
 export function Pagination({ children = "", className = "" } = {}) {
-  return `<nav class="${cn("mx-auto flex w-full justify-center", className)}" aria-label="Pagination">${children}</nav>`;
+  return `<nav class="${cn("flex w-auto justify-end", className)}" aria-label="Pagination">${children}</nav>`;
 }
 
 export function PaginationContent({ children = "", className = "" } = {}) {
-  return `<ul class="${cn("flex items-center gap-1", className)}">${children}</ul>`;
+  return `<ul class="${cn("flex flex-wrap items-center gap-1", className)}">${children}</ul>`;
 }
 
 export function PaginationItem(childrenOrObj = "", className = "") {
@@ -62,16 +92,34 @@ function pageItems(current, total) {
   return out;
 }
 
+function PageSizeControl({ perPage, total = 0, page = 1 } = {}) {
+  const sizes = pageSizeOptions(perPage);
+  const pageTotal = Math.max(1, Math.ceil(total / Math.max(1, perPage)));
+  const cur = Math.min(Math.max(1, page), pageTotal);
+  const from = total === 0 ? 0 : (cur - 1) * perPage + 1;
+  const to = Math.min(total, cur * perPage);
+  const options = sizes
+    .map((n) => `<option value="${n}"${n === perPage ? " selected" : ""}>${n}</option>`)
+    .join("");
+  return `
+  <div class="pagination-meta">
+    <label class="pagination-page-size">
+      <span class="pagination-page-size-label">Rows per page</span>
+      <select class="pagination-page-size-select" data-per-page aria-label="Rows per page">${options}</select>
+    </label>
+    <span class="pagination-range">${from}–${to} of ${total}</span>
+  </div>`;
+}
+
 export function PaginationBar({ total = 0, perPage = 10, page = 1, className = "" } = {}) {
-  const pageTotal = Math.max(1, Math.ceil(total / perPage));
+  const pageTotal = Math.max(1, Math.ceil(total / Math.max(1, perPage)));
   const cur = Math.min(Math.max(1, page), pageTotal);
   const items = pageItems(cur, pageTotal).map((p) =>
     p === "ellipsis"
       ? PaginationItem(PaginationEllipsis())
       : PaginationItem(PaginationLink({ page: p, isActive: p === cur }))
   );
-  return Pagination({
-    className,
+  return `<div class="${cn("pagination-bar", className)}">${PageSizeControl({ perPage, total, page: cur })}${Pagination({
     children: PaginationContent({
       children: [
         PaginationItem(PaginationPrevious({ page: Math.max(1, cur - 1), disabled: cur <= 1 })),
@@ -79,5 +127,5 @@ export function PaginationBar({ total = 0, perPage = 10, page = 1, className = "
         PaginationItem(PaginationNext({ page: Math.min(pageTotal, cur + 1), disabled: cur >= pageTotal })),
       ].join(""),
     }),
-  });
+  })}</div>`;
 }

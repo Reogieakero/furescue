@@ -1,6 +1,7 @@
 import { createIcons, icons } from "lucide";
 import { openDrawer } from "/shared/components/drawer/drawer.js";
 import { Spinner } from "/shared/components/spinner/spinner.js";
+import { mountPinMap } from "/assets/js/lib/leaflet.js";
 import * as api from "/assets/js/admin/admin-data.js";
 import { esc } from "../components/util.js";
 import { shortId, titleCase } from "/admin/js/helpers.js";
@@ -30,13 +31,12 @@ export function openReportDrawer(id) {
       const lng = Number(r.longitude);
       const mapEl = bodyEl.querySelector("#report-detail-map");
       let marker = null;
-      if (window.L && mapEl && Number.isFinite(lat) && Number.isFinite(lng)) {
-        const map = window.L.map(mapEl).setView([lat, lng], 15);
-        window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "&copy; OpenStreetMap contributors",
-        }).addTo(map);
-        marker = window.L.marker([lat, lng]).addTo(map).bindPopup(esc(r.address_text || "Report location"));
-        setTimeout(() => map.invalidateSize(), 300);
+      let pendingPopup = null;
+      if (mapEl && Number.isFinite(lat) && Number.isFinite(lng)) {
+        void mountPinMap(mapEl, lat, lng, { popup: esc(r.address_text || "Report location") }).then((mapApi) => {
+          marker = mapApi?.marker || null;
+          if (pendingPopup && marker) marker.setPopupContent(pendingPopup);
+        });
       }
       const capEl = bodyEl.querySelector("#drawer-reported-text");
       if (capEl) typewriter(capEl, `Reported at ${r.address_text || "Mati City"}`);
@@ -53,7 +53,10 @@ export function openReportDrawer(id) {
             locEl.classList.remove("loc-loading");
           }
           if (subEl) subEl.textContent = sub || (specific ? "" : fallback);
-          if (specific && marker) marker.setPopupContent(esc(specific));
+          if (specific) {
+            pendingPopup = esc(specific);
+            if (marker) marker.setPopupContent(pendingPopup);
+          }
         }).catch(() => {
           if (locEl) {
             locEl.textContent = fallback;

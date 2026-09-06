@@ -3,6 +3,7 @@ import { hasPageSession, PORTAL_ROLES, requireAuth, apiFetch, redirectToLogin } 
 import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { initResidentShell } from "/assets/js/components/resident-shell.js";
 import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { initAccountPhoto, refreshPhotoInitials } from "/account/js/photo.js";
 
 const el = (id) => document.getElementById(id);
@@ -36,6 +37,12 @@ async function onSubmit(event, user) {
     showFormError("Full name is required.");
     return;
   }
+  const ok = await confirmDialog({
+    title: "Update this account?",
+    message: "This will save changes to your profile.",
+    confirmText: "Update account",
+  });
+  if (!ok) return;
   if (btn) btn.disabled = true;
   try {
     await apiFetch(`/users/${encodeURIComponent(user.id)}`, {

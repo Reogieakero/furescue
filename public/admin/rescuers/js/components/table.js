@@ -5,8 +5,6 @@ import { shortId, timeAgo } from "/admin/js/helpers.js";
 import { rescuerAvatar } from "/admin/js/components/util.js";
 import { state } from "../state.js";
 
-const PAGE_SIZE = 10;
-
 function filteredRescuers() {
   const q = state.query.trim().toLowerCase();
   let list = state.rescuers;
@@ -81,8 +79,8 @@ function applicantRow(r) {
 }
 
 function paged(list) {
-  const start = (state.page - 1) * PAGE_SIZE;
-  return list.slice(start, start + PAGE_SIZE);
+  const start = (state.page - 1) * state.pageSize;
+  return list.slice(start, start + state.pageSize);
 }
 
 function ActiveTable() {
@@ -91,10 +89,7 @@ function ActiveTable() {
     return `<div class="queue-empty"><div class="empty-state"><i data-lucide="siren"></i><span>No rescuers match.</span></div></div>`;
   }
   const rows = paged(list).map(rescuerRow).join("");
-  const pagination =
-    list.length > PAGE_SIZE
-      ? `<div class="queue-pagination">${PaginationBar({ total: list.length, perPage: PAGE_SIZE, page: state.page })}</div>`
-      : "";
+  const pagination = `<div class="queue-pagination">${PaginationBar({ total: list.length, perPage: state.pageSize, page: state.page })}</div>`;
   return `
     <div class="table-wrap">
       <table class="table">
@@ -115,10 +110,7 @@ function PendingTable() {
     return `<div class="queue-empty"><div class="empty-state"><i data-lucide="user-check"></i><span>No applications match.</span></div></div>`;
   }
   const rows = paged(list).map(applicantRow).join("");
-  const pagination =
-    list.length > PAGE_SIZE
-      ? `<div class="queue-pagination">${PaginationBar({ total: list.length, perPage: PAGE_SIZE, page: state.page })}</div>`
-      : "";
+  const pagination = `<div class="queue-pagination">${PaginationBar({ total: list.length, perPage: state.pageSize, page: state.page })}</div>`;
   return `
     <div class="table-wrap">
       <table class="table">

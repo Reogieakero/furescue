@@ -17,7 +17,7 @@ async function refresh() {
 async function runApprove(id) {
   const u = state.pending.find((x) => x.id === id);
   const ok = await confirmDialog({
-    title: "Approve rescuer",
+    title: "Approve this rescuer?",
     message: `Approve ${u ? u.full_name : shortId(id)} as a rescuer?`,
     confirmText: "Approve",
     run: () => api.approveRescuer(id),
@@ -30,8 +30,8 @@ async function runApprove(id) {
 async function runReject(id) {
   const u = state.pending.find((x) => x.id === id);
   const ok = await confirmDialog({
-    title: "Reject rescuer",
-    message: `Reject ${u ? u.full_name : shortId(id)}'s application?`,
+    title: "Reject this rescuer?",
+    message: `Reject ${u ? u.full_name : shortId(id)}'s rescuer application?`,
     danger: true,
     withReason: true,
     reasonRequired: true,
@@ -45,9 +45,11 @@ async function runReject(id) {
 }
 
 async function runSuspend(id) {
+  const u = [...state.rescuers, ...state.pending].find((x) => x.id === id);
+  const name = (u && u.full_name) || shortId(id);
   const ok = await confirmDialog({
-    title: "Suspend rescuer",
-    message: `Suspend ${shortId(id)}? They will lose rescue access until reactivated.`,
+    title: "Suspend this rescuer?",
+    message: `Suspend ${name}? They will lose rescue access until reactivated.`,
     danger: true,
     withReason: true,
     reasonRequired: true,
@@ -61,9 +63,11 @@ async function runSuspend(id) {
 }
 
 async function runActivate(id) {
+  const u = [...state.rescuers, ...state.pending].find((x) => x.id === id);
+  const name = (u && u.full_name) || shortId(id);
   const ok = await confirmDialog({
-    title: "Activate rescuer",
-    message: `Reactivate ${shortId(id)}?`,
+    title: "Activate this rescuer?",
+    message: `Reactivate ${name} as a rescuer?`,
     confirmText: "Activate",
     run: () => api.setUserStatus(id, "active"),
   });

@@ -8,6 +8,10 @@ export function esc(value) {
   }[c]));
 }
 
+export function recordHref(id) {
+  return `/admin/health-records/health-record.php?id=${encodeURIComponent(id ?? "")}`;
+}
+
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export function fmtDate(value, style = "short") {

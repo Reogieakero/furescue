@@ -6,6 +6,7 @@ export const state = {
   filter: "all",
   query: "",
   page: 1,
+  pageSize: 20,
   error: null,
 };
 

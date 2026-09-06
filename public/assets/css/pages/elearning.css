@@ -5,14 +5,63 @@
   max-width: 100%;
 }
 
-.elearn-page .report-search {
+.elearn-page .panel-head-tools {
+  flex: 1 1 100%;
   min-width: 0;
-  flex: 1 1 12rem;
+  max-width: 100%;
+  margin-left: 0;
+}
+
+.elearn-page .panel-head-tools .search-field,
+.elearn-page .panel-head-tools .report-search {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
   max-width: 100%;
 }
 
-.elearn-page .elearn-cat-toolbar {
+.elearn-page #elearn-filters {
+  min-width: 0;
+}
+
+.elearn-page .elearn-filter-toolbar {
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+  max-width: 100%;
   margin-top: 0;
+}
+
+.elearn-page .elearn-filter-toolbar .q-tabs {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .elearn-page .panel-head-tools {
+    flex: 1 1 16rem;
+    max-width: 22rem;
+    margin-left: auto;
+  }
+
+  .elearn-page .elearn-filter-toolbar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  .elearn-page .elearn-filter-toolbar .q-tabs {
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+@media (min-width: 1440px) {
+  .elearn-page .panel-head-tools {
+    max-width: 24rem;
+  }
 }
 
 .elearn-cards {
@@ -103,6 +152,6 @@
 
 .elearn-page .queue-pagination ul {
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 4px;
 }

@@ -7,6 +7,7 @@ import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu
 import { initSelect } from "/shared/components/select/select.js";
 import { toast } from "/shared/components/toast/toast.js";
 import { EmptyState } from "/shared/components/empty-state/empty-state.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 
 const MAX_LENGTH = 1000;
 
@@ -15,6 +16,13 @@ const TARGET_MAP = {
   "role:resident": ["role:resident"],
   "role:rescuer": ["role:rescuer"],
   staff: ["role:admin", "role:rescuer"],
+};
+
+const TARGET_LABELS = {
+  all: "everyone",
+  "role:resident": "residents",
+  "role:rescuer": "rescuers",
+  staff: "staff (admins and rescuers)",
 };
 
 let selectedTarget = "all";
@@ -119,9 +127,20 @@ function initForm() {
       messageEl?.focus();
       return;
     }
-    const targets = TARGET_MAP[selectedTarget] || TARGET_MAP.all;
+    const audience = TARGET_LABELS[selectedTarget] || "the selected audience";
     inFlight = true;
     sendBtn.disabled = true;
+    const ok = await confirmDialog({
+      title: "Send this announcement?",
+      message: `This will notify ${audience}.`,
+      confirmText: "Send",
+    });
+    if (!ok) {
+      inFlight = false;
+      sendBtn.disabled = false;
+      return;
+    }
+    const targets = TARGET_MAP[selectedTarget] || TARGET_MAP.all;
     try {
       const payload = await apiFetchFull("/admin/notifications/broadcast", {
         method: "POST",

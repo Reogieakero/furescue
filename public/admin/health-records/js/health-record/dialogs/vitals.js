@@ -1,9 +1,9 @@
 import { createIcons, icons } from "lucide";
 import { Button } from "/shared/components/button/button.js";
 import { initSelect } from "/shared/components/select/select.js";
-import { Spinner } from "/shared/components/spinner/spinner.js";
 import { toast } from "/shared/components/toast/toast.js";
 import { addAnimalVital, upsertAnimalMedical } from "/assets/js/admin/admin-data.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { record, reloadRecord, syncHidden } from "../context.js";
 import { selectField, VITAL_OPTIONS } from "../util.js";
 import { maybeNotifyAdoptionReady } from "../adoption-toast.js";
@@ -48,10 +48,11 @@ export async function openVitalDialog(prefill = null) {
   });
 
   const errorEl = overlay.querySelector("#vital-error");
-  const okBtn = overlay.querySelector('[data-act="ok"]');
   const close = () => overlay.remove();
+  let busy = false;
 
   const submit = async () => {
+    if (busy) return;
     const label = (overlay.querySelector("#vital-type-value")?.value || "").trim();
     if (!label) {
       errorEl.textContent = "Please select a vital.";
@@ -70,27 +71,30 @@ export async function openVitalDialog(prefill = null) {
       errorEl.hidden = false;
       return;
     }
-    okBtn.disabled = true;
-    okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Saving…</span>`;
-    try {
-      if (label === "Weight") {
-        await upsertAnimalMedical(record.id, { weight_kg: value });
-      } else if (label === "Body Temperature") {
-        await upsertAnimalMedical(record.id, { temperature_c: value });
-      } else {
-        await addAnimalVital(record.id, { heart_rate_bpm: value });
-      }
-      toast("Vital sign saved.", { type: "success" });
-      maybeNotifyAdoptionReady("vital");
-      close();
-      await reloadRecord();
-    } catch (err) {
-      okBtn.disabled = false;
-      okBtn.innerHTML = `<i data-lucide="heart-pulse"></i><span>Save</span>`;
-      createIcons({ icons });
-      errorEl.textContent = err && err.message ? err.message : "Could not save vital sign.";
-      errorEl.hidden = false;
+    busy = true;
+    const confirmed = await confirmDialog({
+      title: prefill ? "Save changes to this vital sign?" : "Save this vital sign?",
+      message: `Save ${label} for "${record.name || "this animal"}"?`,
+      confirmText: "Save",
+      cancelText: "Cancel",
+      run: async () => {
+        if (label === "Weight") {
+          await upsertAnimalMedical(record.id, { weight_kg: value });
+        } else if (label === "Body Temperature") {
+          await upsertAnimalMedical(record.id, { temperature_c: value });
+        } else {
+          await addAnimalVital(record.id, { heart_rate_bpm: value });
+        }
+      },
+    });
+    if (!confirmed) {
+      busy = false;
+      return;
     }
+    toast("Vital sign saved.", { type: "success" });
+    maybeNotifyAdoptionReady("vital");
+    close();
+    await reloadRecord();
   };
 
   overlay.querySelector('[data-act="cancel"]').addEventListener("click", close);

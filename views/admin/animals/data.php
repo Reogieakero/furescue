@@ -104,10 +104,10 @@ $counts = [
 
 $noMedical = count(array_filter($animals, static fn(array $a) => empty($a['hasMedical'])));
 $animalKpiData = [
-    ['icon' => 'paw-print', 'value' => $counts['all'], 'label' => 'Total', 'tone' => 'jungle', 'filter' => 'all', 'trend' => null, 'desc' => 'Every animal currently in the shelter system.'],
-    ['icon' => 'check-circle-2', 'value' => $counts['Available'], 'label' => 'Available', 'tone' => 'sky', 'filter' => 'Available', 'trend' => null, 'desc' => 'Animals listed and ready for adoption.'],
-    ['icon' => 'hourglass', 'value' => $counts['Pending'], 'label' => 'Pending', 'tone' => 'amber', 'filter' => 'Pending', 'trend' => null, 'desc' => 'In-care animals on hold pending adoption or review.'],
-    ['icon' => 'heart', 'value' => $counts['Adopted'], 'label' => 'Adopted', 'tone' => 'ink', 'filter' => 'Adopted', 'trend' => null, 'desc' => 'Animals that have already been adopted.'],
+    ['icon' => 'paw-print', 'value' => $counts['all'], 'label' => 'Total', 'tone' => 'jungle', 'trend' => null, 'desc' => 'Every animal currently in the shelter system.'],
+    ['icon' => 'check-circle-2', 'value' => $counts['Available'], 'label' => 'Available', 'tone' => 'sky', 'trend' => null, 'desc' => 'Animals listed and ready for adoption.'],
+    ['icon' => 'hourglass', 'value' => $counts['Pending'], 'label' => 'Pending', 'tone' => 'amber', 'trend' => null, 'desc' => 'In-care animals on hold pending adoption or review.'],
+    ['icon' => 'heart', 'value' => $counts['Adopted'], 'label' => 'Adopted', 'tone' => 'ink', 'trend' => null, 'desc' => 'Animals that have already been adopted.'],
     ['icon' => 'alert-triangle', 'value' => $noMedical, 'label' => 'No medical records', 'tone' => 'coral', 'filter' => null, 'trend' => $noMedical ? ['text' => 'Needs records', 'tone' => 'down'] : null, 'desc' => 'Animals with no medical file on record.'],
 ];
 

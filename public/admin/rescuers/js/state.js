@@ -13,6 +13,7 @@ export const state = {
   filter: "all",
   query: "",
   page: 1,
+  pageSize: 20,
   selectedId: null,
   selectedRescuer: undefined,
   selectedRescuerCases: [],
@@ -53,6 +54,7 @@ export function persistSelection() {
       JSON.stringify({
         selectedId: state.selectedId,
         page: state.page,
+        pageSize: state.pageSize,
         selectedRescuer: state.selectedRescuer ?? null,
         selectedRescuerCases: state.selectedRescuerCases ?? [],
       })
@@ -67,6 +69,7 @@ export function hydrateSelection() {
     const data = JSON.parse(raw);
     if (data.selectedId) state.selectedId = data.selectedId;
     if (typeof data.page === "number") state.page = data.page;
+    if (typeof data.pageSize === "number") state.pageSize = data.pageSize;
     if (data.selectedRescuer) state.selectedRescuer = data.selectedRescuer;
     if (Array.isArray(data.selectedRescuerCases)) state.selectedRescuerCases = data.selectedRescuerCases;
     return Boolean(state.selectedId);

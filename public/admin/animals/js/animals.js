@@ -45,8 +45,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initAnimalsEvents();
     initDate();
     restoreSelectedId();
+    renderSelection();
     if (state.selectedId) {
-      renderSelection();
       renderDetail();
     }
     return;

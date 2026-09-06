@@ -7,8 +7,6 @@ import { esc, caseStampCls, enrich } from "./util.js";
 import { shortId, timeAgo, titleCase, initials } from "/admin/js/helpers.js";
 import { CaseFilterTabs, CaseToolbar } from "./kpi.js";
 
-export const PAGE_SIZE = 6;
-
 function statusRank(c) {
   return { open: 1, assigned: 2, in_progress: 3, resolved: 4 }[c.statusRaw] ?? 4;
 }
@@ -92,13 +90,10 @@ export function CaseList() {
   if (list.length === 0) {
     return `<div class="queue-empty"><div class="empty-state"><i data-lucide="clipboard-list"></i><span>No cases match.</span></div></div>`;
   }
-  const start = (state.page - 1) * PAGE_SIZE;
-  const pageItems = list.slice(start, start + PAGE_SIZE);
+  const start = (state.page - 1) * state.pageSize;
+  const pageItems = list.slice(start, start + state.pageSize);
   const cards = pageItems.map(CaseCard).join("");
-  const pagination =
-    list.length > PAGE_SIZE
-      ? `<div class="queue-pagination">${PaginationBar({ total: list.length, perPage: PAGE_SIZE, page: state.page })}</div>`
-      : "";
+  const pagination = `<div class="queue-pagination">${PaginationBar({ total: list.length, perPage: state.pageSize, page: state.page })}</div>`;
   return `<div class="case-grid">${cards}</div>${pagination}`;
 }
 

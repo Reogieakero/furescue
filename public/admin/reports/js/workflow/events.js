@@ -1,4 +1,5 @@
 import { createIcons, icons } from "lucide";
+import { readPageClick, readPageSizeChange } from "/shared/components/pagination/pagination.js";
 import { state, reloadData } from "../state.js";
 import { ReportTable, rerenderAll, attachReportTooltips, hideReportMapDrawer } from "../components.js";
 import { openReportDrawer, openTimelineDrawer } from "./drawer.js";
@@ -34,9 +35,9 @@ export function initReportsEvents() {
     if (tab) {
       state.filter = tab.dataset.filter;
       state.page = 1;
-      const filters = document.getElementById("report-filters");
-      if (filters) {
-                filters.querySelectorAll("[data-filter]").forEach((b) => b.classList.toggle("is-active", b === tab));
+      const tabs = document.getElementById("report-tabs");
+      if (tabs) {
+        tabs.querySelectorAll("[data-filter]").forEach((b) => b.classList.toggle("is-active", b === tab));
       }
       const table = document.getElementById("report-table");
       if (table) {
@@ -47,10 +48,8 @@ export function initReportsEvents() {
       return;
     }
 
-    const pageBtn = e.target.closest("button[data-page]");
-    if (pageBtn) {
-      const page = parseInt(pageBtn.dataset.page, 10);
-      if (!page || page === state.page) return;
+    const page = readPageClick(e.target, state.page);
+    if (page) {
       state.page = page;
       const table = document.getElementById("report-table");
       if (table) {
@@ -94,6 +93,19 @@ export function initReportsEvents() {
     if (row) {
       hideReportMapDrawer();
       openReportDrawer(row.dataset.id);
+    }
+  });
+
+  main.addEventListener("change", (e) => {
+    const next = readPageSizeChange(e.target, state.pageSize);
+    if (!next) return;
+    state.pageSize = next;
+    state.page = 1;
+    const table = document.getElementById("report-table");
+    if (table) {
+      table.innerHTML = ReportTable();
+      createIcons({ icons });
+      attachReportTooltips();
     }
   });
 

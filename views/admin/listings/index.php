@@ -11,7 +11,7 @@ const LISTING_STATUS_LABELS = [
     'approved' => 'Live',
     'rejected' => 'Rejected',
 ];
-const LISTING_PAGE_SIZE = 15;
+const LISTING_PAGE_SIZE = 20;
 
 $listingStamp = static function (?string $status): string {
     if ($status === 'pending_review') {
@@ -101,9 +101,7 @@ foreach ($pageRows as $row) {
 if ($listings === []) {
     $tableInner = '<div class="queue-empty">' . empty_state('home', 'No adoption listings yet.') . '</div>';
 } else {
-    $pagination = count($listings) > LISTING_PAGE_SIZE
-        ? '<div class="queue-pagination">' . pagination_bar(count($listings), LISTING_PAGE_SIZE, 1) . '</div>'
-        : '';
+    $pagination = '<div class="queue-pagination">' . pagination_bar(count($listings), LISTING_PAGE_SIZE, 1) . '</div>';
     $tableInner = '
     <div class="table-wrap">
       <table class="table">
@@ -136,12 +134,12 @@ $adminChildren = '
         <i data-lucide="home"></i>
         <h2 class="panel-title" id="listing-panel-title">All listings</h2>
       </div>
+      <div class="panel-head-tools">
+        <div id="listing-tabs-wrap">' . filter_tabs_html('listing-tabs', $tabButtons) . '</div>
+      </div>
     </div>
     <div id="listing-filters">
-      ' . toolbar_html(
-          filter_tabs_html('listing-tabs', $tabButtons)
-          . search_control('listing-search', 'Search animal, poster…')
-      ) . '
+      ' . toolbar_html(search_control('listing-search', 'Search animal, poster…')) . '
     </div>
     <div id="listing-table" class="panel-body">' . $tableInner . '</div>
   </div>';

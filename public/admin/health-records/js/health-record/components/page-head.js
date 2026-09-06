@@ -17,7 +17,7 @@ export function PageHead(hasRecord, editing, mode) {
   return `
   <div class="page-head">
     <div>
-      <a href="/admin/health-records/" class="cd-back"><i data-lucide="chevron-left"></i> Back to health records</a>
+      ${Button({ text: "Back to health records", variant: "outline", size: "sm", icon: "arrow-left", href: "/admin/health-records/" })}
     </div>
     <div class="page-head-actions">
       ${actions}

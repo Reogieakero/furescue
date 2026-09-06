@@ -1,11 +1,16 @@
 /* Health records table from 12 + list chrome merged. */
 
-/* records table: rows are not clickable (no drawer) */
 .hr-table tbody tr {
-  cursor: default;
+  cursor: pointer;
 }
 .hr-table tbody tr:hover {
   background: rgba(243, 248, 253, 0.7);
+}
+.hr-table .hr-cell-animal a {
+  color: hsl(var(--jungle2));
+}
+.hr-table .hr-cell-animal a:hover {
+  text-decoration: underline;
 }
 
 .hr-cell-animal {
@@ -84,6 +89,17 @@
 .cols--vax .donut {
   width: 150px;
   height: 150px;
+  border-radius: 50%;
+  background: conic-gradient(hsl(var(--border)) 0 100%);
+}
+.cols--vax .donut::after {
+  content: "";
+  position: absolute;
+  inset: 16%;
+  border-radius: 50%;
+  background: hsl(var(--card));
+  z-index: 0;
+  pointer-events: none;
 }
 .cols--vax .hr-vax-list {
   margin-top: auto;
@@ -156,6 +172,7 @@
 .hr-list .page-head,
 .hr-list .kpi-grid,
 .hr-list .panel,
+.hr-list .hr-toolbar,
 .hr-list .cols--vax,
 .hr-list .cols--two,
 .hr-list #hr-records {
@@ -190,11 +207,18 @@
 }
 
 .hr-list .table-head th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: hsl(var(--card));
   border-bottom: 1px solid hsl(var(--border));
 }
 
-.hr-list .table tbody tr {
+.hr-list .table tbody td {
   border-bottom: 1px solid hsl(var(--border));
+}
+.hr-list .table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .hr-list .table-wrap {
@@ -203,7 +227,7 @@
 
 .hr-list .report-toolbar {
   margin: 0;
-  padding: 12px 16px;
+  padding: 0;
   gap: 10px;
   align-items: stretch;
 }
@@ -218,19 +242,28 @@
   min-width: 0;
 }
 
-.hr-list .q-btn,
-.hr-list .hr-toggle-btn {
-  border-radius: var(--radius);
+.hr-list .hr-toolbar {
+  background: transparent;
 }
 
-.hr-list .report-search {
+.hr-list .report-search,
+.hr-toolbar .search-field {
   flex: 1 1 12rem;
   min-width: 0;
   max-width: 100%;
   width: 100%;
   border: 1px solid hsl(var(--border));
-  background: hsl(var(--card));
+  background: transparent;
   border-radius: var(--radius);
+}
+
+.hr-toolbar [data-select-trigger] {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.hr-toolbar [data-select-trigger]:hover {
+  background-color: hsl(var(--accent));
 }
 
 .hr-list .report-sort {

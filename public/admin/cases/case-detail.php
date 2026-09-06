@@ -144,16 +144,13 @@ $pageTitle = 'FurEscue — Case Detail';
 $pageDescription = 'FurEscue admin case detail — transactions, workflow, and progress for a single rescue case.';
 $pageCss = [
     '/admin/css/admin.css',
-    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
 ];
 $fontsHref = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
-$importMapExtras = ['chart.js' => 'https://esm.sh/chart.js@4.4.4/auto'];
 require views_path('components/site-head.php');
 ?>
   <body>
     <div id="app"><?= $pageHtml ?></div>
     <script>window.__PAGE_STATE__ = <?= json_encode($state, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module" src="/admin/cases/js/case-detail.js"></script>
   </body>
 </html>

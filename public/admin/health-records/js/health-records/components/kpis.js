@@ -23,7 +23,6 @@ export function buildKpis() {
       value: c.overdue,
       label: "Overdue",
       tone: "coral",
-      filter: "overdue",
       trend: c.overdue ? "Needs attention" : "",
       trendTone: "down",
       desc: "Checkups whose due date has already passed.",
@@ -42,7 +41,6 @@ export function buildKpis() {
       value: c.complete,
       label: "Current",
       tone: "jungle",
-      filter: "complete",
       trend: `${pct}% of records`,
       trendTone: "neutral",
       desc: "Animals with complete vaccination coverage.",
@@ -52,7 +50,6 @@ export function buildKpis() {
       value: c.none,
       label: "Missing vaccines",
       tone: "ink",
-      filter: "none",
       desc: "Animals with no vaccination on file.",
     },
     {
@@ -60,7 +57,6 @@ export function buildKpis() {
       value: c.under_treatment,
       label: "In treatment",
       tone: "sky",
-      filter: "under_treatment",
       desc: "Animals flagged not healthy and being monitored.",
     },
   ];
@@ -69,7 +65,6 @@ export function buildKpis() {
 export function toKpiCardProps(k) {
   const extra = [];
   if (k.desc) extra.push(`title="${esc(k.desc)}"`);
-  if (k.filter) extra.push(`data-filter="${esc(k.filter)}"`);
   return {
     icon: k.icon,
     tone: k.tone,
@@ -77,7 +72,6 @@ export function toKpiCardProps(k) {
     value: k.value,
     trend: k.trend || "",
     trendTone: k.trendTone || "neutral",
-    interactive: Boolean(k.filter),
     attrs: extra.join(" "),
   };
 }

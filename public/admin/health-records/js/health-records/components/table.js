@@ -1,7 +1,8 @@
 import { PaginationBar } from "/shared/components/pagination/pagination.js";
 import { Badge } from "/shared/components/badge/badge.js";
-import { state, pagedRecords, recordCounts, FILTERS, PAGE_SIZE } from "../state.js";
-import { esc, fmtDate, daysUntil, VACC_TONE } from "./util.js";
+import { FilterTabs as TabStrip } from "/shared/components/filter-tabs/filter-tabs.js";
+import { state, pagedRecords, recordCounts, FILTERS } from "../state.js";
+import { esc, fmtDate, daysUntil, VACC_TONE, recordHref } from "./util.js";
 
 export function FilterTabs() {
   const c = recordCounts();
@@ -35,13 +36,14 @@ function Row(r) {
   const dueStamp = due < 0 ? "stamp--coral" : due <= 14 ? "stamp--muted" : "stamp--accent";
   const initials = r.animalName.slice(0, 2).toUpperCase();
   const condVariant = r.condition === "Healthy" ? "success" : "destructive";
+  const href = recordHref(r.id);
   return `
-  <tr>
+  <tr data-href="${esc(href)}">
     <td class="table-cell">
       <span class="hr-cell-animal">
         <span class="hr-avatar">${esc(initials)}</span>
         <span>
-          <span class="table-cell--strong"><a href="/admin/health-records/health-record.php?id=${esc(r.id)}">${esc(r.animalName)}</a></span><br>
+          <span class="table-cell--strong"><a href="${esc(href)}">${esc(r.animalName)}</a></span><br>
           <span class="hr-id">${esc(r.id)}</span>
         </span>
       </span>
@@ -61,10 +63,7 @@ export function RecordsTable() {
     return `<div class="queue-empty"><div class="empty-state"><i data-lucide="clipboard-list"></i><span>No records match the current filters.</span></div></div>`;
   }
   const body = rows.map(Row).join("");
-  const pagination =
-    total > PAGE_SIZE
-      ? `<div class="queue-pagination" id="hr-pagination">${PaginationBar({ total, perPage: PAGE_SIZE, page: state.page })}</div>`
-      : "";
+  const pagination = `<div class="queue-pagination" id="hr-pagination">${PaginationBar({ total, perPage: state.pageSize, page: state.page })}</div>`;
   return `
     <div class="table-wrap">
       <table class="table hr-table">
@@ -88,7 +87,10 @@ export function RecordsPanel() {
         <i data-lucide="clipboard-list"></i>
         <h2 class="panel-title">Health records</h2>
       </div>
-      <span class="stamp stamp--sm stamp--accent">${pagedRecords().total} in view</span>
+      <div class="panel-head-tools">
+        <div id="hr-tabs-wrap">${TabStrip({ id: "hr-tabs", children: FilterTabs() })}</div>
+        <span class="stamp stamp--sm stamp--accent">${pagedRecords().total} in view</span>
+      </div>
     </div>
     <div class="panel-body" id="hr-records-body">${RecordsTable()}</div>
   </div>`;

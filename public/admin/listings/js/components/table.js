@@ -4,8 +4,6 @@ import { shortId, timeAgo } from "/admin/js/helpers.js";
 import { state } from "../state.js";
 import { esc, statusLabel, stampCls, emptyMessage } from "./util.js";
 
-export const PAGE_SIZE = 15;
-
 export function filteredListings() {
   const q = state.query.trim().toLowerCase();
   let list = state.listings;
@@ -69,12 +67,9 @@ export function ListingTable() {
   if (list.length === 0) {
     return `<div class="queue-empty"><div class="empty-state"><i data-lucide="home"></i><span>${esc(emptyMessage(state.filter, state.query))}</span></div></div>`;
   }
-  const start = (state.page - 1) * PAGE_SIZE;
-  const rows = list.slice(start, start + PAGE_SIZE).map(listingRow).join("");
-  const pagination =
-    list.length > PAGE_SIZE
-      ? `<div class="queue-pagination">${PaginationBar({ total: list.length, perPage: PAGE_SIZE, page: state.page })}</div>`
-      : "";
+  const start = (state.page - 1) * state.pageSize;
+  const rows = list.slice(start, start + state.pageSize).map(listingRow).join("");
+  const pagination = `<div class="queue-pagination">${PaginationBar({ total: list.length, perPage: state.pageSize, page: state.page })}</div>`;
   const banner = state.error
     ? `<div class="queue-empty"><div class="empty-state"><i data-lucide="triangle-alert"></i><span>${esc(state.error)}</span></div></div>`
     : "";

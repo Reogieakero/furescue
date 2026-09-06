@@ -17,20 +17,15 @@ foreach ($animalKpiData as $k) {
     if (!empty($k['trend']['text'])) {
         $trend = '<p class="kpi-card__trend kpi-card__trend--' . e((string) ($k['trend']['tone'] ?? 'neutral')) . '">' . e((string) $k['trend']['text']) . '</p>';
     }
-    $filter = $k['filter'] ?? null;
-    $tag = $filter ? 'button' : 'article';
-    $extraClass = $filter ? ' kpi-card--interactive' : '';
-    $typeAttr = $filter ? ' type="button"' : '';
-    $filterAttr = $filter ? ' data-filter="' . e((string) $filter) . '"' : '';
     $kpiTiles .= '
-  <' . $tag . ' class="kpi-card' . $extraClass . '"' . $typeAttr . $filterAttr . ' aria-label="' . e($aria) . '"' . $title . '>
+  <article class="kpi-card" aria-label="' . e($aria) . '"' . $title . '>
     <div class="kpi-card__icon kpi-card__icon--' . e((string) $k['tone']) . '" aria-hidden="true"><i data-lucide="' . e((string) $k['icon']) . '"></i></div>
     <div class="kpi-card__body">
       <p class="kpi-card__label">' . e($label) . '</p>
       <p class="kpi-card__value">' . e($value) . '</p>
       ' . $trend . '
     </div>
-  </' . $tag . '>';
+  </article>';
 }
 $kpiGrid = '<div id="animal-kpis" class="kpi-grid">' . $kpiTiles . '</div>';
 
@@ -76,12 +71,13 @@ $gridPanel = '
         <i data-lucide="paw-print"></i>
         <h2 class="panel-title">Animals <span class="animal-count" id="animal-total-badge">' . e(count($animals)) . '</span></h2>
       </div>
+      <div class="animal-search-slot">
+        ' . search_control('animal-search', 'Search name, species, breed, ID…', '', 'animal-search') . '
+      </div>
+      <div class="panel-head-tools">
+        <div id="animal-filter-tabs-wrap">' . filter_tabs_html('animal-filter-tabs', $filterTabsHtml) . '</div>
+      </div>
     </div>
-    ' . toolbar_html(
-        filter_tabs_html('animal-filter-tabs', $filterTabsHtml)
-        . search_control('animal-search', 'Search name, species, breed, ID…', '', 'animal-search'),
-        'animal-toolbar'
-    ) . '
     <div class="panel-body">
       <div id="animal-grid" class="animal-grid">' . $cardsHtml . '</div>
       <div id="animal-selected-store" hidden></div>

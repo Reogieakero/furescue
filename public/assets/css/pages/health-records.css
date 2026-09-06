@@ -41,6 +41,15 @@
   flex-direction: column;
   gap: 12px;
   margin-top: 4px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.hr-cond-list--empty {
+  min-height: 12rem;
+}
+.hr-cond-list--empty .empty-state {
+  flex: 1 1 auto;
+  min-height: 12rem;
 }
 .hr-cond-row {
   display: grid;
@@ -123,6 +132,15 @@
 }
 .hr-queue-empty {
   grid-column: 1 / -1;
+  width: 100%;
+}
+.hr-queue-grid--empty {
+  grid-template-rows: 1fr;
+  min-height: 12rem;
+}
+.hr-queue-grid--empty .hr-queue-empty {
+  height: 100%;
+  min-height: 12rem;
 }
 .hr-queue-tally {
   display: inline-flex;
@@ -136,6 +154,7 @@
   gap: 6px;
   padding: 10px 12px;
   text-align: left;
+  text-decoration: none;
   font: inherit;
   color: hsl(var(--ink));
   background: #fff;

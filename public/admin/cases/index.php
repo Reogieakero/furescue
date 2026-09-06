@@ -155,7 +155,6 @@ $pageDescription = 'FurEscue admin cases — track active rescues, assign rescue
 $pageCss = [
     '/admin/css/admin.css',
     '/admin/cases/css/kpis.css',
-    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
 ];
 $fontsHref = 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
 $importMapExtras = ['chart.js' => 'https://esm.sh/chart.js@4.4.4/auto'];
@@ -164,8 +163,6 @@ require views_path('components/site-head.php');
   <body>
     <div id="app"><?= $pageHtml ?></div>
     <script>window.__PAGE_STATE__ = <?= json_encode($state, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
     <script type="module" src="/admin/cases/js/cases.js"></script>
   </body>
 </html>

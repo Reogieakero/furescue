@@ -1,25 +1,16 @@
 import { createIcons, icons } from "lucide";
+import { readPageClick, readPageSizeChange } from "/shared/components/pagination/pagination.js";
 import * as api from "/assets/js/admin/admin-data.js";
 import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { Button } from "/shared/components/button/button.js";
 import { Label } from "/shared/components/label/label.js";
 import { Select, initSelect } from "/shared/components/select/select.js";
-import { Spinner } from "/shared/components/spinner/spinner.js";
 import { state, reloadData, saveFilterPref } from "./state.js";
 import { rerenderAll, renderCaseList } from "./components.js";
-import { shortId, titleCase } from "/admin/js/helpers.js";
+import { shortId } from "/admin/js/helpers.js";
 import { filteredCases } from "./components/list.js";
 import { datedCsvName, downloadCsv } from "/assets/js/lib/csv.js";
-
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;",
-  }[c]));
-}
 
 function assignDialog(caseId, reportId) {
   return new Promise((resolve) => {
@@ -66,26 +57,31 @@ function assignDialog(caseId, reportId) {
       resolve(null);
     };
 
+    let busy = false;
     const submit = async () => {
+      if (busy) return;
       if (!selected) {
         toast("Please select a rescuer.", { type: "error" });
         return;
       }
-      const okBtn = overlay.querySelector('[data-act="ok"]');
-      okBtn.disabled = true;
-      okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Assign</span>`;
-      createIcons({ icons });
-      try {
-        const payload = await api.assignRescuer(caseId, selected);
-        const name = rescuers.find((u) => u.id === selected);
-        overlay.remove();
-        resolve(payload);
-        toast(`Case ${shortId(caseId)} assigned to ${(name && name.full_name) || "rescuer"}.`, { type: "success" });
-      } catch (err) {
-        okBtn.disabled = false;
-        okBtn.innerHTML = `<span>Assign</span>`;
-        toast(err && err.message ? err.message : "Assign failed.", { type: "error" });
+      const name = rescuers.find((u) => u.id === selected);
+      const caseRow = state.cases.find((c) => c.id === caseId);
+      const isReassign = !!(caseRow && (caseRow.assigned_rescuer_id || caseRow.rescuer));
+      busy = true;
+      const payload = await confirmDialog({
+        title: isReassign ? "Reassign this case?" : "Assign this case?",
+        message: `${isReassign ? "Reassign" : "Assign"} case ${shortId(caseId)} to ${(name && name.full_name) || "this rescuer"}?`,
+        confirmText: isReassign ? "Reassign" : "Assign",
+        cancelText: "Cancel",
+        run: () => api.assignRescuer(caseId, selected),
+      });
+      if (!payload) {
+        busy = false;
+        return;
       }
+      overlay.remove();
+      resolve(payload);
+      toast(`Case ${shortId(caseId)} assigned to ${(name && name.full_name) || "rescuer"}.`, { type: "success" });
     };
 
     overlay.querySelector('[data-act="ok"]').addEventListener("click", submit);
@@ -138,10 +134,8 @@ export function initCasesEvents() {
       return;
     }
 
-    const pageBtn = e.target.closest("button[data-page]");
-    if (pageBtn) {
-      const page = parseInt(pageBtn.dataset.page, 10);
-      if (!page || page === state.page) return;
+    const page = readPageClick(e.target, state.page);
+    if (page) {
       state.page = page;
       renderCaseList();
       return;
@@ -170,6 +164,14 @@ export function initCasesEvents() {
     if (card) {
       window.location.href = "/admin/cases/case-detail.php?id=" + encodeURIComponent(card.dataset.caseId);
     }
+  });
+
+  main.addEventListener("change", (e) => {
+    const next = readPageSizeChange(e.target, state.pageSize);
+    if (!next) return;
+    state.pageSize = next;
+    state.page = 1;
+    renderCaseList();
   });
 
   main.addEventListener("input", (e) => {

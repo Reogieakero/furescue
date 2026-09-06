@@ -12,43 +12,38 @@
   max-width: 100%;
 }
 
-.range-controls {
+.analytics-range {
+  width: min(12rem, 100%);
+  margin-bottom: 1rem;
+}
+
+.analytics-range-picker,
+.analytics-range-picker.dp-range {
+  width: 100%;
+  max-width: 12rem;
+}
+
+.analytics-range-picker .dp-trigger {
+  background-color: hsl(var(--card));
+}
+
+.analytics-range-picker .dp-trigger:hover {
+  background-color: hsl(var(--card));
+}
+
+#table-overview .table-head th:last-child,
+#table-trends .table-head th:last-child,
+#table-overview .table-cell:last-child,
+#table-trends .table-cell:last-child {
+  text-align: right;
+}
+
+.analytics-split > .panel {
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 12px;
+  flex-direction: column;
 }
 
-.analytics-range-picker {
-  flex: 1 1 16rem;
-  min-width: 0;
-  max-width: 100%;
-}
-
-.range-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.range-note {
-  margin: 10px 0 0;
-  font-size: 12px;
-  line-height: 1.4;
-  color: hsl(var(--muted-foreground));
-}
-
-@media (max-width: 479px) {
-  .analytics-range-picker {
-    flex-basis: 100%;
-  }
-
-  .range-actions {
-    width: 100%;
-  }
-
-  .range-actions button {
-    flex: 1;
-  }
+.analytics-split > .panel .queue-empty {
+  flex: 1 1 auto;
+  min-height: 12rem;
 }

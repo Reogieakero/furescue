@@ -1,20 +1,15 @@
 import { createIcons, icons } from "lucide";
 import { esc } from "/assets/js/lib/format.js";
 import {
-  RANGE_PRESETS,
   addMonths,
+  clampISO,
   formatRangeLabel,
   monthGridHtml,
   orderedRange,
   placePopover,
-  presetRange,
   todayISO,
   viewFromISO,
 } from "/shared/components/date-picker/calendar.js";
-
-function dualMonths() {
-  return window.matchMedia("(min-width: 768px)").matches;
-}
 
 function startInput(wrap) {
   return wrap.querySelector("[data-range-start]");
@@ -32,7 +27,7 @@ function paint() {
   createIcons({ icons });
 }
 
-export function DateRangePicker({
+function rangeMarkup({
   id = "",
   startId = "",
   endId = "",
@@ -44,36 +39,34 @@ export function DateRangePicker({
   max = "",
   placeholder = "Pick dates",
   className = "",
-  presets = true,
 } = {}) {
   const sid = startId || `${id}-start`;
   const eid = endId || `${id}-end`;
   const label = formatRangeLabel(start, end, placeholder);
-  const presetHtml = presets
-    ? `<div class="dp-presets">${RANGE_PRESETS.map(
-        (p) => `<button type="button" class="dp-preset" data-range-preset="${p.id}">${esc(p.label)}</button>`
-      ).join("")}<button type="button" class="dp-preset dp-preset--clear" data-range-clear>Clear</button></div>`
-    : "";
+  const errorId = id ? `${id}-error` : "";
   return `
   <div id="${esc(id)}" class="dp-range${className ? ` ${esc(className)}` : ""}" data-date-range data-min="${esc(min)}" data-max="${esc(max)}" data-placeholder="${esc(placeholder)}">
     <button type="button" class="dp-trigger" data-range-trigger aria-haspopup="dialog" aria-expanded="false" aria-label="Date range">
-      <i data-lucide="calendar-range" class="dp-trigger-icon"></i>
       <span class="dp-trigger-label${start ? "" : " is-placeholder"}" data-range-label>${esc(label)}</span>
       <i data-lucide="chevron-down" class="dp-trigger-caret"></i>
     </button>
     <div class="dp-popover" data-range-popover hidden role="dialog" aria-label="Choose date range">
-      ${presetHtml}
-      <div class="dp-cals-toolbar">
-        <button type="button" class="dp-nav" data-range-prev aria-label="Previous month"><i data-lucide="chevron-left"></i></button>
-        <span class="dp-cals-caption" data-range-caption></span>
-        <button type="button" class="dp-nav" data-range-next aria-label="Next month"><i data-lucide="chevron-right"></i></button>
-      </div>
       <div class="dp-cals" data-range-cals></div>
-      <p class="dp-hint" data-range-hint>Choose a start date, then an end date.</p>
+      <p class="dp-range-error" data-range-error${errorId ? ` id="${esc(errorId)}"` : ""} hidden>The start date must be on or before the end date.</p>
+      <p class="dp-range-live" data-range-live aria-live="polite"></p>
+      <div class="dp-range-actions">
+        <button type="button" class="dp-range-today" data-range-today>Today</button>
+        <button type="button" class="dp-range-clear" data-range-clear>Clear</button>
+        <button type="button" class="dp-range-apply" data-range-apply>Apply</button>
+      </div>
     </div>
     <input type="hidden" data-range-start id="${esc(sid)}" name="${esc(startName)}" value="${esc(start)}">
     <input type="hidden" data-range-end id="${esc(eid)}" name="${esc(endName)}" value="${esc(end)}">
   </div>`;
+}
+
+export function DateRangePicker(opts = {}) {
+  return rangeMarkup(opts);
 }
 
 export function getDateRange(wrap) {
@@ -89,10 +82,6 @@ function syncChrome(wrap) {
     label.textContent = formatRangeLabel(start, end, placeholder);
     label.classList.toggle("is-placeholder", !start);
   }
-  wrap.querySelectorAll("[data-range-preset]").forEach((btn) => {
-    const next = presetRange(btn.dataset.rangePreset, bounds(wrap));
-    btn.classList.toggle("is-active", Boolean(start && end && next.start === start && next.end === end));
-  });
 }
 
 export function setDateRange(wrap, range = {}, { emit = false } = {}) {
@@ -125,36 +114,40 @@ function bindRange(wrap, handler) {
   if (!trigger || !popover) return;
 
   let view = viewFromISO(getDateRange(wrap).start || todayISO());
+  let draft = getDateRange(wrap);
   let hover = "";
 
-  const hint = () => {
-    const el = wrap.querySelector("[data-range-hint]");
-    if (!el) return;
-    const { start, end } = getDateRange(wrap);
-    if (!start) el.textContent = "Choose a start date, then an end date.";
-    else if (!end) el.textContent = "Choose an end date.";
-    else el.textContent = `${formatRangeLabel(start, end)} selected.`;
+  const announce = (text) => {
+    const live = wrap.querySelector("[data-range-live]");
+    if (live) live.textContent = text;
+  };
+
+  const setError = (on) => {
+    const el = wrap.querySelector("[data-range-error]");
+    if (el) el.hidden = !on;
   };
 
   const renderCals = () => {
     const mount = popover.querySelector("[data-range-cals]");
-    const caption = popover.querySelector("[data-range-caption]");
-    const { start, end } = getDateRange(wrap);
     const b = bounds(wrap);
-    const months = dualMonths() ? [view, addMonths(view, 1)] : [view];
     if (mount) {
-      mount.innerHTML = months
-        .map((m) => monthGridHtml(m, { start, end, hover, min: b.min, max: b.max, showNav: false }))
-        .join("");
+      mount.innerHTML = monthGridHtml(view, {
+        start: draft.start,
+        end: draft.end,
+        hover,
+        min: b.min,
+        max: b.max,
+        showNav: true,
+        fillWeeks: true,
+      });
     }
-    if (caption) caption.textContent = "";
-    hint();
-    syncChrome(wrap);
     paint();
   };
 
   const close = () => {
     hover = "";
+    setError(false);
+    draft = getDateRange(wrap);
     if (popover.parentElement === document.body) {
       if (wrap.isConnected) wrap.appendChild(popover);
       else popover.remove();
@@ -170,7 +163,10 @@ function bindRange(wrap, handler) {
     if (!wrap.contains(e.target) && !popover.contains(e.target)) close();
   };
   const onKey = (e) => {
-    if (e.key === "Escape") close();
+    if (e.key === "Escape") {
+      close();
+      trigger.focus();
+    }
   };
   const onWin = () => {
     if (popover.hidden) return;
@@ -179,8 +175,10 @@ function bindRange(wrap, handler) {
   };
 
   const open = () => {
-    view = viewFromISO(getDateRange(wrap).start || todayISO());
+    draft = getDateRange(wrap);
+    view = viewFromISO(draft.start || todayISO());
     hover = "";
+    setError(false);
     renderCals();
     document.body.appendChild(popover);
     placePopover(trigger, popover);
@@ -196,31 +194,51 @@ function bindRange(wrap, handler) {
     if (handler) handler(next);
   };
 
+  const commit = (range) => {
+    const next = setDateRange(wrap, range);
+    draft = next;
+    setError(false);
+    emit(next);
+    close();
+    return next;
+  };
+
   trigger.addEventListener("click", () => {
     if (!popover.hidden && popover.parentElement === document.body) return close();
     open();
   });
 
   popover.addEventListener("click", (e) => {
-    const preset = e.target.closest("[data-range-preset]");
-    if (preset) {
-      const next = setDateRange(wrap, presetRange(preset.dataset.rangePreset, bounds(wrap)));
-      emit(next);
-      close();
+    if (e.target.closest("[data-range-today]")) {
+      const b = bounds(wrap);
+      const iso = clampISO(todayISO(), b.min, b.max) || todayISO();
+      announce(`Today ${iso}`);
+      commit({ start: iso, end: iso });
       return;
     }
     if (e.target.closest("[data-range-clear]")) {
-      const next = setDateRange(wrap, { start: "", end: "" });
-      emit(next);
-      close();
+      announce("All dates");
+      commit({ start: "", end: "" });
       return;
     }
-    if (e.target.closest("[data-range-prev]")) {
+    if (e.target.closest("[data-range-apply]")) {
+      let { start, end } = draft;
+      if (start && !end) end = start;
+      if (start && end && start > end) {
+        setError(true);
+        return;
+      }
+      if (start && end) announce(`Range ${start} to ${end}`);
+      else announce("All dates");
+      commit({ start, end });
+      return;
+    }
+    if (e.target.closest("[data-date-prev]")) {
       view = addMonths(view, -1);
       renderCals();
       return;
     }
-    if (e.target.closest("[data-range-next]")) {
+    if (e.target.closest("[data-date-next]")) {
       view = addMonths(view, 1);
       renderCals();
       return;
@@ -228,25 +246,30 @@ function bindRange(wrap, handler) {
     const day = e.target.closest("[data-date-day]");
     if (!day || day.disabled) return;
     const iso = day.getAttribute("data-date-day");
-    const { start, end } = getDateRange(wrap);
-    if (!start || end) {
-      setDateRange(wrap, { start: iso, end: "" });
-      hover = "";
-      renderCals();
-      return;
+    if (!draft.start || draft.end) {
+      draft = { start: iso, end: "" };
+      announce(`Start ${iso}. Choose an end date.`);
+    } else {
+      draft = orderedRange(draft.start, iso);
+      announce(`Range ${draft.start} to ${draft.end}`);
     }
-    const next = setDateRange(wrap, orderedRange(start, iso));
-    emit(next);
-    close();
+    hover = "";
+    setError(false);
+    renderCals();
   });
 
   popover.addEventListener("pointerover", (e) => {
     const day = e.target.closest("[data-date-day]");
-    const { start, end } = getDateRange(wrap);
-    if (!day || !start || end) return;
+    if (!day || !draft.start || draft.end) return;
     const nextHover = day.getAttribute("data-date-day");
     if (nextHover === hover) return;
     hover = nextHover;
+    renderCals();
+  });
+
+  popover.addEventListener("pointerout", (e) => {
+    if (!hover || popover.contains(e.relatedTarget)) return;
+    hover = "";
     renderCals();
   });
 }

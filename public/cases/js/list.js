@@ -3,6 +3,7 @@ import { hasPageSession, requireAuth, redirectToLogin } from "/assets/js/lib/api
 import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { initResidentShell } from "/assets/js/components/resident-shell.js";
 import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { fetchCases, toggleDuty } from "./api.js";
 import { bindCaseActions } from "./actions.js";
 import { caseRow, countLabel, listErrorHtml, listLoadingHtml } from "./list-render.js";
@@ -75,6 +76,15 @@ async function onDutyToggle() {
   const user = (window.__PAGE_STATE__ || {}).user || {};
   if (!btn || btn.disabled || !user.id) return;
   const next = btn.dataset.status === "on_duty" ? "off_duty" : "on_duty";
+  const goingOn = next === "on_duty";
+  const ok = await confirmDialog({
+    title: goingOn ? "Go on duty?" : "Go off duty?",
+    message: goingOn
+      ? "This will update your rescuer duty status to on duty."
+      : "This will update your rescuer duty status to off duty.",
+    confirmText: goingOn ? "Go on duty" : "Go off duty",
+  });
+  if (!ok) return;
   btn.disabled = true;
   try {
     const data = await toggleDuty(user.id, next);

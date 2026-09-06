@@ -21,7 +21,7 @@ $activityMapped = array_map(static function (array $c): array {
 if ($activityMapped === []) {
     $activityInner = '<div class="activity-empty">' . empty_state('list', 'No records.') . '</div>';
 } else {
-    foreach (array_slice($activityMapped, 0, 5) as $r) {
+    foreach (array_slice($activityMapped, 0, 10) as $r) {
         $activityRows .= "
     <tr>
       <td class=\"table-cell table-cell--mono table-cell--strong\">" . e($r['id']) . "</td>
@@ -32,7 +32,7 @@ if ($activityMapped === []) {
       <td class=\"table-cell table-cell--mono table-cell--muted\">" . e($r['when']) . '</td>
     </tr>';
     }
-    $pagination = count($activityMapped) > 5 ? '<div class="queue-pagination">' . pagination_bar(count($activityMapped), 5, 1) . '</div>' : '';
+    $pagination = '<div class="queue-pagination">' . pagination_bar(count($activityMapped), 10, 1) . '</div>';
     $activityInner = '
     <div class="table-wrap">
       <table class="table">

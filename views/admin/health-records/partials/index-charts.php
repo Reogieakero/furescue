@@ -42,11 +42,12 @@ $hrVaxList = static function (array $core, array $nonCore) use ($hrVaxGroup): st
 
 $hrDonutCard = static function (string $species, string $title, string $icon, string $canvasId, array $b, string $listHtml) use ($hrVaxLegend): string {
     $donutLabel = $species === 'dog' ? 'Dogs' : 'Cats';
+    $donutCls = $b['total'] > 0 ? 'donut' : 'donut donut--empty';
     return "
   <div class=\"panel panel--padded\">
     <div class=\"panel-title-wrap\"><i data-lucide=\"{$icon}\"></i><h2 class=\"panel-title panel-title--sm\">{$title}</h2></div>
     <div class=\"donut-wrap\">
-      <div class=\"donut\">
+      <div class=\"{$donutCls}\">
         <canvas id=\"{$canvasId}\"></canvas>
         <div class=\"donut-center\"><span class=\"donut-total\">" . e((string) $b['total']) . "</span><span class=\"donut-label\">{$donutLabel}</span></div>
       </div>
@@ -99,5 +100,5 @@ if ($condEntries) {
 $conditionsPanel = '
   <div class="panel panel--padded">
     <div class="panel-title-wrap"><i data-lucide="stethoscope"></i><h2 class="panel-title panel-title--sm">Top conditions</h2></div>
-    <div class="hr-cond-list">' . $condRows . '</div>
+    <div class="hr-cond-list' . ($condEntries ? '' : ' hr-cond-list--empty') . '">' . $condRows . '</div>
   </div>';

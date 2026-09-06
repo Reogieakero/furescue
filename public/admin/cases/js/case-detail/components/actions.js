@@ -51,7 +51,7 @@ function renderHeader(caseData) {
   return `
     <div class="page-head">
       <div>
-        <a href="/admin/cases/" class="cd-back"><i data-lucide="chevron-left"></i> Back to cases</a>
+        ${Button({ text: "Back to cases", variant: "outline", size: "sm", icon: "arrow-left", href: "/admin/cases/" })}
       </div>
       ${renderActions(caseData)}
     </div>`;

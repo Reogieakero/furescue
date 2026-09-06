@@ -11,7 +11,9 @@ export const state = {
   heatmap: [],
   filter: "in_progress",
   query: "",
-  sort: "",   page: 1,
+  sort: "",
+  page: 1,
+  pageSize: 10,
 };
 
 export async function loadCases() {

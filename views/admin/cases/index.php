@@ -65,7 +65,7 @@ $statusChartHtml = '
   <div class="panel panel--padded">
     <div class="panel-title-wrap"><i data-lucide="pie-chart"></i><h2 class="panel-title panel-title--sm">Case status breakdown</h2></div>
     <div class="donut-wrap">
-      <div class="donut">
+      <div class="donut' . ($cAll > 0 ? '' : ' donut--empty') . '">
         <canvas id="status-donut"></canvas>
         <div class="donut-center"><span class="donut-total">' . e($cAll) . '</span><span class="donut-label">Cases</span></div>
       </div>
@@ -145,7 +145,7 @@ $caseCardHtml = static function (array $c) use ($rescuerChip, $caseAction): stri
 
 $initialList = array_values(array_filter($enrichedCases, static fn(array $c) => $c['statusRaw'] === 'in_progress'));
 usort($initialList, static fn(array $a, array $b) => strtotime($b['createdAt']) <=> strtotime($a['createdAt']));
-$casePageSize = 6;
+$casePageSize = 10;
 $casePageItems = array_slice($initialList, 0, $casePageSize);
 
 if ($initialList === []) {
@@ -156,9 +156,7 @@ if ($initialList === []) {
         $cards .= $caseCardHtml($c);
     }
     $listInnerHtml = '<div class="case-grid">' . $cards . '</div>'
-        . (count($initialList) > $casePageSize
-            ? '<div class="queue-pagination">' . pagination_bar(count($initialList), $casePageSize, 1) . '</div>'
-            : '');
+        . '<div class="queue-pagination">' . pagination_bar(count($initialList), $casePageSize, 1) . '</div>';
 }
 
 $pinCount = count(array_filter($enrichedCases, static fn(array $c) => $c['lat'] !== null && $c['lng'] !== null));

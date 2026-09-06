@@ -10,6 +10,7 @@ import {
   setSession,
 } from "/assets/js/lib/api.js";
 import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ACCEPT = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -92,6 +93,16 @@ export function initAccountPhoto(user) {
       toast("Photo must be 5 MB or smaller.", { type: "error" });
       return;
     }
+    const img = document.getElementById("account-photo-img");
+    const hasPhoto = Boolean(img && !img.hidden && img.src);
+    const ok = await confirmDialog({
+      title: hasPhoto ? "Update this profile photo?" : "Upload this profile photo?",
+      message: hasPhoto
+        ? "This will replace your current profile photo."
+        : "This will set a new profile photo on your account.",
+      confirmText: hasPhoto ? "Update photo" : "Upload photo",
+    });
+    if (!ok) return;
     if (change) change.disabled = true;
     try {
       const url = await uploadPhoto(user, file);
@@ -108,6 +119,13 @@ export function initAccountPhoto(user) {
   });
 
   remove?.addEventListener("click", async () => {
+    const ok = await confirmDialog({
+      title: "Delete this profile photo?",
+      message: "This will remove your profile photo from your account.",
+      confirmText: "Delete photo",
+      danger: true,
+    });
+    if (!ok) return;
     remove.disabled = true;
     try {
       await apiFetch(`/users/${encodeURIComponent(user.id)}/profile-photo`, { method: "DELETE" });

@@ -1,9 +1,11 @@
 import { createIcons, icons } from "lucide";
 import { Button } from "/shared/components/button/button.js";
 import { DatePicker, initDatePicker } from "/shared/components/date-picker/date-picker.js";
+import { Select, initSelect, getSelectValue } from "/shared/components/select/select.js";
 import { Spinner } from "/shared/components/spinner/spinner.js";
 import { toast } from "/shared/components/toast/toast.js";
 import { upsertAnimalMedical } from "/assets/js/admin/admin-data.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({
@@ -40,10 +42,12 @@ export function openHealthRecordDialog(animal) {
             <label class="dialog-label" for="hr-notes">Medical history notes</label>
             <textarea class="dialog-input" id="hr-notes" rows="3" placeholder="e.g. Recovering well, mild limp on front left leg"></textarea>
 
-            <label class="dialog-label" for="hr-vax">Vaccination status</label>
-            <div id="hr-vax">${`<select id="hr-vax-sel" class="dialog-input">${vaxOptions
-              .map((o) => `<option value="${esc(o.value)}">${esc(o.label)}</option>`)
-              .join("")}</select>`}</div>
+            <label class="dialog-label">Vaccination status${Select({
+              id: "hr-vax",
+              options: vaxOptions,
+              value: "none",
+              className: "w-full",
+            })}</label>
 
             <label class="dialog-label" for="hr-date">Last checkup date</label>
             ${DatePicker({ id: "hr-date", name: "lastCheckup", placeholder: "Pick a date", max: new Date().toISOString().slice(0, 10) })}
@@ -62,10 +66,11 @@ export function openHealthRecordDialog(animal) {
 
     document.body.appendChild(overlay);
     createIcons({ icons });
+    initSelect(overlay);
     initDatePicker(overlay);
 
     const notesEl = overlay.querySelector("#hr-notes");
-    const vaxSel = overlay.querySelector("#hr-vax-sel");
+    const vaxWrap = overlay.querySelector("#hr-vax");
     const dateEl = overlay.querySelector("#hr-date-value");
     const detailsEl = overlay.querySelector("#hr-details");
     const errorEl = overlay.querySelector("#hr-error");
@@ -76,14 +81,27 @@ export function openHealthRecordDialog(animal) {
       resolve(null);
     };
 
+    let busy = false;
     const submit = async () => {
+      if (busy) return;
       const details = detailsEl.value.trim();
       const body = {
         medical_history_notes: notesEl.value.trim(),
-        vaccination_status: vaxSel ? vaxSel.value : null,
+        vaccination_status: getSelectValue(vaxWrap) || "none",
         last_checkup_date: dateEl?.value || null,
       };
       if (details) body.vaccination_details = [details];
+      busy = true;
+      const confirmed = await confirmDialog({
+        title: "Save this health record?",
+        message: `Save medical notes for "${animal.name}"?`,
+        confirmText: "Save",
+        cancelText: "Cancel",
+      });
+      if (!confirmed) {
+        busy = false;
+        return;
+      }
       const okBtn = overlay.querySelector('[data-act="ok"]');
       okBtn.disabled = true;
       okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Saving…</span>`;
@@ -93,6 +111,7 @@ export function openHealthRecordDialog(animal) {
         overlay.remove();
         resolve(animal);
       } catch (err) {
+        busy = false;
         okBtn.disabled = false;
         okBtn.innerHTML = `<i data-lucide="heart-pulse"></i><span>Save record</span>`;
         createIcons({ icons });

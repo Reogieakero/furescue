@@ -14,6 +14,9 @@ class PermissionsTest extends TestCase
         $this->assertNotEmpty($result);
         $this->assertContains('animals.read', $result);
         $this->assertContains('users.approve_rescuers', $result);
+        $this->assertContains('users.create', $result);
+        $this->assertContains('users.write', $result);
+        $this->assertContains('users.delete', $result);
         $this->assertContains('vitals.ingest', $result);
         $this->assertNotContains('users.toggle_duty', $result);
     }

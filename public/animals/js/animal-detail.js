@@ -272,7 +272,7 @@ function boot() {
         <i data-lucide="cat"></i>
         <p class="rempty-title">Profile unavailable</p>
         <p class="rempty-text">${esc(err.message || "This animal could not be loaded.")}</p>
-        <a href="/animals/" class="rbtn rbtn--ghost"><i data-lucide="arrow-left"></i><span>Back to gallery</span></a>
+        <a href="/animals/" class="rbtn rbtn--ghost rbtn--sm"><i data-lucide="arrow-left"></i><span>Back to gallery</span></a>
       </div>`;
       createIcons({ icons });
     });

@@ -14,7 +14,7 @@ export function Topbar({ user } = {}) {
       { type: "item", icon: "file-down", label: "Reports & Exports", href: "/admin/reports/" },
       { type: "separator" },
       { type: "label", text: "System" },
-      { type: "item", icon: "users", label: "Users", href: "/admin/rescuers/" },
+      { type: "item", icon: "users", label: "Users", href: "/admin/users/" },
       { type: "separator" },
       { type: "item", icon: "log-out", label: "Log Out", href: "/auth/logout.php", danger: true },
     ],

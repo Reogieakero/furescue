@@ -28,10 +28,14 @@ class DateRangePickerTest extends TestCase
         $this->assertStringContainsString('id="range-end"', $html);
         $this->assertStringContainsString('value="2026-04-01"', $html);
         $this->assertStringContainsString('value="2026-04-30"', $html);
-        $this->assertStringContainsString('Apr 1, 2026 to Apr 30, 2026', $html);
+        $this->assertStringContainsString('Apr 1, 2026 – Apr 30, 2026', $html);
         $this->assertStringContainsString('analytics-range-picker', $html);
         $this->assertStringContainsString('data-max="2026-09-06"', $html);
-        $this->assertStringContainsString('data-range-preset="7d"', $html);
+        $this->assertStringContainsString('data-range-today', $html);
+        $this->assertStringContainsString('data-range-clear', $html);
+        $this->assertStringContainsString('data-range-apply', $html);
+        $this->assertStringContainsString('The start date must be on or before the end date.', $html);
+        $this->assertStringNotContainsString('data-range-preset', $html);
     }
 
     public function testEmptyRangeUsesPlaceholder(): void
@@ -45,6 +49,15 @@ class DateRangePickerTest extends TestCase
         $this->assertStringContainsString('Any dates', $html);
         $this->assertStringContainsString('id="gis-date-range-start"', $html);
         $this->assertStringContainsString('id="gis-date-range-end"', $html);
+    }
+
+    public function testStartOnlyUsesFromLabel(): void
+    {
+        $html = \date_range_picker([
+            'start' => '2026-09-06',
+        ]);
+
+        $this->assertStringContainsString('From Sep 6, 2026', $html);
     }
 
     public function testEscapesIdsAndValues(): void

@@ -1,6 +1,6 @@
 import { EmptyState } from "/shared/components/empty-state/empty-state.js";
 
-export const PAGE_SIZE = 10;
+export const PAGE_SIZE = 20;
 
 export const CATEGORIES = [
   { key: "dog_behavior", label: "Dog Behavior", icon: "dog" },

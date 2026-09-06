@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+$QUEUE_PAGE_SIZE = 10;
+
 $mapReport = static function (array $r): array {
     return [
         'id' => short_id($r['id'] ?? null),
@@ -50,7 +52,7 @@ $mapAdoption = static function (array $a): array {
 };
 
 $reportsRows = '';
-foreach (array_slice(array_map($mapReport, $reportsPending['items']), 0, 7) as $r) {
+foreach (array_slice(array_map($mapReport, $reportsPending['items']), 0, $QUEUE_PAGE_SIZE) as $r) {
     $reportsRows .= "
     <tr>
       <td class=\"table-cell table-cell--mono table-cell--strong\">" . e($r['id']) . "</td>
@@ -69,7 +71,7 @@ foreach (array_slice(array_map($mapReport, $reportsPending['items']), 0, 7) as $
 if ($reportsRows === '') {
     $reportsQueueInner = '<div class="queue-empty">' . empty_state('file-text', 'No reports pending verification.') . '</div>';
 } else {
-    $pagination = count($reportsPending['items']) > 7 ? '<div class="queue-pagination">' . pagination_bar(count($reportsPending['items']), 7, 1) . '</div>' : '';
+    $pagination = '<div class="queue-pagination">' . pagination_bar(count($reportsPending['items']), $QUEUE_PAGE_SIZE, 1) . '</div>';
     $reportsQueueInner = '
     <div class="table-wrap">
       <table class="table">
@@ -82,7 +84,7 @@ if ($reportsRows === '') {
 }
 
 $rescuerRows = '';
-foreach (array_slice(array_map($mapRescuerApplicant, $rescuersPending['items']), 0, 7) as $r) {
+foreach (array_slice(array_map($mapRescuerApplicant, $rescuersPending['items']), 0, $QUEUE_PAGE_SIZE) as $r) {
     $rescuerRows .= "
     <tr>
       <td class=\"table-cell table-cell--strong\"><span class=\"table-avatar-name\">" . avatar_img($r['img'], $r['name']) . e($r['name']) . "</span></td>
@@ -101,7 +103,7 @@ foreach (array_slice(array_map($mapRescuerApplicant, $rescuersPending['items']),
 if ($rescuerRows === '') {
     $rescuersQueueInner = '<div class="queue-empty">' . empty_state('user-check', 'No rescuer applications awaiting review.') . '</div>';
 } else {
-    $pagination = count($rescuersPending['items']) > 7 ? '<div class="queue-pagination">' . pagination_bar(count($rescuersPending['items']), 7, 1) . '</div>' : '';
+    $pagination = '<div class="queue-pagination">' . pagination_bar(count($rescuersPending['items']), $QUEUE_PAGE_SIZE, 1) . '</div>';
     $rescuersQueueInner = '
     <div class="table-wrap">
       <table class="table">
@@ -113,7 +115,7 @@ if ($rescuerRows === '') {
 }
 
 $healthRows = '';
-foreach (array_slice(array_map($mapHealthUpdate, $healthUpdatesState['items']), 0, 7) as $r) {
+foreach (array_slice(array_map($mapHealthUpdate, $healthUpdatesState['items']), 0, $QUEUE_PAGE_SIZE) as $r) {
     $healthRows .= "
     <tr>
       <td class=\"table-cell table-cell--mono table-cell--strong\">" . e($r['id']) . "</td>
@@ -132,7 +134,7 @@ foreach (array_slice(array_map($mapHealthUpdate, $healthUpdatesState['items']), 
 if ($healthRows === '') {
     $healthQueueInner = '<div class="queue-empty">' . empty_state('heart-pulse', 'No recent health updates.') . '</div>';
 } else {
-    $pagination = count($healthUpdatesState['items']) > 7 ? '<div class="queue-pagination">' . pagination_bar(count($healthUpdatesState['items']), 7, 1) . '</div>' : '';
+    $pagination = '<div class="queue-pagination">' . pagination_bar(count($healthUpdatesState['items']), $QUEUE_PAGE_SIZE, 1) . '</div>';
     $healthQueueInner = '
     <div class="table-wrap">
       <table class="table">
@@ -144,7 +146,7 @@ if ($healthRows === '') {
 }
 
 $adoptRows = '';
-foreach (array_slice(array_map($mapAdoption, $adoptionsPending['items']), 0, 7) as $r) {
+foreach (array_slice(array_map($mapAdoption, $adoptionsPending['items']), 0, $QUEUE_PAGE_SIZE) as $r) {
     $adoptRows .= "
     <tr>
       <td class=\"table-cell table-cell--strong\">" . e($r['name']) . "</td>
@@ -163,7 +165,7 @@ foreach (array_slice(array_map($mapAdoption, $adoptionsPending['items']), 0, 7) 
 if ($adoptRows === '') {
     $adoptionQueueInner = '<div class="queue-empty">' . empty_state('home', 'No adoption applications awaiting review.') . '</div>';
 } else {
-    $pagination = count($adoptionsPending['items']) > 7 ? '<div class="queue-pagination">' . pagination_bar(count($adoptionsPending['items']), 7, 1) . '</div>' : '';
+    $pagination = '<div class="queue-pagination">' . pagination_bar(count($adoptionsPending['items']), $QUEUE_PAGE_SIZE, 1) . '</div>';
     $adoptionQueueInner = '
     <div class="table-wrap">
       <table class="table">

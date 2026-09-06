@@ -61,27 +61,28 @@ export function initAnimalsEvents() {
       const animal = getAnimal(state.selectedId);
       if (animal) {
         const ok = await confirmDialog({
-          title: "Delete animal?",
-          message: `Remove "${animal.name}"? This is a soft delete and can be restored by an admin.`,
+          title: "Delete this animal?",
+          message: `Delete "${animal.name}"? This is a soft delete and can be restored by an admin.`,
           confirmText: "Delete",
           cancelText: "Cancel",
           danger: true,
+          run: () => deleteAnimal(animal.id),
         });
-        if (ok) {
-          await deleteAnimal(animal.id);
-          state.animals = state.animals.filter((a) => a.id !== animal.id);
-          setSelectedId(null);
-          renderAnimalGrid();
-          renderAnimalKpis();
-          renderSideStats();
-        }
+        if (!ok) return;
+        state.animals = state.animals.filter((a) => a.id !== animal.id);
+        setSelectedId(null);
+        renderAnimalGrid();
+        renderAnimalKpis();
+        renderSelection();
+        renderSideStats();
       }
       return;
     }
 
     const card = e.target.closest(".animal-card");
     if (card) {
-      setSelectedId(card.dataset.animal);
+      const id = card.dataset.animal;
+      setSelectedId(state.selectedId === id ? null : id);
       renderSelection();
       renderDetail();
       return;

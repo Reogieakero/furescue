@@ -1,11 +1,11 @@
 import { createIcons, icons } from "lucide";
 import * as api from "/assets/js/admin/admin-data.js";
 import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { Button } from "/shared/components/button/button.js";
 import { Label } from "/shared/components/label/label.js";
 import { Select, initSelect } from "/shared/components/select/select.js";
-import { Spinner } from "/shared/components/spinner/spinner.js";
-import { shortId, titleCase } from "/admin/js/helpers.js";
+import { shortId } from "/admin/js/helpers.js";
 import { state, loadCaseDetail } from "../state.js";
 import { CaseDetailPage } from "./actions.js";
 import { renderLocation } from "./location.js";
@@ -36,7 +36,7 @@ export function initCaseDetailEvents() {
       if (!btn || !root.contains(btn)) return;
       const action = btn.dataset.cdAction;
       const id = caseId();
-      if (action === "resolve" && id) await resolveCase(id, state.caseData);
+      if (action === "resolve" && id) await resolveCase(id);
       if (action === "assign" && id) await assignCase(id, state.caseData && state.caseData.report_id);
       if (action === "location") renderLocation(state.caseData || {});
     });
@@ -53,14 +53,17 @@ async function loadAndRemount() {
   mountCaseDetail();
 }
 
-async function resolveCase(caseId, caseData) {
-  try {
-    await api.resolveCase(caseId);
-    toast("Case resolved.");
-    await loadAndRemount();
-  } catch (e) {
-    toast(e.message || "Failed to resolve case.", { type: "error" });
-  }
+async function resolveCase(caseId) {
+  const ok = await confirmDialog({
+    title: "Resolve this case?",
+    message: `Mark case ${shortId(caseId)} as resolved? This closes the rescue.`,
+    confirmText: "Resolve",
+    cancelText: "Cancel",
+    run: () => api.resolveCase(caseId),
+  });
+  if (!ok) return;
+  toast("Case resolved.");
+  await loadAndRemount();
 }
 
 async function openAssignDialog(caseId, reportId) {
@@ -116,26 +119,30 @@ async function openAssignDialog(caseId, reportId) {
       resolve(null);
     };
 
+    let busy = false;
     const submit = async () => {
+      if (busy) return;
       if (!selected) {
         toast("Please select a rescuer.", { type: "error" });
         return;
       }
-      const okBtn = overlay.querySelector('[data-act="ok"]');
-      okBtn.disabled = true;
-      okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Assign</span>`;
-      createIcons({ icons });
-      try {
-        const payload = await api.assignRescuer(caseId, selected);
-        const name = onDuty.find((u) => u.id === selected);
-        overlay.remove();
-        resolve(payload);
-        toast(`Case ${shortId(caseId)} assigned to ${(name && name.full_name) || "rescuer"}.`, { type: "success" });
-      } catch (err) {
-        okBtn.disabled = false;
-        okBtn.innerHTML = `<span>Assign</span>`;
-        toast(err && err.message ? err.message : "Assign failed.", { type: "error" });
+      const name = onDuty.find((u) => u.id === selected);
+      const isReassign = !!(state.caseData && state.caseData.assigned_rescuer_id);
+      busy = true;
+      const payload = await confirmDialog({
+        title: isReassign ? "Reassign this case?" : "Assign this case?",
+        message: `${isReassign ? "Reassign" : "Assign"} case ${shortId(caseId)} to ${(name && name.full_name) || "this rescuer"}?`,
+        confirmText: isReassign ? "Reassign" : "Assign",
+        cancelText: "Cancel",
+        run: () => api.assignRescuer(caseId, selected),
+      });
+      if (!payload) {
+        busy = false;
+        return;
       }
+      overlay.remove();
+      resolve(payload);
+      toast(`Case ${shortId(caseId)} assigned to ${(name && name.full_name) || "rescuer"}.`, { type: "success" });
     };
 
     overlay.querySelector('[data-act="ok"]').addEventListener("click", submit);
@@ -151,7 +158,6 @@ async function assignCase(caseId, reportId) {
   try {
     const payload = await openAssignDialog(caseId, reportId);
     if (!payload) return;
-    toast("Rescuer assigned.");
     await loadAndRemount();
   } catch (e) {
     toast(e.message || "Failed to assign rescuer.", { type: "error" });

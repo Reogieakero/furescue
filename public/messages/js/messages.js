@@ -4,6 +4,7 @@ import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { esc, timeAgo } from "/assets/js/lib/format.js";
 import { initResidentShell } from "/assets/js/components/resident-shell.js";
 import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 
 const CONTEXT_LABEL = { report: "Report", case: "Case", adoption: "Adoption" };
 
@@ -281,11 +282,19 @@ function boot() {
     renderThreads();
   });
 
-  document.getElementById("msg-form")?.addEventListener("submit", (e) => {
+  document.getElementById("msg-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const input = document.getElementById("msg-input");
     const text = String(input && input.value ? input.value : "").trim();
     if (!text) return;
+    const t = findThread(state.currentKey || "");
+    const peer = (t && t.other_user_name) || "the team";
+    const ok = await confirmDialog({
+      title: "Send this message?",
+      message: `This will send a message to ${peer}.`,
+      confirmText: "Send message",
+    });
+    if (!ok) return;
     void sendMessage(text);
   });
 

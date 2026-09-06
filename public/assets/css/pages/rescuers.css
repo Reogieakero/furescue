@@ -79,6 +79,7 @@
 }
 
 .rescuer-split {
+  --rescuer-pane-height: min(760px, calc(100vh - 96px));
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
@@ -89,13 +90,12 @@
 @media (min-width: 1024px) {
   .rescuer-split {
     grid-template-columns: 3fr 1fr;
-    align-items: start;
+    align-items: stretch;
   }
 }
 
 .rescuer-record-panel {
-  height: 760px;
-  max-height: calc(100vh - 96px);
+  height: var(--rescuer-pane-height);
   margin-bottom: 0;
   display: flex;
   flex-direction: column;
@@ -114,6 +114,7 @@
 .rescuer-record-panel #rescuer-table .table-wrap {
   flex: 1;
   min-height: 0;
+  max-height: none;
   overflow: auto;
 }
 .rescuer-record-panel #rescuer-table .queue-pagination {
@@ -124,11 +125,21 @@
 .rescuer-detail-panel {
   margin-bottom: 0;
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 @media (min-width: 1024px) {
   .rescuer-detail-panel {
-    position: sticky;
-    top: 16px;
+    height: var(--rescuer-pane-height);
+    overflow: hidden;
+  }
+  .rescuer-detail-panel > .rescuer-detail,
+  .rescuer-detail-panel > .rescuer-detail-empty {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 }
 

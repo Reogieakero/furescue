@@ -7,6 +7,7 @@ export const state = {
   category: "all",
   query: "",
   page: 1,
+  pageSize: 20,
   view: "library",
   editor: emptyEditor(),
   loadError: "",

@@ -6,7 +6,7 @@ import { setNavBadge } from "/assets/js/lib/swr.js";
 import { state } from "../state.js";
 import { KpiGrid } from "/shared/components/kpi-card/kpi-card.js";
 import { buildKpis, KpiTile, rescuerCounts, toKpiCardProps } from "./kpis.js";
-import { FilterTabs } from "./filters.js";
+import { FilterTabs, FilterToolbar } from "./filters.js";
 import { RescuerTable } from "./table.js";
 import { RescuerDetail } from "./detail.js";
 
@@ -32,8 +32,11 @@ function RescuersPanel() {
         <i data-lucide="siren"></i>
         <h2 class="panel-title">${state.filter === "pending" ? "Applications" : "Rescuers"}</h2>
       </div>
+      <div class="panel-head-tools">
+        <div id="rescuer-tabs-wrap">${FilterTabs()}</div>
+      </div>
     </div>
-    <div id="rescuer-filters">${FilterTabs()}</div>
+    <div id="rescuer-filters">${FilterToolbar()}</div>
     <div id="rescuer-table" class="panel-body">${RescuerTable()}</div>
   </div>`;
 }
@@ -67,8 +70,8 @@ export function RescuersPage(user, { loading = false } = {}) {
 export function rerenderAll() {
   const kpis = document.getElementById("rescuer-kpis");
   if (kpis) kpis.innerHTML = buildKpis().map(KpiTile).join("");
-  const filters = document.getElementById("rescuer-filters");
-  if (filters) filters.innerHTML = FilterTabs();
+  const tabs = document.getElementById("rescuer-tabs-wrap");
+  if (tabs) tabs.innerHTML = FilterTabs();
   const table = document.getElementById("rescuer-table");
   if (table) table.innerHTML = RescuerTable();
   const navBadge = document.querySelector('.sidebar-link[href="/admin/rescuers/"] .sidebar-badge');

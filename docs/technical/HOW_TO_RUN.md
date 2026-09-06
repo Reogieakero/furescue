@@ -128,10 +128,12 @@ Auth-only (users, roles, permissions — no reports or medical records):
 php seeders\seed_users.php
 ```
 
-Full demo dataset (reports, cases, animals, adoptions, e-learning, notifications):
+Full demo dataset (about 100+ rows per domain — reports, cases, animals, health, adoptions, messages, notifications, e-learning):
 ```bat
 php seeders\seed.php
 ```
+
+`seed.php` is an orchestrator. Domain files can also be run on their own after accounts exist: `seed_accounts.php`, `seed_reports.php`, `seed_cases.php`, `seed_animals.php`, `seed_health.php`, `seed_adoptions.php`, `seed_messages.php`, `seed_notifications.php`, `seed_elearning.php`.
 
 Both are **idempotent** — safe to re-run. To wipe the database and start over:
 
@@ -168,7 +170,7 @@ In a **second** terminal, from the repo root:
 npm install
 npm run build
 ```
-`npm run build` compiles `public/assets/css/input.css` → `public/assets/css/style.css` (`-i ./public/assets/css/input.css -o ./public/assets/css/style.css`). Use `npm run watch` if you will edit styles.
+`npm run build` copies `clsx` / `tailwind-merge` / `cva` into `public/assets/js/vendor/`, rebuilds the Lucide subset, and compiles `public/assets/css/input.css` → `public/assets/css/style.css`. Use `npm run watch` if you will edit styles.
 
 ### Step 13 — Open the system
 With the server from Step 11 running, open in your browser:
@@ -223,7 +225,7 @@ php seeders\seed.php
 php -S 127.0.0.1:8000 -t public public\index.php
 
 npm install
-npm run build      :: one-time compile
+npm run build      :: vendor ESM + Lucide subset + Tailwind
 npm run watch      :: auto recompile while editing
 ```
 

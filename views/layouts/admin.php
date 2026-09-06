@@ -95,7 +95,7 @@ $adminProfileMenu = '
         . $adminMenuSeparator
         . $adminMenuLabel('System')
         . $adminMenuItem('user', 'Account', '/account/')
-        . $adminMenuItem('users', 'Users', '/admin/rescuers/')
+        . $adminMenuItem('users', 'Users', '/admin/users/')
         . $adminMenuSeparator
         . $adminMenuItem('log-out', 'Log Out', '/auth/logout.php', true) . '
     </div>

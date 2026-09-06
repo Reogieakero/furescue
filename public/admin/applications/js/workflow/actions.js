@@ -44,8 +44,8 @@ async function refresh() {
 export async function runApprove(id) {
   const { applicant, animal } = labels(id);
   const ok = await confirmDialog({
-    title: "Approve adoption",
-    message: `Are you sure you want to approve this application for ${applicant}?`,
+    title: "Approve this adoption?",
+    message: `Approve the adoption application for ${applicant} · ${animal}?`,
     info: info(id),
     confirmText: "Approve",
     cancelText: "Cancel",
@@ -59,8 +59,8 @@ export async function runApprove(id) {
 export async function runDecline(id) {
   const { applicant, animal } = labels(id);
   const ok = await confirmDialog({
-    title: "Decline adoption",
-    message: `Are you sure you want to decline this application for ${applicant}?`,
+    title: "Decline this adoption?",
+    message: `Decline the adoption application for ${applicant} · ${animal}?`,
     info: info(id),
     confirmText: "Decline",
     cancelText: "Cancel",
@@ -78,8 +78,8 @@ export async function runDecline(id) {
 export async function runComplete(id) {
   const { applicant, animal } = labels(id);
   const ok = await confirmDialog({
-    title: "Complete adoption",
-    message: `Mark this adoption as complete for ${applicant} · ${animal}?`,
+    title: "Complete this adoption?",
+    message: `Mark the adoption as complete for ${applicant} · ${animal}?`,
     info: info(id),
     confirmText: "Complete",
     cancelText: "Cancel",

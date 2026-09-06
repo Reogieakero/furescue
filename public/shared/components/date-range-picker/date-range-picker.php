@@ -21,10 +21,13 @@ if (!function_exists('date_range_label')) {
         if ($start !== '' && $end !== '') {
             return $start === $end
                 ? date_range_pretty($start)
-                : date_range_pretty($start) . ' to ' . date_range_pretty($end);
+                : date_range_pretty($start) . ' – ' . date_range_pretty($end);
         }
         if ($start !== '') {
-            return date_range_pretty($start) . ' to …';
+            return 'From ' . date_range_pretty($start);
+        }
+        if ($end !== '') {
+            return 'Through ' . date_range_pretty($end);
         }
         return $placeholder;
     }
@@ -32,6 +35,8 @@ if (!function_exists('date_range_label')) {
 
 if (!function_exists('date_range_picker')) {
     /**
+     * Compact one-month range: pick start then end, then Apply.
+     *
      * @param array{
      *   id?: string,
      *   start_id?: string,
@@ -61,40 +66,27 @@ if (!function_exists('date_range_picker')) {
         $max = (string) ($opts['max'] ?? '');
         $placeholder = (string) ($opts['placeholder'] ?? 'Pick dates');
         $className = (string) ($opts['className'] ?? '');
-        $presets = ($opts['presets'] ?? true) !== false;
         $label = date_range_label($start, $end, $placeholder);
         $labelCls = 'dp-trigger-label' . ($start === '' ? ' is-placeholder' : '');
-        $presetItems = [
-            ['today', 'Today'],
-            ['7d', '7 days'],
-            ['30d', '30 days'],
-            ['month', 'This month'],
-        ];
-        $presetHtml = '';
-        if ($presets) {
-            $presetHtml = '<div class="dp-presets">';
-            foreach ($presetItems as [$pid, $plabel]) {
-                $presetHtml .= '<button type="button" class="dp-preset" data-range-preset="' . $esc($pid) . '">' . $esc($plabel) . '</button>';
-            }
-            $presetHtml .= '<button type="button" class="dp-preset dp-preset--clear" data-range-clear>Clear</button></div>';
-        }
+        $errorId = $id !== '' ? $id . '-error' : '';
         $wrapCls = trim('dp-range' . ($className !== '' ? ' ' . $className : ''));
+        $errorAttr = $errorId !== '' ? ' id="' . $esc($errorId) . '"' : '';
+
         return '
   <div id="' . $esc($id) . '" class="' . $esc($wrapCls) . '" data-date-range data-min="' . $esc($min) . '" data-max="' . $esc($max) . '" data-placeholder="' . $esc($placeholder) . '">
     <button type="button" class="dp-trigger" data-range-trigger aria-haspopup="dialog" aria-expanded="false" aria-label="Date range">
-      <i data-lucide="calendar-range" class="dp-trigger-icon"></i>
       <span class="' . $esc($labelCls) . '" data-range-label>' . $esc($label) . '</span>
       <i data-lucide="chevron-down" class="dp-trigger-caret"></i>
     </button>
     <div class="dp-popover" data-range-popover hidden role="dialog" aria-label="Choose date range">
-      ' . $presetHtml . '
-      <div class="dp-cals-toolbar">
-        <button type="button" class="dp-nav" data-range-prev aria-label="Previous month"><i data-lucide="chevron-left"></i></button>
-        <span class="dp-cals-caption" data-range-caption></span>
-        <button type="button" class="dp-nav" data-range-next aria-label="Next month"><i data-lucide="chevron-right"></i></button>
-      </div>
       <div class="dp-cals" data-range-cals></div>
-      <p class="dp-hint" data-range-hint>Choose a start date, then an end date.</p>
+      <p class="dp-range-error" data-range-error' . $errorAttr . ' hidden>The start date must be on or before the end date.</p>
+      <p class="dp-range-live" data-range-live aria-live="polite"></p>
+      <div class="dp-range-actions">
+        <button type="button" class="dp-range-today" data-range-today>Today</button>
+        <button type="button" class="dp-range-clear" data-range-clear>Clear</button>
+        <button type="button" class="dp-range-apply" data-range-apply>Apply</button>
+      </div>
     </div>
     <input type="hidden" data-range-start id="' . $esc($startId) . '" name="' . $esc($startName) . '" value="' . $esc($start) . '">
     <input type="hidden" data-range-end id="' . $esc($endId) . '" name="' . $esc($endName) . '" value="' . $esc($end) . '">

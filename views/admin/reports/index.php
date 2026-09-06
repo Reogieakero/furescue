@@ -110,7 +110,7 @@ usort($reports, static function (array $a, array $b) use ($caseByReport, $rptCas
     return $tsA <=> $tsB;
 });
 
-$PAGE_SIZE = 15;
+$PAGE_SIZE = pagination_default_page_size();
 
 $actionLinksFor = static function (array $r) use ($caseByReport, $rptButton, $rptLink): string {
     $ridAttr = 'data-action="%s" data-id="' . e((string) ($r['id'] ?? '')) . '"';
@@ -168,7 +168,7 @@ foreach ($pageRows as $r) {
 if ($reports === []) {
     $tableInner = '<div class="queue-empty"><div class="empty-state"><i data-lucide="file-text"></i><span>No reports match.</span></div></div>';
 } else {
-    $pagination = count($reports) > $PAGE_SIZE ? '<div class="queue-pagination">' . pagination_bar(count($reports), $PAGE_SIZE, 1) . '</div>' : '';
+    $pagination = '<div class="queue-pagination">' . pagination_bar(count($reports), $PAGE_SIZE, 1) . '</div>';
     $tableInner = '
     <div class="table-wrap">
       <table class="table">
@@ -233,11 +233,13 @@ $adminChildren = '
         <i data-lucide="map-pin"></i>
         <h2 class="panel-title">All reports</h2>
       </div>
+      <div class="panel-head-tools">
+        <div id="report-tabs-wrap">' . filter_tabs_html('report-tabs', $filterButtons($filterDefs, 'all', $chipCounts)) . '</div>
+      </div>
     </div>
     <div id="report-filters">'
         . toolbar_html(
-            filter_tabs_html('report-tabs', $filterButtons($filterDefs, 'all', $chipCounts))
-            . search_control('report-search', 'Search case #, barangay, description…')
+            search_control('report-search', 'Search case #, barangay, description…')
             . '<div class="report-sort">
       <label for="report-sort" class="report-sort-label">Sort</label>
       ' . $sortSelect . '

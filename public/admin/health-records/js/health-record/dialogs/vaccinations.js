@@ -2,10 +2,10 @@ import { createIcons, icons } from "lucide";
 import { Button } from "/shared/components/button/button.js";
 import { initSelect } from "/shared/components/select/select.js";
 import { DatePicker, initDatePicker } from "/shared/components/date-picker/date-picker.js";
-import { Spinner } from "/shared/components/spinner/spinner.js";
 import { toast } from "/shared/components/toast/toast.js";
 import { upsertAnimalVaccinations } from "/assets/js/admin/admin-data.js";
-import { record, ui, paint, reloadRecord, syncHidden } from "../context.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
+import { record, ui, reloadRecord, syncHidden } from "../context.js";
 import { vaccineOptionList, selectField, STATUS_OPTIONS } from "../util.js";
 import { maybeNotifyAdoptionReady } from "../adoption-toast.js";
 import { esc } from "../../health-records/components/util.js";
@@ -49,57 +49,27 @@ export async function deleteSelectedVaccinations() {
     return;
   }
   const count = checks.length;
-  const overlay = document.createElement("div");
-  overlay.className = "dialog-overlay";
-  overlay.innerHTML = `
-    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="vax-del-title">
-      <div class="dialog-head">
-        <div class="dialog-title-wrap">
-          <i data-lucide="trash-2" class="dialog-icon"></i>
-          <h3 class="dialog-title" id="vax-del-title">Delete vaccination${count > 1 ? "s" : ""}</h3>
-        </div>
-        <button type="button" class="dialog-x" aria-label="Close"><i data-lucide="x"></i></button>
-      </div>
-      <div class="dialog-body">
-        <p class="dialog-message">Delete ${count} selected vaccination record${count > 1 ? "s" : ""}? This cannot be undone.</p>
-      </div>
-      <div class="dialog-foot">
-        ${Button({ text: "Cancel", variant: "outline", attrs: 'data-act="cancel"' })}
-        ${Button({ text: "Delete", variant: "destructive", attrs: 'data-act="ok"' })}
-      </div>
-    </div>`;
-  document.body.appendChild(overlay);
-  createIcons({ icons });
-
-  const close = () => overlay.remove();
-  const okBtn = overlay.querySelector('[data-act="ok"]');
-  const performDelete = async () => {
-    const removeIdx = new Set(checks.map((c) => parseInt(c.getAttribute("data-idx") || "0", 10)));
-    const remaining = (record.vaccinations || []).filter((_, i) => !removeIdx.has(i));
-    const records = remaining.map(toApiRecord);
-    const details = records.map(mapRecordToLegacyDetails);
-    okBtn.disabled = true;
-    okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Deleting…</span>`;
-    try {
+  const ok = await confirmDialog({
+    title: count > 1 ? "Delete these vaccinations?" : "Delete this vaccination?",
+    message:
+      count > 1
+        ? `Delete ${count} selected vaccination records? This cannot be undone.`
+        : "Delete this vaccination record? This cannot be undone.",
+    confirmText: "Delete",
+    cancelText: "Cancel",
+    danger: true,
+    run: async () => {
+      const removeIdx = new Set(checks.map((c) => parseInt(c.getAttribute("data-idx") || "0", 10)));
+      const remaining = (record.vaccinations || []).filter((_, i) => !removeIdx.has(i));
+      const records = remaining.map(toApiRecord);
+      const details = records.map(mapRecordToLegacyDetails);
       await upsertAnimalVaccinations(record.id, records, details);
-      toast("Vaccination record(s) deleted.", { type: "success" });
-      ui.vaxSelecting = false;
-      close();
-      await reloadRecord();
-    } catch (err) {
-      okBtn.disabled = false;
-      okBtn.innerHTML = `<i data-lucide="trash-2"></i><span>Delete</span>`;
-      createIcons({ icons });
-      toast(err && err.message ? err.message : "Could not delete vaccination.", { type: "error" });
-    }
-  };
-
-  overlay.querySelector('[data-act="cancel"]').addEventListener("click", close);
-  overlay.querySelector(".dialog-x").addEventListener("click", close);
-  okBtn.addEventListener("click", performDelete);
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) close();
+    },
   });
+  if (!ok) return;
+  toast("Vaccination record(s) deleted.", { type: "success" });
+  ui.vaxSelecting = false;
+  await reloadRecord();
 }
 
 export function openVaccinationDialog(editIdx = null) {
@@ -151,10 +121,11 @@ export function openVaccinationDialog(editIdx = null) {
   initDatePicker(overlay);
 
   const errorEl = overlay.querySelector("#vax-error");
-  const okBtn = overlay.querySelector('[data-act="ok"]');
   const close = () => overlay.remove();
+  let busy = false;
 
   const submit = async () => {
+    if (busy) return;
     const vaccine = (overlay.querySelector("#vax-vaccine-value")?.value || "").trim();
     if (!vaccine) {
       errorEl.textContent = "Please select a vaccine.";
@@ -177,28 +148,31 @@ export function openVaccinationDialog(editIdx = null) {
       route: (overlay.querySelector("#vax-route").value || "").trim() || null,
       notes: (overlay.querySelector("#vax-notes").value || "").trim() || null,
     };
-    okBtn.disabled = true;
-    okBtn.innerHTML = `${Spinner({ size: 16 })}<span>Saving…</span>`;
-    try {
-      let records;
-      if (editing && Array.isArray(record.vaccinations)) {
-        records = record.vaccinations.map((v, i) => toApiRecord(i === editIdx ? entry : v));
-      } else {
-        records = [...(record.vaccinations || []).map(toApiRecord), entry];
-      }
-      const details = records.map(mapRecordToLegacyDetails);
-      await upsertAnimalVaccinations(record.id, records, details);
-      toast("Vaccination saved.", { type: "success" });
-      if (!editing) maybeNotifyAdoptionReady("vaccination");
-      close();
-      await reloadRecord();
-    } catch (err) {
-      okBtn.disabled = false;
-      okBtn.innerHTML = `<i data-lucide="syringe"></i><span>Save</span>`;
-      createIcons({ icons });
-      errorEl.textContent = err && err.message ? err.message : "Could not save vaccination.";
-      errorEl.hidden = false;
+    let records;
+    if (editing && Array.isArray(record.vaccinations)) {
+      records = record.vaccinations.map((v, i) => toApiRecord(i === editIdx ? entry : v));
+    } else {
+      records = [...(record.vaccinations || []).map(toApiRecord), entry];
     }
+    const details = records.map(mapRecordToLegacyDetails);
+    busy = true;
+    const confirmed = await confirmDialog({
+      title: editing ? "Save changes to this vaccination?" : "Save this vaccination?",
+      message: editing
+        ? `Save changes to the "${vaccine}" vaccination for "${record.name || "this animal"}"?`
+        : `Add a "${vaccine}" vaccination to "${record.name || "this animal"}"?`,
+      confirmText: "Save",
+      cancelText: "Cancel",
+      run: () => upsertAnimalVaccinations(record.id, records, details),
+    });
+    if (!confirmed) {
+      busy = false;
+      return;
+    }
+    toast("Vaccination saved.", { type: "success" });
+    if (!editing) maybeNotifyAdoptionReady("vaccination");
+    close();
+    await reloadRecord();
   };
 
   overlay.querySelector('[data-act="cancel"]').addEventListener("click", close);

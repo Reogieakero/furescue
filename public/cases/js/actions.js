@@ -1,53 +1,15 @@
-import { createIcons, icons } from "lucide";
 import { toast } from "/shared/components/toast/toast.js";
 import { showLoader, hideLoader } from "/shared/components/loader/loader.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { acceptCase, declineCase } from "./api.js";
 
-function confirmDecline() {
-  return new Promise((resolve) => {
-    const overlay = document.createElement("div");
-    overlay.className = "rmodal-overlay";
-    overlay.innerHTML = `
-      <div class="rmodal" role="dialog" aria-modal="true" aria-labelledby="decline-title">
-        <div class="rmodal-head">
-          <i data-lucide="circle-x" class="text-destructive"></i>
-          <h2 class="rmodal-title" id="decline-title">Decline this case?</h2>
-          <button type="button" class="rmodal-x" aria-label="Close"><i data-lucide="x"></i></button>
-        </div>
-        <div class="rmodal-body">
-          <p class="m-0 text-sm text-muted-foreground">The case will leave your queue so another rescuer can take it.</p>
-        </div>
-        <div class="rmodal-foot">
-          <button type="button" class="rbtn rbtn--ghost" data-act="cancel">Keep case</button>
-          <button type="button" class="rbtn rbtn--ghost rbtn--danger-ghost" data-act="ok">
-            <i data-lucide="x"></i><span>Decline</span>
-          </button>
-        </div>
-      </div>`;
-
-    const host = document.querySelector(".resident-shell") || document.body;
-    host.appendChild(overlay);
-    createIcons({ icons });
-
-    const finish = (value) => {
-      document.removeEventListener("keydown", onEsc);
-      overlay.remove();
-      resolve(value);
-    };
-    const onEsc = (e) => {
-      if (e.key === "Escape") finish(false);
-    };
-    document.addEventListener("keydown", onEsc);
-    overlay.addEventListener("click", (e) => {
-      if (e.target === overlay) finish(false);
-    });
-    overlay.querySelector('[data-act="cancel"]').addEventListener("click", () => finish(false));
-    overlay.querySelector(".rmodal-x").addEventListener("click", () => finish(false));
-    overlay.querySelector('[data-act="ok"]').addEventListener("click", () => finish(true));
-  });
-}
-
 export async function runAccept(id) {
+  const ok = await confirmDialog({
+    title: "Accept this case?",
+    message: "This will accept the rescue case and mark it in progress.",
+    confirmText: "Accept case",
+  });
+  if (!ok) return null;
   showLoader("Accepting case…");
   try {
     const data = await acceptCase(id);
@@ -62,7 +24,12 @@ export async function runAccept(id) {
 }
 
 export async function runDecline(id) {
-  const ok = await confirmDecline();
+  const ok = await confirmDialog({
+    title: "Decline this case?",
+    message: "This will decline the rescue case so another rescuer can take it.",
+    confirmText: "Decline case",
+    danger: true,
+  });
   if (!ok) return null;
   showLoader("Declining case…");
   try {
@@ -90,7 +57,7 @@ export function bindCaseActions(root, { onAccepted, onDeclined } = {}) {
     try {
       if (act === "accept") {
         const data = await runAccept(id);
-        if (onAccepted) await onAccepted(id, data);
+        if (data !== null && onAccepted) await onAccepted(id, data);
       } else if (act === "decline") {
         const data = await runDecline(id);
         if (data !== null && onDeclined) await onDeclined(id, data);

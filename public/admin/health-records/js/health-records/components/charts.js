@@ -1,4 +1,5 @@
-import { Chart } from "chart.js";
+import { loadChart } from "/assets/js/lib/load-chart.js";
+import { whenVisible } from "/assets/js/lib/when-visible.js";
 import {
   state,
   vaccinationBreakdown,
@@ -35,13 +36,20 @@ const C = {
 
 const FONT = '"IBM Plex Mono", ui-monospace, monospace';
 
-Chart.defaults.font.family = FONT;
-Chart.defaults.font.size = 10;
-Chart.defaults.color = C.tick;
-
 const charts = { donutDog: null, donutCat: null, trend: null, stacked: null };
+let chartGen = 0;
+let defaultsApplied = false;
+
+function applyChartDefaults(Chart) {
+  if (defaultsApplied) return;
+  defaultsApplied = true;
+  Chart.defaults.font.family = FONT;
+  Chart.defaults.font.size = 10;
+  Chart.defaults.color = C.tick;
+}
 
 export function destroyCharts() {
+  chartGen += 1;
   Object.keys(charts).forEach((k) => {
     if (charts[k]) {
       charts[k].destroy();
@@ -74,13 +82,18 @@ function vaxList(v) {
   return `<div class="hr-vax-list">${group("Core", v.core)}${group("Non-core", v.nonCore)}</div>`;
 }
 
+function tokenHsl(name, fallback) {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return raw ? `hsl(${raw})` : fallback;
+}
+
 function SpeciesVaccinationCard(species, vaccines, title, icon, canvasId) {
   const b = vaccinationBreakdownForSpecies(species);
   return `
   <div class="panel panel--padded">
     <div class="panel-title-wrap"><i data-lucide="${icon}"></i><h2 class="panel-title panel-title--sm">${title}</h2></div>
     <div class="donut-wrap">
-      <div class="donut">
+      <div class="donut${b.total ? "" : " donut--empty"}">
         <canvas id="${canvasId}"></canvas>
         <div class="donut-center"><span class="donut-total">${b.total}</span><span class="donut-label">${species === "dog" ? "Dogs" : "Cats"}</span></div>
       </div>
@@ -98,21 +111,30 @@ export function CatVaccinationCard() {
   return SpeciesVaccinationCard("cat", CAT_VACCINES, "Cat vaccinations", "cat", "hr-donut-cat");
 }
 
-function mountSpeciesDonut(canvasId, species) {
+async function mountSpeciesDonut(canvasId, species, gen) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return null;
   const b = vaccinationBreakdownForSpecies(species);
+  const total = b.total;
+  if (!total) return null;
+  await whenVisible(canvas);
+  if (gen !== chartGen || !canvas.isConnected) return null;
+  const Chart = await loadChart();
+  if (!Chart || gen !== chartGen || !canvas.isConnected) return null;
+  applyChartDefaults(Chart);
+  const muted = tokenHsl("--border", "hsl(0 6% 88%)");
+  const card = tokenHsl("--card", "#fff");
   return new Chart(canvas, {
     type: "doughnut",
     data: {
-      labels: ["Complete", "Partial", "Not vaccinated"],
+      labels: total ? ["Complete", "Partial", "Not vaccinated"] : ["No data"],
       datasets: [
         {
-          data: [b.complete, b.partial, b.none],
-          backgroundColor: [C.complete, C.partial, C.none],
-          borderColor: "#fff",
+          data: total ? [b.complete, b.partial, b.none] : [1],
+          backgroundColor: total ? [C.complete, C.partial, C.none] : [muted],
+          borderColor: card,
           borderWidth: 2,
-          hoverOffset: 4,
+          hoverOffset: total ? 4 : 0,
         },
       ],
     },
@@ -120,7 +142,7 @@ function mountSpeciesDonut(canvasId, species) {
       responsive: true,
       maintainAspectRatio: false,
       cutout: "68%",
-      plugins: { legend: { display: false }, tooltip: { enabled: true } },
+      plugins: { legend: { display: false }, tooltip: { enabled: Boolean(total) } },
     },
   });
 }
@@ -135,10 +157,20 @@ export function TrendPanel() {
   </div>`;
 }
 
-function mountTrend() {
+function seriesHasData(values) {
+  return values.some((n) => n);
+}
+
+async function mountTrend(gen) {
   const canvas = document.getElementById("hr-trend-canvas");
   if (!canvas) return;
   const s = activitySeries(state.range);
+  if (!seriesHasData(s.checkups) && !seriesHasData(s.treatments) && !seriesHasData(s.vaccinations)) return;
+  await whenVisible(canvas);
+  if (gen !== chartGen || !canvas.isConnected) return;
+  const Chart = await loadChart();
+  if (!Chart || gen !== chartGen || !canvas.isConnected) return;
+  applyChartDefaults(Chart);
   const mk = (label, color, data, alpha) => ({
     label,
     data,
@@ -179,26 +211,40 @@ function mountTrend() {
 // ---- Health status by barangay (stacked) ------------------------------
 
 export function StackedPanel() {
-  const toggle = ["all", "dog", "cat"]
+  const speciesCount = {
+    all: state.records.length,
+    dog: state.records.filter((r) => r.species === "dog").length,
+    cat: state.records.filter((r) => r.species === "cat").length,
+  };
+  const toggle = [
+    { key: "all", label: "All" },
+    { key: "dog", label: "Dogs" },
+    { key: "cat", label: "Cats" },
+  ]
     .map(
       (s) =>
-        `<button class="hr-toggle-btn${state.species === s ? " is-active" : ""}" data-species="${s}">${
-          s === "all" ? "All" : s === "dog" ? "Dogs" : "Cats"
-        }</button>`
+        `<button type="button" class="q-btn${state.species === s.key ? " is-active" : ""}" data-species="${s.key}">${s.label} &middot; ${speciesCount[s.key]}</button>`
     )
     .join("");
   return `
   <div class="panel panel--padded">
     <div class="panel-title-wrap"><i data-lucide="bar-chart-3"></i><h2 class="panel-title panel-title--sm">Health by barangay</h2></div>
-    <div class="report-sort" style="margin:8px 0 12px;"><span class="hr-toggle">${toggle}</span></div>
+    <div class="report-sort" style="margin:8px 0 12px;"><div class="q-tabs" id="hr-species-tabs">${toggle}</div></div>
     <div class="hr-chart"><canvas id="hr-stacked-canvas"></canvas></div>
   </div>`;
 }
 
-function mountStacked() {
+async function mountStacked(gen) {
   const canvas = document.getElementById("hr-stacked-canvas");
   if (!canvas) return;
   const d = healthByBarangay();
+  const stackedTotal = d.healthy.reduce((sum, n, i) => sum + n + d.treatment[i] + d.critical[i], 0);
+  if (!d.labels.length || !stackedTotal) return;
+  await whenVisible(canvas);
+  if (gen !== chartGen || !canvas.isConnected) return;
+  const Chart = await loadChart();
+  if (!Chart || gen !== chartGen || !canvas.isConnected) return;
+  applyChartDefaults(Chart);
   charts.stacked = new Chart(canvas, {
     type: "bar",
     data: {
@@ -255,13 +301,19 @@ export function TopConditionsPanel() {
   return `
   <div class="panel panel--padded">
     <div class="panel-title-wrap"><i data-lucide="stethoscope"></i><h2 class="panel-title panel-title--sm">Top conditions</h2></div>
-    <div class="hr-cond-list">${rows}</div>
+    <div class="hr-cond-list${entries.length ? "" : " hr-cond-list--empty"}">${rows}</div>
   </div>`;
 }
 
-export function mountCharts() {
-  charts.donutDog = mountSpeciesDonut("hr-donut-dog", "dog");
-  charts.donutCat = mountSpeciesDonut("hr-donut-cat", "cat");
-  mountTrend();
-  mountStacked();
+export async function mountCharts() {
+  const gen = ++chartGen;
+  const [donutDog, donutCat] = await Promise.all([
+    mountSpeciesDonut("hr-donut-dog", "dog", gen),
+    mountSpeciesDonut("hr-donut-cat", "cat", gen),
+    mountTrend(gen),
+    mountStacked(gen),
+  ]);
+  if (gen !== chartGen) return;
+  charts.donutDog = donutDog;
+  charts.donutCat = donutCat;
 }

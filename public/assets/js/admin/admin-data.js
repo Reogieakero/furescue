@@ -149,6 +149,30 @@ export const fetchSuspendedRescuers = () =>
 
 export const fetchUser = (id) => raw(`/users/${id}`);
 
+export async function fetchUsers() {
+  const items = [];
+  let page = 1;
+  let total = Infinity;
+  while (items.length < total) {
+    const payload = await apiFetchFull(`/users?per_page=100&page=${page}`);
+    const batch = Array.isArray(payload.data) ? payload.data : [];
+    total = (payload.meta && payload.meta.total) ?? items.length + batch.length;
+    items.push(...batch);
+    if (batch.length === 0) break;
+    page += 1;
+    if (page > 50) break;
+  }
+  return { items, total: items.length };
+}
+
+export const createUser = (body) =>
+  post("/users", body).then((p) => (p && p.data ? p.data.user : null));
+
+export const updateUser = (id, body) =>
+  patch(`/users/${id}`, body).then((p) => (p && p.data ? p.data.user : null));
+
+export const deleteUser = (id) => del(`/users/${id}`);
+
 export const setUserStatus = (id, status) =>
   patch(`/users/${id}`, { account_status: status });
 

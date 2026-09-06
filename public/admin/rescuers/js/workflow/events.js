@@ -1,4 +1,5 @@
 import { createIcons, icons } from "lucide";
+import { readPageClick, readPageSizeChange } from "/shared/components/pagination/pagination.js";
 import { state, loadRescuers, persistSelection } from "../state.js";
 import { RescuerTable, rerenderAll, selectRescuer, toggleCaseNode, openRescuerModal, renderRescuerDetail } from "../components.js";
 import { runApprove, runReject, runSuspend, runActivate } from "./actions.js";
@@ -37,10 +38,8 @@ export function initRescuerEvents() {
       return;
     }
 
-    const pageBtn = e.target.closest("button[data-page]");
-    if (pageBtn) {
-      const page = parseInt(pageBtn.dataset.page, 10);
-      if (!page || page === state.page) return;
+    const page = readPageClick(e.target, state.page);
+    if (page) {
       state.page = page;
       persistSelection();
       const table = document.getElementById("rescuer-table");
@@ -78,6 +77,19 @@ export function initRescuerEvents() {
 
     const row = e.target.closest("tr[data-id]");
     if (row) return selectRescuer(row.dataset.id);
+  });
+
+  main.addEventListener("change", (e) => {
+    const next = readPageSizeChange(e.target, state.pageSize);
+    if (!next) return;
+    state.pageSize = next;
+    state.page = 1;
+    persistSelection();
+    const table = document.getElementById("rescuer-table");
+    if (table) {
+      table.innerHTML = RescuerTable();
+      createIcons({ icons });
+    }
   });
 
   main.addEventListener("input", (e) => {

@@ -165,9 +165,10 @@ function mount() {
   const overlay = document.querySelector("[data-animals-flyout-overlay]");
 
   document.addEventListener("click", (e) => {
-    const card = e.target.closest("[data-animal]");
+    const card = e.target.closest("[data-animals-flyout] [data-animal]");
     if (card) {
       const id = card.dataset.animal;
+      if (!id) return;
       close();
       window.location.href = `/admin/health-records/health-record.php?id=${encodeURIComponent(id)}`;
       return;

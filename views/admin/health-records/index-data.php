@@ -211,6 +211,8 @@ $hrBadge = static function (string $text, string $variant) use ($hrBadgeVariant)
 // dashboard/helpers.js shortId()
 $hrShortId = static fn(mixed $id): string => !$id ? '—' : '#' . strtoupper(substr(str_replace('-', '', (string) $id), 0, 4));
 
+$hrRecordHref = static fn(mixed $id): string => '/admin/health-records/health-record.php?id=' . rawurlencode((string) $id);
+
 // ---- visibleRecords() under the default view == all records ---------------
 $visible = $records;
 
@@ -221,6 +223,8 @@ $countsPartial = count(array_filter($records, static fn($r) => $r['vaccinationSt
 $countsNone = count(array_filter($records, static fn($r) => $r['vaccinationStatus'] === 'none'));
 $countsOverdue = count(array_filter($records, static fn($r) => $hrDaysUntil($r['nextCheckupDue']) < 0));
 $countsTreatment = count(array_filter($records, static fn($r) => $r['healthStatus'] === 'not_healthy'));
+$countsDog = count(array_filter($records, static fn($r) => ($r['species'] ?? '') === 'dog'));
+$countsCat = count(array_filter($records, static fn($r) => ($r['species'] ?? '') === 'cat'));
 $countsDueSoon = count(array_filter($records, static function ($r) use ($hrDaysUntil): bool {
     $due = $r['nextCheckupDue'] ?? null;
     if ($due === null || $due === '') {
@@ -237,7 +241,6 @@ $hrKpiData = [
         'value' => (string) $countsOverdue,
         'label' => 'Overdue',
         'tone' => 'coral',
-        'filter' => 'overdue',
         'trend' => $countsOverdue ? ['text' => 'Needs attention', 'tone' => 'down'] : null,
         'desc' => 'Checkups whose due date has already passed.',
     ],
@@ -246,7 +249,6 @@ $hrKpiData = [
         'value' => (string) $countsDueSoon,
         'label' => 'Due soon',
         'tone' => 'amber',
-        'filter' => null,
         'trend' => ['text' => 'Next 14 days', 'tone' => 'neutral'],
         'desc' => 'Checkups due today or within the next 14 days.',
     ],
@@ -255,7 +257,6 @@ $hrKpiData = [
         'value' => (string) $countsComplete,
         'label' => 'Current',
         'tone' => 'jungle',
-        'filter' => 'complete',
         'trend' => ['text' => $pctComplete . '% of records', 'tone' => 'neutral'],
         'desc' => 'Animals with complete vaccination coverage.',
     ],
@@ -264,7 +265,6 @@ $hrKpiData = [
         'value' => (string) $countsNone,
         'label' => 'Missing vaccines',
         'tone' => 'ink',
-        'filter' => 'none',
         'trend' => null,
         'desc' => 'Animals with no vaccination on file.',
     ],
@@ -273,7 +273,6 @@ $hrKpiData = [
         'value' => (string) $countsTreatment,
         'label' => 'In treatment',
         'tone' => 'sky',
-        'filter' => 'under_treatment',
         'trend' => null,
         'desc' => 'Animals flagged not healthy and being monitored.',
     ],
@@ -287,3 +286,8 @@ $hrFilters = [
     ['key' => 'overdue', 'label' => 'Overdue', 'count' => $countsOverdue],
     ['key' => 'under_treatment', 'label' => 'Under treatment', 'count' => $countsTreatment],
 ];
+$hrTabs = '';
+foreach ($hrFilters as $f) {
+    $activeCls = $f['key'] === 'all' ? ' is-active' : '';
+    $hrTabs .= '<button type="button" data-filter="' . e($f['key']) . '" class="q-btn' . $activeCls . '">' . e($f['label']) . ' &middot; ' . e((string) $f['count']) . '</button>';
+}

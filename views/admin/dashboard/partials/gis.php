@@ -43,12 +43,9 @@ $densityRows = '
 $pendingBadge = $reportsPending['total'] ? '<span class="dash-action-badge">' . dash_esc((string) $reportsPending['total']) . '</span>' : '';
 
 $gisToolbar = '
-  <section class="panel dash-gis-toolbar" id="case-density-panel">
     <div class="dash-gis-head">
-      <div>
-        <h3 class="dash-side-title dash-gis-title">GIS Heatmap View</h3>
-        <p class="dash-gis-sub">Geographic distribution of animal welfare reports across Mati City.</p>
-      </div>
+      <h3 class="dash-side-title dash-gis-title">GIS Heatmap View</h3>
+      <p class="dash-gis-sub">Geographic distribution of animal welfare reports across Mati City.</p>
     </div>
     <div class="dash-filters is-open" id="gis-filters">
       <div class="dash-filters-group dash-filters-group--view">
@@ -70,11 +67,11 @@ $gisToolbar = '
       ' . button_html('Apply Filters', 'default', icon: 'filter', className: 'dash-apply', attrs: 'id="gis-apply"') . '
       ' . button_html('Reset', 'outline', icon: 'rotate-ccw', className: 'dash-reset', attrs: 'id="gis-reset"') . '
       </div>
-    </div>
-  </section>';
+    </div>';
 
 $mapCard = '
-  <section class="panel dash-gis-map">
+  <section class="panel" id="case-density-panel">
+    ' . $gisToolbar . '
     <div class="dash-map-wrap">
       <div id="case-density-map" class="map-canvas map-canvas--leaflet"></div>
       <aside class="dash-legend">
@@ -89,8 +86,6 @@ $mapCard = '
 
 $gisRow = '
   <div class="dash-gis">
-    ' . $gisToolbar . '
-    <div class="dash-gis-body">
     <div class="dash-gis-main">' . $mapCard . '</div>
     <div class="dash-gis-side">
       <section class="panel dash-side-card">
@@ -119,6 +114,5 @@ $gisRow = '
           <button type="button" class="dash-action" id="gis-export"><i data-lucide="download"></i> Export Heatmap Data</button>
         </div>
       </section>
-    </div>
     </div>
   </div>';

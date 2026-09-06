@@ -124,7 +124,7 @@ export function renderDetailError(message, { missing = false } = {}) {
       <i data-lucide="${missing ? "search-x" : "triangle-alert"}"></i>
       <p class="rempty-title">${missing ? "Case not found" : "Could not load this case"}</p>
       <p class="rempty-text">${esc(message)}</p>
-      <a href="/cases/" class="rbtn rbtn--ghost"><i data-lucide="arrow-left"></i><span>Back to My Cases</span></a>
+      <a href="/cases/" class="rbtn rbtn--ghost rbtn--sm"><i data-lucide="arrow-left"></i><span>Back to My Cases</span></a>
     </div>`;
 }
 
