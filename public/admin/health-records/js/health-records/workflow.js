@@ -4,8 +4,8 @@ import { rerenderAll } from "./components.js";
 import { RecordsPanel, FilterTabs } from "./components/table.js";
 import { AttentionPanel } from "./components/queue.js";
 import { StackedPanel, destroyCharts, mountCharts } from "./components/charts.js";
-import { initSelect } from "/assets/js/components/ui/select.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { initSelect } from "/shared/components/select/select.js";
+import { toast } from "/shared/components/toast/toast.js";
 import { datedCsvName, downloadCsv } from "/assets/js/lib/csv.js";
 
 let eventsReady = false;

@@ -1,5 +1,5 @@
-import { toast } from "/assets/js/components/ui/toast.js";
-import { confirmDialog } from "/assets/js/components/ui/dialog.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import * as api from "../../api.js";
 import { state, loadModules, resetEditor } from "../state.js";
 import { rerenderAll } from "../components.js";

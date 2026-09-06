@@ -1,7 +1,7 @@
 import { state } from "../state.js";
 import { shortId, timeAgo, titleCase } from "../helpers.js";
 import { TableHead, EmptyState, ACTIVITY_PAGE_SIZE, ChevronRight } from "./util.js";
-import { PaginationBar } from "/assets/js/components/ui/pagination.js";
+import { PaginationBar } from "/shared/components/pagination/pagination.js";
 import { mapCase } from "./queues.js";
 
 export function ActivityInner() {

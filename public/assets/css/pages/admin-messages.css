@@ -54,6 +54,30 @@
   }
 }
 
+.amsg-shell.is-inbox-empty {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.amsg-shell.is-inbox-empty .amsg-thread {
+  display: none;
+}
+
+.amsg-shell.is-inbox-empty .amsg-list {
+  border-bottom: none;
+}
+
+@media (min-width: 768px) {
+  .amsg-shell.is-inbox-empty .amsg-list {
+    border-right: none;
+  }
+}
+
+.amsg-shell.is-inbox-empty .amsg-list-items {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .amsg-list {
   display: flex;
   flex-direction: column;

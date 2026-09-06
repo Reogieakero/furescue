@@ -6,7 +6,7 @@ import { ListingsPage } from "./components.js";
 import { state, loadListings } from "./state.js";
 import { uniqueListingsByAnimal } from "./unique.js";
 import { initListingsEvents } from "./workflow.js";
-import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
 
 function initDate() {
   const el = document.getElementById("admin-date");

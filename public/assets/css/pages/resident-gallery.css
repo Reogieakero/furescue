@@ -7,35 +7,34 @@
 
 /* --- Filter / toolbar --- */
 .resident-shell .rfilterbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.625rem;
+  align-items: stretch;
 }
-.resident-shell .rfilter-field {
-  position: relative;
-  flex: 2 1 170px;
+.resident-shell .rfilter-field,
+.resident-shell .rfilter-search,
+.resident-shell .rfilterbar [data-select] {
+  width: 100%;
   min-width: 0;
 }
-.resident-shell .rfilter-field .lucide {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 15px;
-  height: 15px;
-  color: hsl(var(--muted-foreground));
-  pointer-events: none;
+.resident-shell .rfilter-search,
+.resident-shell .rfilter-field--grow {
+  grid-column: 1 / -1;
 }
-.resident-shell .rfilter-field .input {
-  padding-left: 32px;
+@media (min-width: 768px) {
+  .resident-shell .rfilterbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
-.resident-shell .rfilterbar .input {
-  flex: 1 1 120px;
-  min-width: 0;
-  width: auto;
-  height: 2.35rem;
-  font-size: 0.85rem;
+@media (min-width: 1024px) {
+  .resident-shell .rfilterbar {
+    grid-template-columns: minmax(12rem, 2fr) minmax(8rem, 1fr) minmax(7rem, 1fr) minmax(8rem, 1fr);
+  }
+  .resident-shell .rfilter-search,
+  .resident-shell .rfilter-field--grow {
+    grid-column: auto;
+  }
 }
 
 /* --- Animal card grid --- */

@@ -2,7 +2,7 @@ import { state } from "../state.js";
 import { timeAgo } from "../helpers.js";
 import { createIcons, icons } from "lucide";
 import { ChevronRight, EmptyState, rescuerAvatar } from "./util.js";
-import { Button } from "/assets/js/components/ui/button.js";
+import { Button } from "/shared/components/button/button.js";
 import { AttentionQueue, mapHealthUpdate } from "./queues.js";
 import { GisRow } from "./gis.js";
 import { RecentReportsCard } from "./recent-reports.js";
@@ -71,6 +71,9 @@ export function HealthCarousel() {
 
 export function RescuersCard() {
   const onDuty = state.rescuers.filter((u) => (u.duty_status || "off_duty") === "on_duty");
+  const active = state.overview.rescuers_active ?? state.rescuers.length;
+  const onDutyCount = state.overview.rescuers_on_duty ?? onDuty.length;
+  const stamp = active > 0 ? `${onDutyCount} / ${active} active` : `${onDutyCount} On duty`;
   const rows = onDuty.slice(0, 4).map((u) => {
     const r = {
       name: u.full_name || "Rescuer",
@@ -96,7 +99,7 @@ export function RescuersCard() {
     <div class="panel-head">
       <div class="panel-title-wrap"><i data-lucide="siren"></i><h2 class="panel-title panel-title--sm">Rescuers on duty</h2></div>
       <div class="rescuer-head-tools">
-        <span class="stamp stamp--sm stamp--accent">${state.overview.rescuers_on_duty} On duty</span>
+        <span class="stamp stamp--sm stamp--accent">${stamp}</span>
         <a href="/admin/rescuers/" class="btn-link">View all ${ChevronRight()}</a>
       </div>
     </div>

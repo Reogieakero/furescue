@@ -1,8 +1,8 @@
 import { createIcons, icons } from "lucide";
-import { Button } from "/assets/js/components/ui/button.js";
-import { Spinner } from "/assets/js/components/ui/spinner.js";
-import { toast } from "/assets/js/components/ui/toast.js";
-import { openDrawer, closeDrawer } from "/assets/js/components/ui/drawer.js";
+import { Button } from "/shared/components/button/button.js";
+import { Spinner } from "/shared/components/spinner/spinner.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { openDrawer, closeDrawer } from "/shared/components/drawer/drawer.js";
 import { uploadAnimalDocument, updateAnimalDocument } from "/assets/js/admin/admin-data.js";
 import { record, reloadRecord } from "../context.js";
 import { resolveDocUrl } from "../util.js";

@@ -27,14 +27,15 @@
   margin-right: 0;
 }
 
-.btn--solid {
+.btn.btn--solid {
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
   box-shadow: var(--shadow-sm);
 }
 
-.btn--solid:hover {
+.btn.btn--solid:hover {
   background: hsl(var(--primary) / 0.88);
+  color: hsl(var(--primary-foreground));
 }
 
 .btn--ghost {

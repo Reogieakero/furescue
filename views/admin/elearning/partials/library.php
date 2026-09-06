@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once shared_path('search/search.php');
+
 $pageRows = array_slice($modules, 0, ELEARN_PAGE_SIZE);
 
 $kpiTiles = kpi_card_html(['icon' => 'book-open', 'value' => $elearnCounts['total'], 'label' => 'Total modules', 'tone' => 'jungle'])
@@ -28,20 +30,13 @@ foreach (ELEARN_CATEGORIES as $c) {
       <button type="button" data-category="' . e($c['key']) . '" class="q-btn">' . e($c['label']) . ' &middot; ' . e((string) $elearnCatCounts[$c['key']]) . '</button>';
 }
 
-$filterTabs = '
-  <div class="report-toolbar">
-    <div class="q-tabs" id="elearn-status-tabs">
-      ' . $statusTabs . '
-    </div>
-    <div class="report-search">
-      <i data-lucide="search"></i>
-      <input id="elearn-search" type="text" placeholder="Search title…" value="">
-    </div>
-  </div>
-  <div class="report-toolbar elearn-cat-toolbar">
-    <div class="q-tabs" id="elearn-category-tabs">' . $categoryTabs . '
-    </div>
-  </div>';
+$filterTabs = toolbar_html(
+    filter_tabs_html('elearn-status-tabs', $statusTabs)
+    . search_control('elearn-search', 'Search title…')
+) . toolbar_html(
+    filter_tabs_html('elearn-category-tabs', $categoryTabs),
+    'elearn-cat-toolbar'
+);
 
 if ($modules === []) {
     $emptyBlock = '<div class="queue-empty">' . empty_state('book-open', 'No modules yet. Create your first lesson.') . '</div>';

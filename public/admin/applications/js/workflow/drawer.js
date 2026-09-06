@@ -1,6 +1,6 @@
 import { createIcons, icons } from "lucide";
-import { openDrawer } from "/assets/js/components/ui/drawer.js";
-import { Button } from "/assets/js/components/ui/button.js";
+import { openDrawer } from "/shared/components/drawer/drawer.js";
+import { Button } from "/shared/components/button/button.js";
 import { shortId, titleCase } from "/admin/js/helpers.js";
 import { esc, applicantName, animalName } from "../components/util.js";
 import { findAdoption, runApprove, runDecline, runComplete } from "./actions.js";

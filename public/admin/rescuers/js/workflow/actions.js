@@ -1,6 +1,6 @@
 import { createIcons, icons } from "lucide";
-import { toast } from "/assets/js/components/ui/toast.js";
-import { confirmDialog, detailsDialog } from "/assets/js/components/ui/dialog.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog, detailsDialog } from "/shared/components/dialog/dialog.js";
 import * as api from "/assets/js/admin/admin-data.js";
 import { state, loadRescuers } from "../state.js";
 import { rerenderAll, selectRescuer, renderRescuerDetail } from "../components.js";

@@ -1,4 +1,6 @@
-import { apiFetchFull, apiUpload, getAccessToken, API_BASE_URL } from "/assets/js/lib/api.js";
+import { apiFetchFull, apiUpload } from "/assets/js/lib/api.js";
+
+export { subscribeToNotifications } from "/assets/js/lib/notification-stream.js";
 
 async function list(path, perPage = 100) {
   const sep = path.includes("?") ? "&" : "?";
@@ -50,25 +52,6 @@ export const broadcastAnnouncement = (body) =>
 
 export const fetchRecentBroadcasts = () =>
   raw("/admin/notifications/recent").then((d) => (d && d.broadcasts) || []);
-
-export function subscribeToNotifications(callback) {
-  const token = getAccessToken();
-  if (!token || typeof EventSource === "undefined") return null;
-  const url = `${API_BASE_URL}/notifications/stream?access_token=${encodeURIComponent(token)}`;
-  const source = new EventSource(url);
-  source.onerror = (err) => {
-    console.error('SSE connection error:', err);
-    source.close();
-  };
-  source.onmessage = (event) => {
-    let payload = null;
-    try {
-      payload = JSON.parse(event.data);
-    } catch {}
-    if (payload && typeof callback === "function") callback(payload);
-  };
-  return source;
-}
 
 export const fetchUnreadCount = () =>
   raw("/notifications/unread-count").then((d) => (d && d.count) || 0);

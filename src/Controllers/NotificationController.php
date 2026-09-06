@@ -10,6 +10,9 @@ class NotificationController extends AbstractController
 {
     public function index(Request $req): void
     {
+        if ($this->rejectBadQuery($req)) {
+            return;
+        }
         $repo = $this->repo('notifications', ['id','user_id','type','message','related_type','related_id','is_read','created_at']);
         $filters = ['user_id' => $req->user['id']];
         if (isset($req->query['is_read'])) {
@@ -83,6 +86,16 @@ class NotificationController extends AbstractController
         Response::success(['broadcasts' => $svc->recentBroadcasts(20)]);
     }
 
+    /**
+     * php -S is single-threaded (PHP_CLI_SERVER_WORKERS is not supported on
+     * Windows). A held-open SSE loop blocks every other page, API call, and
+     * logout until the connection ends.
+     */
+    public static function holdConnectionOnSapi(string $sapi): bool
+    {
+        return $sapi !== 'cli-server';
+    }
+
     public function stream(Request $req): void
     {
         if ($req->user === null) {
@@ -104,6 +117,18 @@ class NotificationController extends AbstractController
 
         echo "retry: 5000\n\n";
         @flush();
+
+        try {
+            $this->sseSend(['type' => 'sync', 'unread_count' => $svc->unreadCount($userId)]);
+        } catch (\Throwable) {
+            // First tick is best-effort so a DB hiccup cannot pin the worker.
+        }
+
+        if (!self::holdConnectionOnSapi(PHP_SAPI)) {
+            echo "event: done\ndata: {}\n\n";
+            @flush();
+            return;
+        }
 
         $cursor = $svc->dbNow();
         /** @var array<string, string> $seenIds notification id => created_at (same-second dedupe) */

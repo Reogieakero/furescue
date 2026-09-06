@@ -1,5 +1,5 @@
 import { createIcons, icons } from "lucide";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { toast } from "/shared/components/toast/toast.js";
 import { esc } from "../health-records/components/util.js";
 import { createAdoptionListing } from "/assets/js/admin/admin-data.js";
 import { ui, record } from "./context.js";

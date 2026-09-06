@@ -4,7 +4,7 @@ import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { initShell } from "/assets/js/admin/app-shell.js";
 import { HealthRecordsPage, rerenderAll } from "./health-records/components.js";
 import { initHealthRecordsEvents } from "./health-records/workflow.js";
-import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
 import { initAnimalsFlyout } from "./health-records/components/animals-flyout.js";
 import { state, loadHealthRecords, loadHealthActivity, allAttentionCount } from "./health-records/state.js";
 import { mountCharts } from "./health-records/components/charts.js";

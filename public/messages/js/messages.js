@@ -3,7 +3,7 @@ import { apiFetch, getSessionUser, PORTAL_ROLES, requireAuth } from "/assets/js/
 import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { esc, timeAgo } from "/assets/js/lib/format.js";
 import { initResidentShell } from "/assets/js/components/resident-shell.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { toast } from "/shared/components/toast/toast.js";
 
 const CONTEXT_LABEL = { report: "Report", case: "Case", adoption: "Adoption" };
 
@@ -18,6 +18,31 @@ const state = {
 
 function threadKey(t) {
   return `${t.related_type}|${t.related_id}`;
+}
+
+function setHidden(id, hidden) {
+  document.getElementById(id)?.classList.toggle("is-hidden", hidden);
+}
+
+function syncInboxLayout() {
+  const shell = document.getElementById("msg-shell");
+  const emptyInbox = !!state.loadError || !state.threads.length;
+  shell?.classList.toggle("is-inbox-empty", emptyInbox);
+
+  if (emptyInbox || !state.currentKey) {
+    shell?.classList.remove("is-thread-open");
+    setHidden("msg-empty", emptyInbox);
+    setHidden("msg-thread-head", true);
+    setHidden("msg-scroll", true);
+    setHidden("msg-form", true);
+    return;
+  }
+
+  shell?.classList.add("is-thread-open");
+  setHidden("msg-empty", true);
+  setHidden("msg-thread-head", false);
+  setHidden("msg-scroll", false);
+  setHidden("msg-form", false);
 }
 
 function contextLabel(type) {
@@ -40,6 +65,7 @@ function renderThreads() {
         <p class="rempty-text">${esc(state.loadError)}</p>
       </div>`;
     createIcons({ icons });
+    syncInboxLayout();
     return;
   }
 
@@ -51,6 +77,7 @@ function renderThreads() {
         <p class="rempty-text">When you message the team about a report, case, or adoption, the conversation shows up here.</p>
       </div>`;
     createIcons({ icons });
+    syncInboxLayout();
     return;
   }
 
@@ -71,6 +98,7 @@ function renderThreads() {
     )
     .join("");
   createIcons({ icons });
+  syncInboxLayout();
 }
 
 function findThread(key) {
@@ -156,13 +184,7 @@ async function markThreadRead(key, knownMessages = null) {
 
 async function openThread(key) {
   state.currentKey = key;
-  const shell = document.getElementById("msg-shell");
-  shell?.classList.add("is-thread-open");
-
-  document.getElementById("msg-empty")?.classList.add("is-hidden");
-  document.getElementById("msg-thread-head")?.classList.remove("is-hidden");
-  document.getElementById("msg-scroll")?.classList.remove("is-hidden");
-  document.getElementById("msg-form")?.classList.remove("is-hidden");
+  syncInboxLayout();
 
   const t = findThread(key);
   const nameEl = document.getElementById("msg-peer-name");
@@ -256,7 +278,6 @@ function boot() {
 
   document.getElementById("msg-back")?.addEventListener("click", () => {
     state.currentKey = null;
-    document.getElementById("msg-shell")?.classList.remove("is-thread-open");
     renderThreads();
   });
 

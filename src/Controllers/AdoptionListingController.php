@@ -22,7 +22,7 @@ class AdoptionListingController extends AbstractController
     public function create(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('animal_id')->string(36);
+        $v->required('animal_id')->uuid('animal_id');
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
@@ -61,6 +61,11 @@ class AdoptionListingController extends AbstractController
 
     public function index(Request $req): void
     {
+        if ($this->rejectBadQuery($req, [
+            'status' => ['pending_review', 'approved', 'rejected'],
+        ])) {
+            return;
+        }
         $repo = $this->repo('adoption_listings');
         $filters = [];
         if (!in_array('adoptions.read', $req->permissions, true)) {
@@ -87,7 +92,7 @@ class AdoptionListingController extends AbstractController
     {
         $v = new \App\Validation\Validator($req->body);
         if ($decision === 'rejected') {
-            $v->required('review_notes')->string(500);
+            $v->required('review_notes')->string('review_notes', 500);
         }
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);

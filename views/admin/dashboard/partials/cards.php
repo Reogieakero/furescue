@@ -86,12 +86,15 @@ foreach (array_slice($onDutyRescuers, 0, 4) as $u) {
       <span class=\"rescuer-meta\">On duty</span>
     </div>";
 }
+$rescuerStamp = ((int) ($overview['rescuers_active'] ?? 0)) > 0
+    ? ((int) ($overview['rescuers_on_duty'] ?? 0)) . ' / ' . ((int) $overview['rescuers_active']) . ' active'
+    : ((int) ($overview['rescuers_on_duty'] ?? 0)) . ' On duty';
 $rescuersCard = '
   <div class="panel">
     <div class="panel-head">
       <div class="panel-title-wrap"><i data-lucide="siren"></i><h2 class="panel-title panel-title--sm">Rescuers on duty</h2></div>
       <div class="rescuer-head-tools">
-        <span class="stamp stamp--sm stamp--accent">' . e($overview['rescuers_on_duty']) . ' On duty</span>
+        <span class="stamp stamp--sm stamp--accent">' . e($rescuerStamp) . '</span>
         <a href="/admin/rescuers/" class="btn-link">View all ' . chevron_right() . '</a>
       </div>
     </div>

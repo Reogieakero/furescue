@@ -5,7 +5,7 @@ import { initShell } from "/assets/js/admin/app-shell.js";
 import { ReportsPage, attachReportTooltips, initReportSort } from "./components.js";
 import { applyPageState, state, loadReports } from "./state.js";
 import { initReportsEvents } from "./workflow.js";
-import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
 
 function initDate() {
   const el = document.getElementById("admin-date");

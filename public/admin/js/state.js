@@ -1,7 +1,7 @@
 import * as api from "/assets/js/admin/admin-data.js";
 import { safe, buildWeekChart } from "./helpers.js";
 import { readCache, writeCache, setNavBadge } from "/assets/js/lib/swr.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { toast } from "/shared/components/toast/toast.js";
 
 const CACHE_KEY = "page:dashboard";
 
@@ -21,7 +21,9 @@ const EMPTY_OVERVIEW = {
   animals_adopted: 0,
   adoptions_pending: 0,
   adoptions_completed: 0,
+  rescuers_active: 0,
   rescuers_on_duty: 0,
+  rescuers_off_duty: 0,
   residents: 0,
 };
 
@@ -100,7 +102,9 @@ export async function loadDashboard() {
       cases: caseList.length,
       cases_resolved: caseList.filter((c) => c.status === "resolved").length,
       adoptions_pending: state.adoptionsPending.total,
+      rescuers_active: rescuerList.length,
       rescuers_on_duty: rescuerList.filter((u) => (u.duty_status || "off_duty") === "on_duty").length,
+      rescuers_off_duty: rescuerList.filter((u) => (u.duty_status || "off_duty") !== "on_duty").length,
     };
   }
 
@@ -172,6 +176,5 @@ export function stopNotificationStream() {
 }
 
 if (typeof window !== "undefined") {
-  window.addEventListener("beforeunload", stopNotificationStream);
-  startNotificationStream();
+  window.addEventListener("pagehide", stopNotificationStream);
 }

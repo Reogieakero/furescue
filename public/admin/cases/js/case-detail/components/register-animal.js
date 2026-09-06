@@ -12,7 +12,7 @@
  * The button goes to /admin/animals/?from_case= which prefills source=rescued_case.
  */
 import { createIcons, icons } from "lucide";
-import { Button } from "/assets/js/components/ui/button.js";
+import { Button } from "/shared/components/button/button.js";
 import { apiFetchFull } from "/assets/js/lib/api.js";
 import { shortId } from "/admin/js/helpers.js";
 import { state } from "../state.js";

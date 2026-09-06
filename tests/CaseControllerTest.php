@@ -32,10 +32,10 @@ class CaseControllerTest extends TestCase
     public function testAssignRejectsOffDutyRescuer(): void
     {
         $caseId = $this->seedOpenCase();
-        $this->seedUser('rescuer-1', 'rescuer');
-        $this->seedDuty('rescuer-1', 'off_duty');
+        $this->seedUser('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', 'rescuer');
+        $this->seedDuty('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', 'off_duty');
 
-        $response = $this->assign($caseId, 'rescuer-1');
+        $response = $this->assign($caseId, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1');
 
         $this->assertFalse($response['body']['success']);
         $this->assertSame('RESCUER_OFF_DUTY', $response['body']['error']['code']);
@@ -46,20 +46,20 @@ class CaseControllerTest extends TestCase
     public function testAssignSucceedsForOnDutyRescuerAndNotifiesThem(): void
     {
         $caseId = $this->seedOpenCase();
-        $this->seedUser('rescuer-1', 'rescuer');
-        $this->seedDuty('rescuer-1', 'on_duty');
+        $this->seedUser('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', 'rescuer');
+        $this->seedDuty('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', 'on_duty');
 
-        $response = $this->assign($caseId, 'rescuer-1');
+        $response = $this->assign($caseId, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1');
 
         $this->assertTrue($response['body']['success']);
         $case = $this->caseRow($caseId);
         $this->assertSame('assigned', $case['status']);
-        $this->assertSame('rescuer-1', $case['assigned_rescuer_id']);
+        $this->assertSame('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', $case['assigned_rescuer_id']);
 
         $notifications = (int) $this->countWhere(
             'notifications',
             'user_id = ? AND type = ?',
-            ['rescuer-1', 'case_assigned']
+            ['aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', 'case_assigned']
         );
         $this->assertSame(1, $notifications);
 
@@ -70,9 +70,9 @@ class CaseControllerTest extends TestCase
     public function testAssignRejectsNonRescuerUser(): void
     {
         $caseId = $this->seedOpenCase();
-        $this->seedUser('resident-1', 'resident');
+        $this->seedUser('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa5', 'resident');
 
-        $response = $this->assign($caseId, 'resident-1');
+        $response = $this->assign($caseId, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa5');
 
         $this->assertFalse($response['body']['success']);
         $this->assertSame('INVALID_RESCUER', $response['body']['error']['code']);
@@ -81,10 +81,10 @@ class CaseControllerTest extends TestCase
     public function testAssignRejectsInactiveRescuerEvenWhenOnDuty(): void
     {
         $caseId = $this->seedOpenCase();
-        $this->seedUser('rescuer-pending', 'rescuer', 'pending');
-        $this->seedDuty('rescuer-pending', 'on_duty');
+        $this->seedUser('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa3', 'rescuer', 'pending');
+        $this->seedDuty('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa3', 'on_duty');
 
-        $response = $this->assign($caseId, 'rescuer-pending');
+        $response = $this->assign($caseId, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa3');
 
         $this->assertFalse($response['body']['success']);
         $this->assertSame('INVALID_RESCUER', $response['body']['error']['code']);
@@ -94,18 +94,18 @@ class CaseControllerTest extends TestCase
     {
         ['case_id' => $caseId] = $this->seedAssignedCase();
         $this->pdo->prepare('UPDATE cases SET status = ? WHERE id = ?')->execute(['in_progress', $caseId]);
-        $this->seedUser('rescuer-2', 'rescuer');
-        $this->seedDuty('rescuer-2', 'on_duty');
+        $this->seedUser('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2', 'rescuer');
+        $this->seedDuty('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2', 'on_duty');
 
-        $response = $this->assign($caseId, 'rescuer-2');
+        $response = $this->assign($caseId, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2');
 
         $this->assertTrue($response['body']['success']);
         $case = $this->caseRow($caseId);
         $this->assertSame('assigned', $case['status']);
-        $this->assertSame('rescuer-2', $case['assigned_rescuer_id']);
+        $this->assertSame('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2', $case['assigned_rescuer_id']);
         $this->assertSame(
             1,
-            $this->countWhere('notifications', 'user_id = ? AND type = ?', ['rescuer-2', 'case_assigned'])
+            $this->countWhere('notifications', 'user_id = ? AND type = ?', ['aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2', 'case_assigned'])
         );
     }
 
@@ -113,14 +113,14 @@ class CaseControllerTest extends TestCase
     {
         ['case_id' => $caseId] = $this->seedAssignedCase();
         $this->pdo->prepare('UPDATE cases SET status = ? WHERE id = ?')->execute(['resolved', $caseId]);
-        $this->seedUser('rescuer-2', 'rescuer');
-        $this->seedDuty('rescuer-2', 'on_duty');
+        $this->seedUser('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2', 'rescuer');
+        $this->seedDuty('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2', 'on_duty');
 
-        $response = $this->assign($caseId, 'rescuer-2');
+        $response = $this->assign($caseId, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2');
 
         $this->assertFalse($response['body']['success']);
         $this->assertSame('INVALID_STATUS', $response['body']['error']['code']);
-        $this->assertSame('rescuer-1', $this->caseRow($caseId)['assigned_rescuer_id']);
+        $this->assertSame('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', $this->caseRow($caseId)['assigned_rescuer_id']);
     }
 
     public function testStatusTransitionsEndWithResolvedReportAndResidentNotification(): void
@@ -129,7 +129,7 @@ class CaseControllerTest extends TestCase
         $this->pdo->prepare('UPDATE cases SET resolution_photos = ? WHERE id = ?')
             ->execute([json_encode(['/uploads/proof.jpg']), $caseId]);
 
-        $accepted = $this->workflow($caseId, 'accept', ['id' => 'rescuer-1', 'role' => 'rescuer']);
+        $accepted = $this->workflow($caseId, 'accept', ['id' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', 'role' => 'rescuer']);
         $resolved = $this->workflow($caseId, 'resolve', ['id' => 'admin-1', 'role' => 'admin']);
 
         $this->assertTrue($accepted['body']['success']);
@@ -160,11 +160,11 @@ class CaseControllerTest extends TestCase
     public function testRescuerCannotUpdateCaseAssignedToAnotherRescuer(): void
     {
         ['case_id' => $caseId] = $this->seedAssignedCase();
-        $this->seedUser('rescuer-other', 'rescuer');
+        $this->seedUser('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa4', 'rescuer');
 
         $request = $this->makeRequest('PATCH', "/api/v1/cases/{$caseId}/status", [
             'status' => 'in_progress',
-        ], [], [], ['id' => 'rescuer-other', 'role' => 'rescuer']);
+        ], [], [], ['id' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa4', 'role' => 'rescuer']);
         $request->params = ['id' => $caseId];
 
         $response = $this->observe(fn () => $this->controller()->updateStatus($request));
@@ -208,7 +208,7 @@ class CaseControllerTest extends TestCase
 
     private function updateStatus(string $caseId, string $status, ?array $user = null): array
     {
-        $user ??= ['id' => 'rescuer-1', 'role' => 'rescuer'];
+        $user ??= ['id' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', 'role' => 'rescuer'];
         $request = $this->makeRequest('PATCH', "/api/v1/cases/{$caseId}/status", [
             'status' => $status,
         ], [], [], $user);
@@ -268,10 +268,10 @@ class CaseControllerTest extends TestCase
     private function seedAssignedCase(): array
     {
         $this->seedUser('admin-1', 'admin');
-        $this->seedUser('rescuer-1', 'rescuer');
-        $this->seedDuty('rescuer-1', 'on_duty');
+        $this->seedUser('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', 'rescuer');
+        $this->seedDuty('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', 'on_duty');
         $this->seedReport('report-for-assigned-case', 'resident-owner');
-        $this->insertCase('case-assigned', 'report-for-assigned-case', 'assigned', 'rescuer-1');
+        $this->insertCase('case-assigned', 'report-for-assigned-case', 'assigned', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1');
         return ['case_id' => 'case-assigned', 'report_id' => 'report-for-assigned-case'];
     }
 

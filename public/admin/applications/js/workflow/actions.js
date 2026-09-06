@@ -1,7 +1,7 @@
 import { createIcons, icons } from "lucide";
-import { toast } from "/assets/js/components/ui/toast.js";
-import { confirmDialog } from "/assets/js/components/ui/dialog.js";
-import { closeDrawer } from "/assets/js/components/ui/drawer.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
+import { closeDrawer } from "/shared/components/drawer/drawer.js";
 import { shortId } from "/admin/js/helpers.js";
 import * as api from "../api.js";
 import { state, reloadData, loadAdoptions } from "../state.js";

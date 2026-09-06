@@ -2,7 +2,7 @@ import { createIcons, icons } from "lucide";
 import { requireAuth } from "/assets/js/lib/api.js";
 import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { initShell } from "/assets/js/admin/app-shell.js";
-import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
 import { state, loadCaseDetail, hydrateFromCache } from "./case-detail/state.js";
 import { CaseDetailPage, initCaseDetailEvents } from "./case-detail/components.js";
 import "./case-detail/components/register-animal.js";

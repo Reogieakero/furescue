@@ -1,4 +1,4 @@
-import { Button } from "/assets/js/components/ui/button.js";
+import { Button } from "/shared/components/button/button.js";
 import { esc } from "../../health-records/components/util.js";
 import { emptyState } from "../util.js";
 

@@ -37,7 +37,7 @@ $pageState = [
 ];
 $pageModules = ['/account/js/account.js'];
 $pageTitle = 'FurEscue — Account';
-$pageDescription = 'Update your FurEscue name, phone number, and address.';
+$pageDescription = 'Update your FurEscue profile photo, name, phone number, and address.';
 $activeNav = 'account';
 $residentShellTitle = 'Account';
 

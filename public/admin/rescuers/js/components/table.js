@@ -1,5 +1,5 @@
-import { PaginationBar } from "/assets/js/components/ui/pagination.js";
-import { Button } from "/assets/js/components/ui/button.js";
+import { PaginationBar } from "/shared/components/pagination/pagination.js";
+import { Button } from "/shared/components/button/button.js";
 import { esc, dutyStampCls, dutyLabel } from "./util.js";
 import { shortId, timeAgo } from "/admin/js/helpers.js";
 import { rescuerAvatar } from "/admin/js/components/util.js";

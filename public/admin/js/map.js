@@ -1,5 +1,6 @@
 import { createIcons, icons } from "lucide";
-import { initSelect } from "/assets/js/components/ui/select.js";
+import { initSelect } from "/shared/components/select/select.js";
+import { initDateRangePicker, setDateRange } from "/shared/components/date-range-picker/date-range-picker.js";
 import { downloadCsv, datedCsvName } from "/assets/js/lib/csv.js";
 import { classifyReportType, displayStatus, cssVar, hslToken, categoryBreakdown, densitySummary } from "./insights.js";
 import { categoryLegendHtml, densityRowsHtml } from "./components/gis.js";
@@ -155,6 +156,7 @@ export function bindGisActions() {
       filters.status = value || "";
     },
   });
+  initDateRangePicker(document.getElementById("gis-date-range"));
 
   document.getElementById("gis-apply")?.addEventListener("click", () => {
     filters.start = document.getElementById("gis-date-start")?.value || "";
@@ -164,10 +166,7 @@ export function bindGisActions() {
 
   document.getElementById("gis-reset")?.addEventListener("click", () => {
     filters.start = filters.end = filters.type = filters.status = "";
-    const start = document.getElementById("gis-date-start");
-    const end = document.getElementById("gis-date-end");
-    if (start) start.value = "";
-    if (end) end.value = "";
+    setDateRange(document.getElementById("gis-date-range"), { start: "", end: "" });
     renderLayers();
   });
 

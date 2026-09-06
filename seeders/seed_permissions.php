@@ -20,6 +20,7 @@ $permissions = [
     ['animals.vitals.read', 'View animal vitals'],
     ['cases.read', 'List and view cases'],
     ['cases.assign', 'Assign cases to rescuers'],
+    ['cases.respond', 'Respond to assigned cases'],
     ['cases.status_change', 'Update case status'],
     ['cases.proof', 'Add resolution proof to cases'],
     ['reports.read', 'View all reports'],

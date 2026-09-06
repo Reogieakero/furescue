@@ -1,4 +1,6 @@
-import { esc } from "./util.js";
+import { Search } from "/shared/components/search/search.js";
+import { Toolbar } from "/shared/components/toolbar/toolbar.js";
+import { FilterTabs as TabStrip, FilterTab } from "/shared/components/filter-tabs/filter-tabs.js";
 import { state } from "../state.js";
 import { listingCounts } from "./kpis.js";
 
@@ -17,17 +19,14 @@ export function FilterTabs() {
     approved: c.live,
     rejected: c.rejected,
   };
-  return `
-  <div class="report-toolbar">
-    <div class="q-tabs" id="listing-tabs">
-      ${FILTERS.map(
-        (f) =>
-          `<button data-filter="${f.key}" class="q-btn${state.filter === f.key ? " is-active" : ""}">${f.label} &middot; ${count[f.key]}</button>`
-      ).join("")}
-    </div>
-    <div class="report-search">
-      <i data-lucide="search"></i>
-      <input id="listing-search" type="text" placeholder="Search animal, poster…" value="${esc(state.query)}">
-    </div>
-  </div>`;
+  return Toolbar({
+    children: `
+    ${TabStrip({
+      id: "listing-tabs",
+      children: FILTERS.map((f) =>
+        FilterTab({ key: f.key, label: `${f.label} &middot; ${count[f.key]}`, active: state.filter === f.key })
+      ).join(""),
+    })}
+    ${Search({ id: "listing-search", placeholder: "Search animal, poster…", value: state.query })}`,
+  });
 }

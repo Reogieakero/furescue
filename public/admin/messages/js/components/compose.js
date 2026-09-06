@@ -1,6 +1,6 @@
 import { createIcons, icons } from "lucide";
-import { Button } from "/assets/js/components/ui/button.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { Button } from "/shared/components/button/button.js";
+import { toast } from "/shared/components/toast/toast.js";
 import { fetchPendingAdoptions, fetchReports, fetchCases } from "../../api.js";
 import { state } from "../state.js";
 import { buildComposeTargets, contextLabel, esc } from "../util.js";

@@ -1,4 +1,4 @@
-import { Badge } from "/assets/js/components/ui/badge.js";
+import { Badge } from "/shared/components/badge/badge.js";
 import { esc, photos } from "./util.js";
 
 export function renderAttachments(caseData) {

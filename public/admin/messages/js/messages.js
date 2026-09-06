@@ -5,7 +5,7 @@ import { initShell } from "/assets/js/admin/app-shell.js";
 import { MessagesPage } from "./components.js";
 import { state } from "./state.js";
 import { initMessagesEvents, refreshThreads, startPolling } from "./workflow.js";
-import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
 
 function initDate() {
   const el = document.getElementById("admin-date");
@@ -27,7 +27,7 @@ function initPageInteractions() {
   startPolling();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function boot() {
   if (window.__PAGE_STATE__) {
     bootstrapPageAuth();
     Object.assign(state, window.__PAGE_STATE__);
@@ -45,4 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const app = document.getElementById("app");
   if (app) app.innerHTML = MessagesPage(user);
   initPageInteractions();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}

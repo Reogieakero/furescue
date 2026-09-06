@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once shared_path('search/search.php');
+
 /** @var list<array<string, mixed>> $rescuerRowsAll */
 /** @var list<array<string, mixed>> $pendingItems */
 
@@ -97,15 +99,10 @@ foreach ($filterDefs as $f) {
     $tabButtons .= '
         <button data-filter="' . e($f['key']) . '" class="q-btn' . $activeCls . '">' . e($f['label']) . ' &middot; ' . e($f['count']) . '</button>';
 }
-$filterTabs = '
-  <div class="report-toolbar">
-    <div class="q-tabs" id="rescuer-tabs">' . $tabButtons . '
-    </div>
-    <div class="report-search">
-      <i data-lucide="search"></i>
-      <input id="rescuer-search" type="text" placeholder="Search name, email, phone…" value="">
-    </div>
-  </div>';
+$filterTabs = toolbar_html(
+    filter_tabs_html('rescuer-tabs', $tabButtons)
+    . search_control('rescuer-search', 'Search name, email, phone…')
+);
 
 const RESCUERS_PAGE_SIZE = 10;
 $pagedRows = array_slice($rescuerRowsAll, 0, RESCUERS_PAGE_SIZE);

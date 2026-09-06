@@ -1,5 +1,7 @@
 <?php
 
+require_once shared_path('search/search.php');
+
 $hrTabs = '';
 foreach ($hrFilters as $f) {
     $activeCls = $f['key'] === 'all' ? ' is-active' : '';
@@ -26,21 +28,18 @@ $pageHead = '
 
 $controlsPanel = '
   <div class="panel hr-toolbar-panel">
-    <div class="report-toolbar">
-      <div class="q-tabs" id="hr-tabs">' . $hrTabs . '</div>
-      <div class="report-search">
-        <i data-lucide="search"></i>
-        <input id="hr-search" type="text" placeholder="Search animal, barangay, condition, vet, id…" value="">
-      </div>
-      <div class="report-sort">
+    ' . toolbar_html(
+        filter_tabs_html('hr-tabs', $hrTabs)
+        . search_control('hr-search', 'Search animal, barangay, condition, vet, id…')
+        . '<div class="report-sort">
         <label for="hr-range" class="report-sort-label">Range</label>
         ' . select_control('hr-range', [
             ['value' => '30d', 'label' => 'Last 30 days'],
             ['value' => '90d', 'label' => 'Last 90 days'],
             ['value' => '12mo', 'label' => 'Last 12 months'],
         ], '30d', 'Range') . '
-      </div>
-    </div>
+      </div>'
+    ) . '
   </div>';
 
 $trendPanel = '

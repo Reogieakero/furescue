@@ -1,7 +1,8 @@
 import { createIcons, icons } from "lucide";
-import { Button } from "/assets/js/components/ui/button.js";
-import { Spinner } from "/assets/js/components/ui/spinner.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { Button } from "/shared/components/button/button.js";
+import { DatePicker, initDatePicker } from "/shared/components/date-picker/date-picker.js";
+import { Spinner } from "/shared/components/spinner/spinner.js";
+import { toast } from "/shared/components/toast/toast.js";
 import { upsertAnimalMedical } from "/assets/js/admin/admin-data.js";
 
 function esc(value) {
@@ -45,7 +46,7 @@ export function openHealthRecordDialog(animal) {
               .join("")}</select>`}</div>
 
             <label class="dialog-label" for="hr-date">Last checkup date</label>
-            <input type="date" class="dialog-input" id="hr-date" />
+            ${DatePicker({ id: "hr-date", name: "lastCheckup", placeholder: "Pick a date", max: new Date().toISOString().slice(0, 10) })}
 
             <label class="dialog-label" for="hr-details">Vaccination details</label>
             <input class="dialog-input" id="hr-details" placeholder="e.g. Anti-rabies on 2026-05-12" autocomplete="off" />
@@ -61,10 +62,11 @@ export function openHealthRecordDialog(animal) {
 
     document.body.appendChild(overlay);
     createIcons({ icons });
+    initDatePicker(overlay);
 
     const notesEl = overlay.querySelector("#hr-notes");
     const vaxSel = overlay.querySelector("#hr-vax-sel");
-    const dateEl = overlay.querySelector("#hr-date");
+    const dateEl = overlay.querySelector("#hr-date-value");
     const detailsEl = overlay.querySelector("#hr-details");
     const errorEl = overlay.querySelector("#hr-error");
     notesEl && notesEl.focus();
@@ -79,7 +81,7 @@ export function openHealthRecordDialog(animal) {
       const body = {
         medical_history_notes: notesEl.value.trim(),
         vaccination_status: vaxSel ? vaxSel.value : null,
-        last_checkup_date: dateEl.value || null,
+        last_checkup_date: dateEl?.value || null,
       };
       if (details) body.vaccination_details = [details];
       const okBtn = overlay.querySelector('[data-act="ok"]');

@@ -58,8 +58,13 @@ $mapCard = '
       </div>
     </div>
     <div class="dash-filters" id="gis-filters">
-      <input class="dash-date" id="gis-date-start" type="date" aria-label="Start date">
-      <input class="dash-date" id="gis-date-end" type="date" aria-label="End date">
+      ' . date_range_picker([
+          'id' => 'gis-date-range',
+          'start_id' => 'gis-date-start',
+          'end_id' => 'gis-date-end',
+          'placeholder' => 'Any dates',
+          'className' => 'dp-range--compact dash-date-range',
+      ]) . '
       ' . select_control('gis-type', $typeOptions, '', 'All Report Types', '', '', 'dash-select') . '
       ' . select_control('gis-status', $statusOptions, '', 'All Status', '', '', 'dash-select') . '
       ' . button_html('Apply Filters', 'default', icon: 'filter', className: 'dash-apply', attrs: 'id="gis-apply"') . '

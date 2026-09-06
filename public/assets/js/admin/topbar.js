@@ -1,4 +1,4 @@
-import { DropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { DropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
 
 export function Topbar({ user } = {}) {
   const profileMenu = DropdownMenu({

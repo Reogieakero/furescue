@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once shared_path('search/search.php');
+
 /** @var list<array<string, mixed>> $reports */
 /** @var list<array<string, mixed>> $cases */
 /** @var list<array<string, mixed>> $rescuers */
@@ -233,20 +235,14 @@ $adminChildren = '
       </div>
     </div>
     <div id="report-filters">'
-        . '
-  <div class="report-toolbar">
-    <div class="q-tabs" id="report-tabs">
-      ' . $filterButtons($filterDefs, 'all', $chipCounts) . '
-    </div>
-    <div class="report-search">
-      <i data-lucide="search"></i>
-      <input id="report-search" type="text" placeholder="Search case #, barangay, description…" value="">
-    </div>
-    <div class="report-sort">
+        . toolbar_html(
+            filter_tabs_html('report-tabs', $filterButtons($filterDefs, 'all', $chipCounts))
+            . search_control('report-search', 'Search case #, barangay, description…')
+            . '<div class="report-sort">
       <label for="report-sort" class="report-sort-label">Sort</label>
       ' . $sortSelect . '
-    </div>
-  </div>'
+    </div>'
+        )
         . '</div>
     <div id="report-table" class="panel-body">' . $tableInner . '</div>
   </div>';

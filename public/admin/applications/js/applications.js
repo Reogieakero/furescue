@@ -5,7 +5,7 @@ import { initShell } from "/assets/js/admin/app-shell.js";
 import { ApplicationsPage } from "./components.js";
 import { state, loadAdoptions } from "./state.js";
 import { initApplicationEvents } from "./workflow.js";
-import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
 import { setNavBadge } from "/assets/js/lib/swr.js";
 import { applicationCounts } from "./components/kpis.js";
 

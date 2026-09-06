@@ -90,7 +90,19 @@ final class SessionAuth
         $_SESSION = [];
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+            $options = [
+                'expires' => time() - 42000,
+                'path' => $params['path'] !== '' ? $params['path'] : '/',
+                'secure' => (bool) $params['secure'],
+                'httponly' => (bool) $params['httponly'],
+            ];
+            if ($params['domain'] !== '') {
+                $options['domain'] = $params['domain'];
+            }
+            if (!empty($params['samesite'])) {
+                $options['samesite'] = $params['samesite'];
+            }
+            setcookie(session_name(), '', $options);
         }
         session_destroy();
     }

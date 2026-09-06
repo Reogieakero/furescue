@@ -1,4 +1,4 @@
-import { Button } from "/assets/js/components/ui/button.js";
+import { Button } from "/shared/components/button/button.js";
 import { esc, timeAgo } from "/assets/js/lib/format.js";
 import { shortId, statusChip } from "./status.js";
 

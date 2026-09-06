@@ -4,7 +4,7 @@ import { ReportTable, rerenderAll, attachReportTooltips, hideReportMapDrawer } f
 import { openReportDrawer, openTimelineDrawer } from "./drawer.js";
 import { runVerify, runDismiss, assignDialog } from "./actions.js";
 import { filteredReports, enrich } from "../components/table.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { toast } from "/shared/components/toast/toast.js";
 import { datedCsvName, downloadCsv } from "/assets/js/lib/csv.js";
 
 export function initReportsEvents() {

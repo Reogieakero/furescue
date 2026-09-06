@@ -21,8 +21,10 @@
   margin-top: 12px;
 }
 
-.range-controls .dialog-label {
-  width: min(180px, 100%);
+.analytics-range-picker {
+  flex: 1 1 16rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .range-actions {
@@ -38,8 +40,8 @@
 }
 
 @media (max-width: 479px) {
-  .range-controls .dialog-label {
-    width: 100%;
+  .analytics-range-picker {
+    flex-basis: 100%;
   }
 
   .range-actions {

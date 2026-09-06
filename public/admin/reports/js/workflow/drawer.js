@@ -1,6 +1,6 @@
 import { createIcons, icons } from "lucide";
-import { openDrawer } from "/assets/js/components/ui/drawer.js";
-import { Spinner } from "/assets/js/components/ui/spinner.js";
+import { openDrawer } from "/shared/components/drawer/drawer.js";
+import { Spinner } from "/shared/components/spinner/spinner.js";
 import * as api from "/assets/js/admin/admin-data.js";
 import { esc } from "../components/util.js";
 import { shortId, titleCase } from "/admin/js/helpers.js";

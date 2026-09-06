@@ -162,14 +162,8 @@
   cursor: not-allowed;
 }
 
-/* Adoption-ready toast viewport: bottom-right, independent of default top-center toasts */
+/* Adoption-ready toast: same top-center stack, separate viewport so it can persist. */
 .toast-viewport--adoption {
-  top: auto;
-  bottom: 1rem;
-  left: auto;
-  right: 1rem;
-  transform: none;
-  align-items: flex-end;
-  flex-direction: column;
+  align-items: center;
 }
 

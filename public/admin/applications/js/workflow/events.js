@@ -4,7 +4,7 @@ import { ApplicationTable } from "../components.js";
 import { filteredApplications } from "../components/table.js";
 import { openDetailsDrawer } from "./drawer.js";
 import { runDecline, runRetry } from "./actions.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { toast } from "/shared/components/toast/toast.js";
 import { datedCsvName, downloadCsv } from "/assets/js/lib/csv.js";
 import { applicantName, animalName } from "../components/util.js";
 

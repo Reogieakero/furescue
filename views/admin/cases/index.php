@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once shared_path('search/search.php');
+
 /** @var list<array<string, mixed>> $enrichedCases */
 /** @var int $cAll */
 /** @var int $cOpen */
@@ -85,21 +87,17 @@ foreach ([
     $tabButtons .= '<button data-filter="' . e($filterKey) . '" class="q-btn' . $active . '">' . e($filterLabel) . ' &middot; ' . e($filterCount) . '</button>';
 }
 
-$toolbarHtml = '
-  <div class="report-toolbar">
-    <div class="report-search">
-      <i data-lucide="search"></i>
-      <input id="case-search" type="text" placeholder="Search case #, barangay, animal…" value="">
-    </div>
-    <div class="report-sort">
-      ' . select_control('case-sort', [
-          ['value' => '', 'label' => 'Sort'],
-          ['value' => 'newest', 'label' => 'Newest'],
-          ['value' => 'status', 'label' => 'Status'],
-          ['value' => 'updated', 'label' => 'Updated'],
-      ], '', 'Sort', '', '', 'report-sort-control') . '
-    </div>
-  </div>';
+$toolbarHtml = toolbar_html(
+    search_control('case-search', 'Search case #, barangay, animal…')
+    . '<div class="report-sort">'
+    . select_control('case-sort', [
+        ['value' => '', 'label' => 'Sort'],
+        ['value' => 'newest', 'label' => 'Newest'],
+        ['value' => 'status', 'label' => 'Status'],
+        ['value' => 'updated', 'label' => 'Updated'],
+    ], '', 'Sort', '', '', 'report-sort-control')
+    . '</div>'
+);
 
 $rescuerChip = static function (?array $rescuer): string {
     if ($rescuer === null) {
@@ -202,7 +200,7 @@ $adminChildren = $pageHeadHtml
         <h2 class="panel-title">Cases</h2>
       </div>
       <div class="panel-head-tools">
-        <div id="case-tabs-wrap"><div class="q-tabs" id="case-tabs">' . $tabButtons . '</div></div>
+        <div id="case-tabs-wrap">' . filter_tabs_html('case-tabs', $tabButtons) . '</div>
         <span class="stamp stamp--sm stamp--accent" id="case-total-badge">' . e($cAll) . '</span>
       </div>
     </div>

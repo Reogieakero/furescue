@@ -1,6 +1,7 @@
 import { state } from "../state.js";
-import { Select } from "/assets/js/components/ui/select.js";
-import { Button } from "/assets/js/components/ui/button.js";
+import { Select } from "/shared/components/select/select.js";
+import { Button } from "/shared/components/button/button.js";
+import { DateRangePicker } from "/shared/components/date-range-picker/date-range-picker.js";
 import {
   categoryBreakdown,
   densitySummary,
@@ -75,8 +76,13 @@ export function MapCard() {
       </div>
     </div>
     <div class="dash-filters" id="gis-filters">
-      <input class="dash-date" id="gis-date-start" type="date" aria-label="Start date">
-      <input class="dash-date" id="gis-date-end" type="date" aria-label="End date">
+      ${DateRangePicker({
+        id: "gis-date-range",
+        startId: "gis-date-start",
+        endId: "gis-date-end",
+        placeholder: "Any dates",
+        className: "dp-range--compact dash-date-range",
+      })}
       ${Select({
         id: "gis-type",
         value: "",

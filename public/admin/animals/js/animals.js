@@ -7,7 +7,7 @@ import { initAnimalsEvents } from "./workflow.js";
 import { loadAnimals, restoreSelectedId, state } from "./state.js";
 import { renderSelection } from "./components/grid.js";
 import { renderDetail } from "./components/side.js";
-import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
 
 function initDate() {
   const el = document.getElementById("admin-date");

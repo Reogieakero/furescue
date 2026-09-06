@@ -1,7 +1,7 @@
 import { createIcons, icons } from "lucide";
 import { AppShell } from "/assets/js/admin/app-shell.js";
-import { Button } from "/assets/js/components/ui/button.js";
-import { SkeletonRescuers } from "/assets/js/components/ui/skeleton.js";
+import { Button } from "/shared/components/button/button.js";
+import { SkeletonRescuers } from "/shared/components/skeleton/skeleton.js";
 import { setNavBadge } from "/assets/js/lib/swr.js";
 import { state } from "../state.js";
 import { buildKpis, KpiTile, applicationCounts } from "./kpis.js";

@@ -1,9 +1,10 @@
 import { createIcons, icons } from "lucide";
 import * as api from "/assets/js/admin/admin-data.js";
-import { toast } from "/assets/js/components/ui/toast.js";
-import { Button } from "/assets/js/components/ui/button.js";
-import { Select, initSelect } from "/assets/js/components/ui/select.js";
-import { Spinner } from "/assets/js/components/ui/spinner.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { Button } from "/shared/components/button/button.js";
+import { Label } from "/shared/components/label/label.js";
+import { Select, initSelect } from "/shared/components/select/select.js";
+import { Spinner } from "/shared/components/spinner/spinner.js";
 import { shortId, titleCase } from "/admin/js/helpers.js";
 import { state, loadCaseDetail } from "../state.js";
 import { CaseDetailPage } from "./actions.js";
@@ -90,7 +91,7 @@ async function openAssignDialog(caseId, reportId) {
         <div class="dialog-body">
           <p class="dialog-message">Assign a rescuer to case ${shortId(caseId)}${reportId ? ` (report ${shortId(reportId)})` : ""}. Only on-duty rescuers can be assigned.</p>
           ${options.length
-            ? `<label class="dialog-label" for="cd-assign-rescuer">Rescuer<span class="dialog-req"> *</span></label>
+            ? `${Label({ htmlFor: "cd-assign-rescuer", className: "dialog-label", required: true, children: "Rescuer" })}
                ${Select({ id: "cd-assign-rescuer", options, placeholder: "Select a rescuer…", className: "w-full" })}`
             : `<div class="empty-state"><i data-lucide="siren"></i><span>No on-duty rescuers available.</span></div>`}
         </div>

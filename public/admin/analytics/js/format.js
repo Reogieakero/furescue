@@ -1,3 +1,5 @@
+import { EmptyState } from "/shared/components/empty-state/empty-state.js";
+
 export const OVERVIEW_LABELS = {
   reports: "Total reports",
   reports_verified: "Reports verified",
@@ -7,7 +9,9 @@ export const OVERVIEW_LABELS = {
   animals_adopted: "Animals adopted",
   adoptions_pending: "Adoptions pending",
   adoptions_completed: "Adoptions completed",
+  rescuers_active: "Active rescuers",
   rescuers_on_duty: "Rescuers on duty",
+  rescuers_off_duty: "Rescuers off duty",
   residents: "Residents",
 };
 
@@ -44,7 +48,18 @@ export function shortId(id) {
 }
 
 export function emptyState(icon, text) {
-  return `<div class="empty-state"><i data-lucide="${icon}"></i><span>${esc(text)}</span></div>`;
+  return EmptyState({ icon, text });
+}
+
+export function mapPersonnel(r) {
+  const onDuty = (r.duty_status || "off_duty") === "on_duty";
+  return {
+    name: r.full_name && String(r.full_name).trim() !== "" ? r.full_name : "Rescuer",
+    contact: r.phone_number || r.email || "—",
+    duty: onDuty ? "On duty" : "Off duty",
+    dutyCls: onDuty ? "stamp--accent" : "stamp--muted",
+    when: timeAgo(r.duty_updated_at || r.updated_at),
+  };
 }
 
 export function mapHealthUpdate(h) {

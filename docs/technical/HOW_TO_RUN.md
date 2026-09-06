@@ -28,6 +28,7 @@ FurEscue runs on **one server**: a single PHP built-in server serves both the AP
    ```ini
    extension=mysqli
    extension=pdo_mysql
+   extension=pdo_sqlite
    extension=openssl
    extension=mbstring
    extension=curl
@@ -120,11 +121,26 @@ php bin\migrate.php
 ```
 You should see each SQL file reported as `apply ...`. This creates all tables.
 
-### Step 10 — Seed the demo data (optional but recommended)
+### Step 10 — Seed data (optional)
+
+Auth-only (users, roles, permissions — no reports or medical records):
+```bat
+php seeders\seed_users.php
+```
+
+Full demo dataset (reports, cases, animals, adoptions, e-learning, notifications):
 ```bat
 php seeders\seed.php
 ```
-This creates the admin/rescuer/resident accounts and a full demo dataset (reports, cases, animals, adoptions, e-learning, notifications). It is **idempotent** — safe to re-run at any time.
+
+Both are **idempotent** — safe to re-run. To wipe the database and start over:
+
+```bat
+php bin\migrate.php --fresh --yes
+php seeders\seed_users.php
+```
+
+`--fresh` drops every table, then re-applies all migrations. `--yes` is required so a wipe cannot happen by accident.
 
 ### Step 11 — Start the server
 One command from the repo root starts everything — API and pages on the same origin:
@@ -201,6 +217,8 @@ All from the repo root:
 ```bat
 composer install
 php bin\migrate.php
+php bin\migrate.php --fresh --yes
+php seeders\seed_users.php
 php seeders\seed.php
 php -S 127.0.0.1:8000 -t public public\index.php
 
@@ -208,3 +226,16 @@ npm install
 npm run build      :: one-time compile
 npm run watch      :: auto recompile while editing
 ```
+
+## 6. Tests
+
+PHPUnit 10 is the only test runner. Tests are in-process (they call `Router::dispatch()` against an in-memory SQLite database). There is no live `php -S` client and no second framework (Pest, Codeception, Guzzle).
+
+Enable `extension=pdo_sqlite` in `php.ini` (listed in Step 1). About 31 older tests already skip when that driver is missing; the new `tests/Api/*` contract suite requires it and will skip the whole class without it.
+
+```bat
+php vendor\phpunit\phpunit\phpunit
+php vendor\phpunit\phpunit\phpunit --filter Api
+```
+
+`composer test` is a shortcut for the same PHPUnit binary.

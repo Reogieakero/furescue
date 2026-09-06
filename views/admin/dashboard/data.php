@@ -42,6 +42,7 @@ $overview = [
     'animals_adopted' => $countWhere("animals", "adoption_status = 'adopted'"),
     'adoptions_pending' => $countWhere("adoptions", "status = 'pending'"),
     'adoptions_completed' => $countWhere("adoptions", "status = 'completed'"),
+    'rescuers_active' => $countWhere("users", "role = 'rescuer' AND account_status = 'active'"),
     'rescuers_on_duty' => $countWhere(
         "rescuer_duty_status d JOIN users u ON u.id = d.user_id",
         "d.status = 'on_duty' AND u.account_status = 'active' AND u.role = 'rescuer'"
@@ -54,6 +55,7 @@ $overview = [
     'in_progress_today' => $countWhere("cases", "status IN ('assigned','in_progress') AND DATE(updated_at) = CURDATE()"),
     'resolved_today' => $countWhere("cases", "status = 'resolved' AND DATE(updated_at) = CURDATE()"),
 ];
+$overview['rescuers_off_duty'] = max(0, (int) $overview['rescuers_active'] - (int) $overview['rescuers_on_duty']);
 
 $reportRepo = new ReportRepository($pdo);
 $reportsPendingResult = $reportRepo->paginate(1, 100, ['status' => 'pending_verification']);
@@ -78,7 +80,7 @@ $freshRescuersByStatus = static function (string $accountStatus) use ($pdo): arr
         "SELECT u.*, COALESCE(d.status, 'off_duty') AS duty_status
          FROM users u
          LEFT JOIN rescuer_duty_status d ON d.user_id = u.id
-         WHERE u.account_status = ?
+         WHERE u.role = 'rescuer' AND u.account_status = ?
          ORDER BY u.created_at DESC
          LIMIT 100 OFFSET 0"
     );

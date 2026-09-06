@@ -1,6 +1,6 @@
 import { createIcons, icons } from "lucide";
 import { state, getAnimal, statusTone } from "../state.js";
-import { Button } from "/assets/js/components/ui/button.js";
+import { Button } from "/shared/components/button/button.js";
 import { esc } from "./util.js";
 
 export function DetailPanel() {

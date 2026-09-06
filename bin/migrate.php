@@ -52,6 +52,60 @@ function splitStatements(string $sql): array
     return $statements;
 }
 
+function listTables(\PDO $pdo, string $driver): array
+{
+    if ($driver === 'mysql') {
+        return $pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    return $pdo->query(
+        "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+    )->fetchAll(PDO::FETCH_COLUMN);
+}
+
+function quoteIdent(string $name, string $driver): string
+{
+    if ($driver === 'mysql') {
+        return '`' . str_replace('`', '``', $name) . '`';
+    }
+
+    return '"' . str_replace('"', '""', $name) . '"';
+}
+
+function dropAllTables(\PDO $pdo, string $driver): int
+{
+    $tables = listTables($pdo, $driver);
+    if ($tables === []) {
+        return 0;
+    }
+
+    if ($driver === 'mysql') {
+        $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
+        foreach ($tables as $table) {
+            $pdo->exec('DROP TABLE IF EXISTS ' . quoteIdent((string) $table, $driver));
+        }
+        $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
+        return count($tables);
+    }
+
+    foreach ($tables as $table) {
+        $pdo->exec('DROP TABLE IF EXISTS ' . quoteIdent((string) $table, $driver) . ' CASCADE');
+    }
+
+    return count($tables);
+}
+
+$argvFlags = array_slice($argv ?? [], 1);
+$fresh = in_array('--fresh', $argvFlags, true);
+$yes = in_array('--yes', $argvFlags, true);
+
+if ($fresh && !$yes) {
+    fwrite(STDERR, "This drops ALL tables in the current database, then re-applies migrations.\n");
+    fwrite(STDERR, "Re-run with --yes to confirm:\n");
+    fwrite(STDERR, "  php bin\\migrate.php --fresh --yes\n");
+    exit(1);
+}
+
 try {
     $pdo = Database::connect();
 } catch (\PDOException $e) {
@@ -61,6 +115,11 @@ try {
 }
 
 $driver = Database::env('DB_DRIVER', 'pgsql');
+
+if ($fresh) {
+    $dropped = dropAllTables($pdo, $driver);
+    echo "Dropped {$dropped} table(s). Re-applying migrations...\n";
+}
 
 if ($driver === 'mysql') {
     $pdo->exec(
@@ -113,3 +172,7 @@ foreach ($files as $file) {
 }
 
 echo "Done. Applied $count migration file(s). " . count($files) . " total migration file(s) present.\n";
+if ($fresh) {
+    echo "Schema is empty. Seed accounts with: php seeders\\seed_users.php\n";
+    echo "Or full demo data with: php seeders\\seed.php\n";
+}

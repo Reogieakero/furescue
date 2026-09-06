@@ -6,9 +6,9 @@ import { renderAnimalKpis } from "./components/kpis.js";
 import { openAddAnimalDialog } from "./components/modal.js";
 import { openHealthRecordDialog } from "./components/health.js";
 import { openEditAnimalDialog } from "./components/edit.js";
-import { confirmDialog } from "/assets/js/components/ui/dialog.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { deleteAnimal } from "/assets/js/admin/admin-data.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { toast } from "/shared/components/toast/toast.js";
 import { datedCsvName, downloadCsv } from "/assets/js/lib/csv.js";
 
 export function initAnimalsEvents() {

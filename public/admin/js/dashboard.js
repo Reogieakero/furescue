@@ -3,11 +3,11 @@ import { requireAuth, getSessionUser } from "/assets/js/lib/api.js";
 import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { initShell } from "/assets/js/admin/app-shell.js";
 import { DashboardPage, ActivityInner, bindAuditReadActions } from "./components.js";
-import { loadDashboard, state, hydrateFromCache } from "./state.js";
+import { loadDashboard, state, hydrateFromCache, startNotificationStream } from "./state.js";
 import { createCarousel } from "./carousel.js";
 import { initQueueTabs, initQueuePagination, initQueueActions } from "./queue.js";
 import { initCaseDensityMap, bindGisActions } from "./map.js";
-import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
 import { initAnnounceDialog } from "./components/announce.js";
 import { mountDashboardCharts } from "./components/charts.js";
 import * as api from "/assets/js/admin/admin-data.js";
@@ -100,11 +100,13 @@ document.addEventListener("DOMContentLoaded", () => {
       app.innerHTML = DashboardPage(getSessionUser(), { loading: false });
     }
     initPageInteractions();
+    startNotificationStream();
     return;
   }
   const user = requireAuth(["admin"]);
   if (!user) return;
   const cached = hydrateFromCache();
   render(user, { loading: !cached });
+  startNotificationStream();
   loadDashboard().finally(() => render(user, { loading: false }));
 });

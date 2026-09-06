@@ -3,9 +3,10 @@ import { requireAuth, apiFetchFull } from "/assets/js/lib/api.js";
 import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { fetchRecentBroadcasts } from "/assets/js/admin/admin-data.js";
 import { initShell } from "/assets/js/admin/app-shell.js";
-import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
-import { initSelect } from "/assets/js/components/ui/select.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
+import { initSelect } from "/shared/components/select/select.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { EmptyState } from "/shared/components/empty-state/empty-state.js";
 
 const MAX_LENGTH = 1000;
 
@@ -43,7 +44,7 @@ function timeAgo(value) {
 }
 
 function emptyState(icon, text) {
-  return `<div class="empty-state"><i data-lucide="${icon}"></i><span>${esc(text)}</span></div>`;
+  return EmptyState({ icon, text });
 }
 
 function rowHtml(broadcast) {

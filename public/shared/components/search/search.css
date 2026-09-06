@@ -1,0 +1,67 @@
+/* Search field. Markup: search.php / search.js (.search-field.report-search).
+   .report-search is the leftover alias so older pages keep working.
+   Layout in a toolbar is the parent’s job — this box only grows when the
+   parent is flex (flex: 1 1 12rem). Gallery uses .rfilterbar grid instead. */
+
+.search-field,
+.report-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  flex: 1 1 12rem;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.search-field:focus-within,
+.report-search:focus-within {
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.25);
+}
+
+.search-field > .lucide,
+.search-field > [data-lucide],
+.report-search > .lucide,
+.report-search > [data-lucide] {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+}
+
+.search-field input,
+.report-search input {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  height: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  font: inherit;
+  font-size: 0.875rem;
+  color: inherit;
+}
+
+.search-field input:focus,
+.report-search input:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.search-field input::placeholder,
+.report-search input::placeholder {
+  color: hsl(var(--muted-foreground));
+}

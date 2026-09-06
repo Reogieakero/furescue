@@ -1,10 +1,10 @@
 import { createIcons, icons } from "lucide";
 import { AppShell } from "/assets/js/admin/app-shell.js";
-import { Button } from "/assets/js/components/ui/button.js";
-import { SkeletonRescuers } from "/assets/js/components/ui/skeleton.js";
+import { Button } from "/shared/components/button/button.js";
+import { SkeletonRescuers } from "/shared/components/skeleton/skeleton.js";
 import { setNavBadge } from "/assets/js/lib/swr.js";
 import { state } from "../state.js";
-import { KpiGrid } from "/assets/js/components/kpi-card.js";
+import { KpiGrid } from "/shared/components/kpi-card/kpi-card.js";
 import { buildKpis, KpiTile, rescuerCounts, toKpiCardProps } from "./kpis.js";
 import { FilterTabs } from "./filters.js";
 import { RescuerTable } from "./table.js";

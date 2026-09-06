@@ -2,7 +2,7 @@ import { createIcons, icons } from "lucide";
 import { hasPageSession, requireAuth, redirectToLogin } from "/assets/js/lib/api.js";
 import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { initResidentShell } from "/assets/js/components/resident-shell.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { toast } from "/shared/components/toast/toast.js";
 import { fetchCases, toggleDuty } from "./api.js";
 import { bindCaseActions } from "./actions.js";
 import { caseRow, countLabel, listErrorHtml, listLoadingHtml } from "./list-render.js";

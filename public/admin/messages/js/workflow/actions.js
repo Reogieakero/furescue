@@ -1,8 +1,8 @@
-import { toast } from "/assets/js/components/ui/toast.js";
+import { toast } from "/shared/components/toast/toast.js";
 import { fetchThreads, fetchThread, postMessage, markMessageRead } from "../api.js";
 import { state, threadKey, findThread, upsertThread } from "../state.js";
 import { renderList } from "../components/list.js";
-import { renderPane, showThreadChrome, hideThreadChrome } from "../components/pane.js";
+import { renderPane, showThreadChrome, syncInboxLayout } from "../components/pane.js";
 
 async function loadMessages(key) {
   const [type, id] = String(key || "").split("|");
@@ -15,11 +15,13 @@ export async function refreshThreads({ silent = false } = {}) {
     state.threads = await fetchThreads();
     state.loadError = "";
     renderList();
+    syncInboxLayout();
   } catch (err) {
     if (silent) return;
     state.loadError = err.message || "Could not load conversations.";
     toast(state.loadError, { type: "error" });
     renderList();
+    syncInboxLayout();
   }
 }
 
@@ -44,9 +46,9 @@ export async function markThreadRead(key, knownMessages = null) {
 export async function openThread(key) {
   if (!key) return;
   state.currentKey = key;
-  document.getElementById("amsg-shell")?.classList.add("is-thread-open");
-  showThreadChrome(findThread(key) || { related_type: String(key).split("|")[0] });
   renderList();
+  syncInboxLayout();
+  showThreadChrome(findThread(key) || { related_type: String(key).split("|")[0] });
   try {
     const messages = await loadMessages(key);
     state.messages = messages;
@@ -61,8 +63,8 @@ export async function openThread(key) {
 export function closeThread() {
   state.currentKey = null;
   state.messages = [];
-  hideThreadChrome();
   renderList();
+  syncInboxLayout();
 }
 
 export async function sendCurrent() {

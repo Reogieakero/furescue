@@ -1,7 +1,7 @@
 import { state } from "../state.js";
 import { createIcons, icons } from "lucide";
 import { esc, enrich } from "./util.js";
-import { Select, initSelect } from "/assets/js/components/ui/select.js";
+import { Select, initSelect } from "/shared/components/select/select.js";
 
 const MATI_CENTER = [6.95, 126.2];
 const MATI_BOUNDS = [

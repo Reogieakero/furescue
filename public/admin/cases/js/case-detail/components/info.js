@@ -1,4 +1,4 @@
-import { Badge } from "/assets/js/components/ui/badge.js";
+import { Badge } from "/shared/components/badge/badge.js";
 import { esc, caseStampCls } from "./util.js";
 import { shortId, titleCase, timeAgo } from "/admin/js/helpers.js";
 import { state } from "../state.js";

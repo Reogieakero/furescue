@@ -140,20 +140,21 @@ foreach ($residentNavGroups as $group) {
     </div>';
 }
 
+$residentAvatarFallback = 'https://i.pravatar.cc/64?img=47';
 $residentAvatarSrc = trim((string) ($residentUser['profile_photo_url'] ?? '')) !== ''
     ? (string) $residentUser['profile_photo_url']
-    : 'https://i.pravatar.cc/64?img=47';
+    : $residentAvatarFallback;
 
 $residentMenuBase = 'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground';
 $residentProfileName = trim((string) ($residentUser['full_name'] ?? '')) !== ''
     ? (string) $residentUser['full_name']
     : 'My Account';
 
-$residentChrome = static function () use ($esc, $residentGroupsHtml, $residentShellTitle, $residentAvatarSrc, $residentMenuBase, $residentProfileName, $residentUser, $rsideTag): string {
+$residentChrome = static function () use ($esc, $residentGroupsHtml, $residentShellTitle, $residentAvatarSrc, $residentAvatarFallback, $residentMenuBase, $residentProfileName, $residentUser, $rsideTag): string {
     $profileMenu = '
       <div id="profile-menu" data-dropdown class="relative">
         <button type="button" data-dropdown-trigger class="rtop-user" aria-haspopup="menu" aria-expanded="false" aria-label="Account menu">
-          <img src="' . $esc($residentAvatarSrc) . '" alt="Your avatar">
+          <img src="' . $esc($residentAvatarSrc) . '" alt="Your avatar" data-shell-avatar data-fallback-src="' . $esc($residentAvatarFallback) . '">
         </button>
         <div data-dropdown-content role="menu" class="absolute top-full z-50 mt-1 hidden min-w-56 overflow-hidden rounded-md border border-input bg-card p-1 text-card-foreground shadow-md right-0">
           <div class="px-2 py-1.5">

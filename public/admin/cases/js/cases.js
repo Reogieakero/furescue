@@ -5,7 +5,7 @@ import { initShell } from "/assets/js/admin/app-shell.js";
 import { CasesPage, rerenderAll, initCaseSort, initCaseMapMode, renderCaseMap, renderStatusBreakdown, renderCaseList } from "./components.js";
 import { state, loadCases, loadFilterPref, hydrateFromCache, applyUrlQuery } from "./state.js";
 import { initCasesEvents } from "./workflow.js";
-import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
 
 function initDate() {
   const el = document.getElementById("admin-date");

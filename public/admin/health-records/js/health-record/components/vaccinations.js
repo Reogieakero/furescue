@@ -1,5 +1,5 @@
-import { Button } from "/assets/js/components/ui/button.js";
-import { openDrawer } from "/assets/js/components/ui/drawer.js";
+import { Button } from "/shared/components/button/button.js";
+import { openDrawer } from "/shared/components/drawer/drawer.js";
 import { esc } from "../../health-records/components/util.js";
 import { vaxStatusPill, emptyState, titleCase } from "../util.js";
 

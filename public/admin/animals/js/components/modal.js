@@ -1,6 +1,7 @@
 import { createIcons, icons } from "lucide";
-import { Button } from "/assets/js/components/ui/button.js";
-import { Spinner } from "/assets/js/components/ui/spinner.js";
+import { Button } from "/shared/components/button/button.js";
+import { DatePicker, initDatePicker } from "/shared/components/date-picker/date-picker.js";
+import { Spinner } from "/shared/components/spinner/spinner.js";
 import { createAnimal, fetchCase, fetchReport, updateAnimal } from "/assets/js/admin/admin-data.js";
 import { addAnimal, parsePhoto360, setSelectedId } from "../state.js";
 import { bindProfileAssets, clientAssetError, profileAssetsFields, readProfileAssets } from "./profile-assets.js";
@@ -117,7 +118,7 @@ export function openAddAnimalDialog(prefill = {}) {
             </div>
 
             <label class="dialog-label" for="aa-birth">Date of birth <span class="dialog-hint">auto-computes age</span></label>
-            <input class="dialog-input" id="aa-birth" type="date" max="${new Date().toISOString().slice(0, 10)}" autocomplete="off" />
+            ${DatePicker({ id: "aa-birth", name: "birthDate", placeholder: "Pick a date", max: new Date().toISOString().slice(0, 10) })}
 
             <label class="dialog-label">Sex</label>
             <div class="q-tabs" id="aa-sex-tabs">${tabsHtml("sex", sexTabs, form.sex)}</div>
@@ -153,7 +154,7 @@ export function openAddAnimalDialog(prefill = {}) {
     const nameEl = overlay.querySelector("#aa-name");
     const ageEl = overlay.querySelector("#aa-age");
     const ageErrorEl = overlay.querySelector("#aa-age-error");
-    const birthEl = overlay.querySelector("#aa-birth");
+    const birthEl = overlay.querySelector("#aa-birth-value");
     const colorEl = overlay.querySelector("#aa-color");
     const speciesTabsEl = overlay.querySelector("#aa-species-tabs");
     const breedTabsEl = overlay.querySelector("#aa-breed-tabs");
@@ -233,16 +234,17 @@ export function openAddAnimalDialog(prefill = {}) {
           .catch(() => {});
       });
     }
-    if (birthEl && ageEl) {
-      birthEl.addEventListener("change", () => {
-        const computed = ageFromBirthDate(birthEl.value);
+    initDatePicker(overlay, {
+      "aa-birth": (val) => {
+        if (!ageEl) return;
+        const computed = ageFromBirthDate(val);
         if (!computed) return;
         form.ageUnit = computed.unit;
         ageEl.value = String(computed.n);
         ageErrorEl.hidden = true;
         activate(ageTabsEl, "unit", form.ageUnit);
-      });
-    }
+      },
+    });
 
     const close = () => {
       overlay.remove();

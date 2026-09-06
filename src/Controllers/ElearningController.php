@@ -10,6 +10,12 @@ class ElearningController extends AbstractController
 {
     public function modules(Request $req): void
     {
+        if ($this->rejectBadQuery($req, [
+            'category' => ['dog_behavior', 'cat_behavior', 'basic_training', 'general_care'],
+            'published_status' => ['draft', 'published'],
+        ])) {
+            return;
+        }
         $repo = $this->repo('elearning_modules', ['id','title','category','published_status','created_at']);
         $filters = [];
         if (in_array((string) ($req->user['role'] ?? ''), ['resident', 'rescuer'], true)) {
@@ -41,9 +47,9 @@ class ElearningController extends AbstractController
     public function createModule(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('title')->string(150)
+        $v->required('title')->string('title', 150)
             ->required('category')->in('category', ['dog_behavior','cat_behavior','basic_training','general_care'])
-            ->required('content_body')->string(20000)
+            ->required('content_body')->string('content_body', 20000)
             ->optional('published_status')->in('published_status', ['draft','published']);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
@@ -69,6 +75,23 @@ class ElearningController extends AbstractController
             return;
         }
         $allowed = ['title','category','content_body','published_status'];
+        $v = new \App\Validation\Validator($req->body);
+        if (array_key_exists('title', $req->body)) {
+            $v->optional('title')->string('title', 150);
+        }
+        if (array_key_exists('category', $req->body)) {
+            $v->optional('category')->in('category', ['dog_behavior', 'cat_behavior', 'basic_training', 'general_care']);
+        }
+        if (array_key_exists('content_body', $req->body)) {
+            $v->optional('content_body')->string('content_body', 20000);
+        }
+        if (array_key_exists('published_status', $req->body)) {
+            $v->optional('published_status')->in('published_status', ['draft', 'published']);
+        }
+        if (!$v->passes()) {
+            Response::error('VALIDATION_ERROR', $v->firstError(), 400);
+            return;
+        }
         $data = [];
         foreach ($allowed as $f) {
             if (array_key_exists($f, $req->body)) {
@@ -92,10 +115,15 @@ class ElearningController extends AbstractController
     public function upsertProgress(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('module_id')->string(36)
+        $v->required('module_id')->uuid('module_id')
             ->required('status')->in('status', ['not_started','in_progress','completed']);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
+            return;
+        }
+        $module = $this->repo('elearning_modules')->find($req->body['module_id']);
+        if (!$module) {
+            Response::error('NOT_FOUND', 'Module not found', 404);
             return;
         }
         $repo = $this->repo('elearning_progress');

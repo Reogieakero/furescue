@@ -1,6 +1,6 @@
 import { createIcons, icons } from "lucide";
-import { PaginationBar } from "/assets/js/components/ui/pagination.js";
-import { Button } from "/assets/js/components/ui/button.js";
+import { PaginationBar } from "/shared/components/pagination/pagination.js";
+import { Button } from "/shared/components/button/button.js";
 import { stampCls } from "./util.js";
 import { attachReportTooltips } from "./tooltips.js";
 import { shortId, timeAgo, titleCase } from "/admin/js/helpers.js";

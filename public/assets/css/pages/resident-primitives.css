@@ -114,6 +114,9 @@
   background: transparent;
   color: hsl(var(--destructive));
 }
+.resident-shell .rbtn--danger-ghost:hover:not(:disabled) {
+  background: hsl(var(--destructive) / 0.1);
+}
 .resident-shell .rbtn--sm {
   min-height: 2.1rem;
   padding-inline: 0.85rem;
@@ -165,7 +168,7 @@
 .resident-shell .rempty-icon {
   width: 34px;
   height: 34px;
-  color: hsl(var(--border));
+  color: hsl(var(--muted-foreground));
 }
 .resident-shell .rempty-title {
   margin: 0;

@@ -24,6 +24,23 @@ if ($uri === '/' || $uri === '/index.html' || $uri === '/index.php') {
 }
 $docRoot = realpath(__DIR__);
 $requestPath = realpath(__DIR__ . rawurldecode((string) $uri));
+$sharedComponents = $docRoot !== false
+    ? $docRoot . DIRECTORY_SEPARATOR . 'shared' . DIRECTORY_SEPARATOR . 'components'
+    : false;
+if (
+    $sharedComponents !== false
+    && $requestPath !== false
+    && str_starts_with($requestPath, $sharedComponents . DIRECTORY_SEPARATOR)
+    && (
+        (is_file($requestPath) && str_ends_with(strtolower($requestPath), '.php'))
+        || (is_dir($requestPath) && is_file($requestPath . DIRECTORY_SEPARATOR . 'index.php'))
+    )
+) {
+    http_response_code(404);
+    header('Content-Type: text/plain; charset=UTF-8');
+    echo 'Not Found';
+    exit;
+}
 if ($docRoot !== false && $requestPath !== false && str_starts_with($requestPath, $docRoot . DIRECTORY_SEPARATOR) && is_file($requestPath)) {
     return false;
 }

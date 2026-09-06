@@ -1,4 +1,4 @@
-import { Button } from "/assets/js/components/ui/button.js";
+import { Button } from "/shared/components/button/button.js";
 import { record } from "../context.js";
 import { HEALTH_READY_HINT, isHealthReady } from "../actions.js";
 

@@ -1,4 +1,4 @@
-import { KpiCard } from "/assets/js/components/kpi-card.js";
+import { KpiCard } from "/shared/components/kpi-card/kpi-card.js";
 import { state } from "../state.js";
 
 export function listingCounts() {

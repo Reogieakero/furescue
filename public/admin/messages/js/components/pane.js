@@ -1,7 +1,7 @@
 import { createIcons, icons } from "lucide";
 import { timeAgo } from "/assets/js/lib/format.js";
-import { Button } from "/assets/js/components/ui/button.js";
-import { state } from "../state.js";
+import { Button } from "/shared/components/button/button.js";
+import { findThread, state } from "../state.js";
 import { contextLabel, contextStamp, esc, initialOf, dayKey, dayLabel } from "../util.js";
 
 function bubbleRow(msg) {
@@ -39,6 +39,26 @@ export function hideThreadChrome() {
   document.getElementById("amsg-thread-head")?.classList.add("is-hidden");
   document.getElementById("amsg-scroll")?.classList.add("is-hidden");
   document.getElementById("amsg-form")?.classList.add("is-hidden");
+}
+
+export function syncInboxLayout() {
+  const shell = document.getElementById("amsg-shell");
+  const emptyInbox = !!state.loadError || !state.threads.length;
+  shell?.classList.toggle("is-inbox-empty", emptyInbox);
+
+  if (emptyInbox) {
+    hideThreadChrome();
+    document.getElementById("amsg-empty")?.classList.add("is-hidden");
+    return;
+  }
+
+  if (!state.currentKey) {
+    hideThreadChrome();
+    return;
+  }
+
+  shell?.classList.add("is-thread-open");
+  showThreadChrome(findThread(state.currentKey));
 }
 
 export function renderPane(messages, { forceScroll = true } = {}) {
@@ -82,7 +102,7 @@ export function ThreadHead() {
 
 export function ThreadEmpty() {
   return `
-        <div class="amsg-empty" id="amsg-empty">
+        <div class="amsg-empty is-hidden" id="amsg-empty">
           <i data-lucide="messages-square"></i>
           <p class="amsg-empty-title">No conversation selected</p>
           <p class="amsg-empty-text">Pick a conversation, or start one. Threads show up when someone messages this admin, or after Start conversation.</p>

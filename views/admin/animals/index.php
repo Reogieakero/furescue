@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once shared_path('search/search.php');
+
 $kpiTiles = '';
 foreach ($animalKpiData as $k) {
     $label = (string) $k['label'];
@@ -75,13 +77,11 @@ $gridPanel = '
         <h2 class="panel-title">Animals <span class="animal-count" id="animal-total-badge">' . e(count($animals)) . '</span></h2>
       </div>
     </div>
-    <div class="report-toolbar animal-toolbar">
-      <div id="animal-filter-tabs" class="q-tabs">' . $filterTabsHtml . '</div>
-      <div class="report-search animal-search">
-        <i data-lucide="search"></i>
-        <input id="animal-search" type="text" placeholder="Search name, species, breed, ID…" value="">
-      </div>
-    </div>
+    ' . toolbar_html(
+        filter_tabs_html('animal-filter-tabs', $filterTabsHtml)
+        . search_control('animal-search', 'Search name, species, breed, ID…', '', 'animal-search'),
+        'animal-toolbar'
+    ) . '
     <div class="panel-body">
       <div id="animal-grid" class="animal-grid">' . $cardsHtml . '</div>
       <div id="animal-selected-store" hidden></div>

@@ -3,7 +3,7 @@ import { state, loadRescuers, persistSelection } from "../state.js";
 import { RescuerTable, rerenderAll, selectRescuer, toggleCaseNode, openRescuerModal, renderRescuerDetail } from "../components.js";
 import { runApprove, runReject, runSuspend, runActivate } from "./actions.js";
 import { exportableRescuers } from "../components/table.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { toast } from "/shared/components/toast/toast.js";
 import { datedCsvName, downloadCsv } from "/assets/js/lib/csv.js";
 
 export function initRescuerEvents() {

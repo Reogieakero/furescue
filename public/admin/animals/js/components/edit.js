@@ -1,6 +1,6 @@
 import { createIcons, icons } from "lucide";
-import { Button } from "/assets/js/components/ui/button.js";
-import { Spinner } from "/assets/js/components/ui/spinner.js";
+import { Button } from "/shared/components/button/button.js";
+import { Spinner } from "/shared/components/spinner/spinner.js";
 import { fetchAnimalHealthRecord, updateAnimal } from "/assets/js/admin/admin-data.js";
 import { parsePhoto360, saveAnimalAssets } from "../state.js";
 import { bindProfileAssets, clientAssetError, profileAssetsFields, readProfileAssets } from "./profile-assets.js";

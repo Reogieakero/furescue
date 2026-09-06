@@ -3,7 +3,7 @@ import { clearSession, apiFetch } from "/assets/js/lib/api.js";
 import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { setNavBadge } from "/assets/js/lib/swr.js";
 import { subscribeToNotifications } from "/assets/js/lib/notification-stream.js";
-import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
 
 function initMenuToggle() {
   const sidebar = document.getElementById("rside");

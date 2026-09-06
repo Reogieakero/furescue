@@ -1,7 +1,7 @@
 import { createIcons, icons } from "lucide";
 import { initShell } from "/assets/js/admin/app-shell.js";
-import { initDatePicker } from "/assets/js/components/ui/date-picker.js";
-import { initSelect } from "/assets/js/components/ui/select.js";
+import { initDatePicker } from "/shared/components/date-picker/date-picker.js";
+import { initSelect } from "/shared/components/select/select.js";
 import { fetchAnimalHealthRecord } from "/assets/js/admin/admin-data.js";
 
 export let user = null;

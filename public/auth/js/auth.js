@@ -1,5 +1,6 @@
 import { createIcons, icons } from "lucide";
-import { apiFetchFull, homePathForRole, setSession } from "/assets/js/lib/api.js";
+import { apiFetchFull, clearSession, homePathForRole, setSession } from "/assets/js/lib/api.js";
+import { toast } from "/shared/components/toast/toast.js";
 
 function initPasswordToggle() {
   const toggle = document.getElementById("toggle-pw");
@@ -171,31 +172,7 @@ function initSignupForm() {
 }
 
 function showToast(message) {
-  let viewport = document.querySelector(".toast-viewport");
-  if (!viewport) {
-    viewport = document.createElement("div");
-    viewport.className = "toast-viewport";
-    viewport.setAttribute("aria-live", "polite");
-    document.body.appendChild(viewport);
-  }
-  const el = document.createElement("div");
-  el.className = "toast toast--error";
-  el.setAttribute("role", "status");
-  el.innerHTML = `
-    <i data-lucide="alert-circle" class="toast-icon"></i>
-    <p class="toast-message"></p>
-    <button class="toast-close" aria-label="Dismiss"><i data-lucide="x"></i></button>
-  `;
-  el.querySelector(".toast-message").textContent = message;
-  viewport.appendChild(el);
-  createIcons({ icons });
-  requestAnimationFrame(() => el.classList.add("is-visible"));
-  const dismiss = () => {
-    el.classList.remove("is-visible");
-    setTimeout(() => el.remove(), 200);
-  };
-  el.querySelector(".toast-close").addEventListener("click", dismiss);
-  setTimeout(dismiss, 3500);
+  toast(message, { type: "error" });
 }
 
 function initToastDismiss() {
@@ -210,6 +187,7 @@ function initToastDismiss() {
 }
 
 function boot() {
+  clearSession();
   createIcons({ icons });
   initPasswordToggle();
   initInlineValidation();

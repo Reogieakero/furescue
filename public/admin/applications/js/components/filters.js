@@ -1,4 +1,6 @@
-import { esc } from "./util.js";
+import { Search } from "/shared/components/search/search.js";
+import { Toolbar } from "/shared/components/toolbar/toolbar.js";
+import { FilterTabs as TabStrip, FilterTab } from "/shared/components/filter-tabs/filter-tabs.js";
 import { state } from "../state.js";
 import { applicationCounts } from "./kpis.js";
 
@@ -21,17 +23,19 @@ export function FilterTabs() {
     completed: c.completed,
     cancelled: c.cancelled,
   };
-  return `
-  <div class="report-toolbar">
-    <div class="q-tabs" id="application-tabs">
-      ${FILTERS.map(
-        (f) =>
-          `<button type="button" data-filter="${f.key}" class="q-btn${state.filter === f.key ? " is-active" : ""}">${f.label} &middot; ${count[f.key]}</button>`
-      ).join("")}
-    </div>
-    <div class="report-search">
-      <i data-lucide="search"></i>
-      <input id="application-search" type="text" placeholder="Search applicant, animal, message…" value="${esc(state.query)}">
-    </div>
-  </div>`;
+  return Toolbar({
+    children: `
+    ${TabStrip({
+      id: "application-tabs",
+      children: FILTERS.map((f) =>
+        FilterTab({
+          key: f.key,
+          label: `${f.label} &middot; ${count[f.key]}`,
+          active: state.filter === f.key,
+          attrs: 'type="button"',
+        })
+      ).join(""),
+    })}
+    ${Search({ id: "application-search", placeholder: "Search applicant, animal, message…", value: state.query })}`,
+  });
 }

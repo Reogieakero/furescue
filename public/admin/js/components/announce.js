@@ -1,7 +1,7 @@
-import { openDrawer, closeDrawer } from "/assets/js/components/ui/drawer.js";
-import { Button } from "/assets/js/components/ui/button.js";
-import { Select, initSelect } from "/assets/js/components/ui/select.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { openDrawer, closeDrawer } from "/shared/components/drawer/drawer.js";
+import { Button } from "/shared/components/button/button.js";
+import { Select, initSelect } from "/shared/components/select/select.js";
+import { toast } from "/shared/components/toast/toast.js";
 import { broadcastAnnouncement, fetchUnreadCount } from "/assets/js/admin/admin-data.js";
 import { setNavBadge } from "/assets/js/lib/swr.js";
 

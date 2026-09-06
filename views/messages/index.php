@@ -5,7 +5,7 @@
   </div>
 </div>
 
-<div class="rcard msg-shell" id="msg-shell">
+<div class="rcard msg-shell is-inbox-empty" id="msg-shell">
   <aside class="msg-list" aria-label="Conversations">
     <div class="msg-list-head">
       <h3 class="rcard-title"><i data-lucide="message-square"></i> Conversations</h3>
@@ -16,7 +16,7 @@
   </aside>
 
   <section class="msg-thread" aria-live="polite">
-    <div class="rempty msg-thread-empty" id="msg-empty">
+    <div class="rempty msg-thread-empty is-hidden" id="msg-empty">
       <i data-lucide="messages-square"></i>
       <p class="rempty-title">No conversation selected</p>
       <p class="rempty-text">Pick a conversation on the left, or start one from a report, case, or adoption.</p>

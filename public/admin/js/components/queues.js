@@ -9,7 +9,7 @@ import {
   avatarImg,
   rescuerAvatar,
 } from "./util.js";
-import { PaginationBar } from "/assets/js/components/ui/pagination.js";
+import { PaginationBar } from "/shared/components/pagination/pagination.js";
 
 export function mapReport(r) {
   return {

@@ -1,3 +1,5 @@
+import { EmptyState } from "/shared/components/empty-state/empty-state.js";
+
 export const PAGE_SIZE = 10;
 
 export const CATEGORIES = [
@@ -54,5 +56,5 @@ export function statusLabel(status) {
 }
 
 export function emptyState(icon = "book-open", text = "No modules yet.") {
-  return `<div class="empty-state"><i data-lucide="${esc(icon)}"></i><span>${esc(text)}</span></div>`;
+  return EmptyState({ icon, text });
 }

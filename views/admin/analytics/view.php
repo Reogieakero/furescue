@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Page-local partial for /admin/analytics/ — renders $adminChildren.
  * Consumes (from index.php scope): $start, $end, $ranged, $overviewRows,
- * $trends, $updates, plus shared ui-helpers.
+ * $trends, $updates, $personnel, plus shared ui-helpers.
  */
 
 $today = date('Y-m-d');
@@ -41,18 +41,32 @@ $rangeLabel = $ranged ? "{$start} to {$end}" : 'Last 30 adoption days · 50 late
         'trend' => overview_value($overviewRows, 'adoptions_pending') ? 'Needs Review' : '',
         'trendTone' => 'down',
     ],
-    ['icon' => 'siren', 'value' => overview_value($overviewRows, 'rescuers_on_duty'), 'label' => 'Rescuers on duty', 'tone' => 'sky'],
+    [
+        'icon' => 'siren',
+        'value' => overview_value($overviewRows, 'rescuers_on_duty'),
+        'label' => 'Rescuers on duty',
+        'tone' => 'sky',
+        'trend' => overview_value($overviewRows, 'rescuers_active')
+            ? overview_value($overviewRows, 'rescuers_on_duty') . ' of ' . overview_value($overviewRows, 'rescuers_active') . ' active'
+            : 'No active rescuers',
+        'trendTone' => overview_value($overviewRows, 'rescuers_on_duty') ? 'up' : 'neutral',
+        'href' => '/admin/rescuers/',
+    ],
 ]) ?>
 
   <div class="panel panel--padded analytics-range">
     <div class="panel-title-wrap"><i data-lucide="calendar-range"></i><h2 class="panel-title panel-title--sm">Date range</h2></div>
     <div class="range-controls">
-      <label class="dialog-label">From
-        <input type="date" id="range-start" class="dialog-input" value="<?= e($start) ?>" max="<?= e($today) ?>" autocomplete="off">
-      </label>
-      <label class="dialog-label">To
-        <input type="date" id="range-end" class="dialog-input" value="<?= e($end) ?>" max="<?= e($today) ?>" autocomplete="off">
-      </label>
+      <?= date_range_picker([
+          'id' => 'analytics-range',
+          'start_id' => 'range-start',
+          'end_id' => 'range-end',
+          'start' => $start,
+          'end' => $end,
+          'max' => $today,
+          'placeholder' => 'All dates',
+          'className' => 'analytics-range-picker',
+      ]) ?>
       <div class="range-actions">
         <?= button_html('Apply range', 'default', icon: 'check', attrs: 'id="range-apply"') ?>
         <?= button_html('Reset', 'ghost', attrs: 'id="range-reset"') ?>
@@ -95,6 +109,23 @@ $rangeLabel = $ranged ? "{$start} to {$end}" : 'Last 30 adoption days · 50 late
       </div>
 <?php endif; ?>
     </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-title-wrap"><i data-lucide="siren"></i><h2 class="panel-title panel-title--sm">Personnel duty status</h2></div>
+      <a href="/admin/rescuers/" class="btn-link">View all <?= chevron_right() ?></a>
+    </div>
+<?php if ($personnel === []): ?>
+    <div id="table-personnel" class="queue-empty"><?= empty_state('siren', 'No active rescuers.') ?></div>
+<?php else: ?>
+    <div id="table-personnel" class="table-wrap">
+      <table class="table">
+        <?= table_head(['Rescuer', 'Contact', 'Duty', 'Updated']) ?>
+        <tbody id="tbody-personnel"><?= personnel_rows_html(array_map('personnel_duty_row', $personnel)) ?></tbody>
+      </table>
+    </div>
+<?php endif; ?>
   </div>
 
   <div class="panel">

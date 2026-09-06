@@ -1,8 +1,8 @@
 import { AppShell } from "/assets/js/admin/app-shell.js";
-import { Button } from "/assets/js/components/ui/button.js";
+import { Button } from "/shared/components/button/button.js";
 import { createIcons, icons } from "lucide";
 import { ThreadList, renderList } from "./list.js";
-import { ThreadEmpty, ThreadHead, renderPane } from "./pane.js";
+import { ThreadEmpty, ThreadHead, renderPane, syncInboxLayout } from "./pane.js";
 import { Composer } from "./composer.js";
 
 function PageHead() {
@@ -22,7 +22,7 @@ function PageHead() {
 function InboxPanel() {
   return `
   <div class="panel amsg-panel">
-    <div class="amsg-shell" id="amsg-shell">
+    <div class="amsg-shell is-inbox-empty" id="amsg-shell">
       <aside class="amsg-list" aria-label="Conversations">
         <div class="amsg-list-head">
           <i data-lucide="message-square"></i>
@@ -53,5 +53,6 @@ export function MessagesPage(user) {
 export function rerenderAll() {
   renderList();
   renderPane([], { forceScroll: false });
+  syncInboxLayout();
   createIcons({ icons });
 }

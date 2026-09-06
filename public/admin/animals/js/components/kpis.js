@@ -1,5 +1,5 @@
 import { createIcons, icons } from "lucide";
-import { KpiCard, KpiGrid } from "/assets/js/components/kpi-card.js";
+import { KpiCard, KpiGrid } from "/shared/components/kpi-card/kpi-card.js";
 import { esc } from "/assets/js/lib/format.js";
 import { animalCounts } from "../state.js";
 

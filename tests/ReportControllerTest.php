@@ -121,9 +121,9 @@ class ReportControllerTest extends TestCase
         $asResident = $this->observe(fn () => $this->controller()->index(
             $this->makeRequest('GET', '/api/v1/reports', [], [], [], $this->resident('resident-A'))
         ));
-        $asAdmin = $this->observe(fn () => $this->controller()->index(
-            $this->makeRequest('GET', '/api/v1/reports', [], [], [], ['id' => 'admin-1', 'role' => 'admin'])
-        ));
+        $adminReq = $this->makeRequest('GET', '/api/v1/reports', [], [], [], ['id' => 'admin-1', 'role' => 'admin']);
+        $adminReq->permissions = ['reports.read'];
+        $asAdmin = $this->observe(fn () => $this->controller()->index($adminReq));
 
         $this->assertSame(1, $asResident['body']['meta']['total']);
         $this->assertSame('resident-A', $asResident['body']['data'][0]['resident_id']);
@@ -133,9 +133,14 @@ class ReportControllerTest extends TestCase
     public function testShowForbidsOtherResidentsButAllowsOwnerAndAdmin(): void
     {
         $this->seedReport('report-owned-by-b', 'resident-B', 'Dog', self::MATI_LAT, self::MATI_LNG);
-        $show = fn (array $user) => $this->observe(fn () => $this->controller()->show(
-            $this->makeRequest('GET', '/api/v1/reports/report-owned-by-b', [], [], [], $user)
-        ));
+        $show = function (array $user) {
+            $request = $this->makeRequest('GET', '/api/v1/reports/report-owned-by-b', [], [], [], $user);
+            $request->params = ['id' => 'report-owned-by-b'];
+            if (($user['role'] ?? '') === 'admin') {
+                $request->permissions = ['reports.read'];
+            }
+            return $this->observe(fn () => $this->controller()->show($request));
+        };
 
         $otherResident = $show($this->resident('resident-A'));
         $owner = $show($this->resident('resident-B'));

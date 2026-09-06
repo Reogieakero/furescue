@@ -24,36 +24,6 @@ class AdoptionListingControllerTest extends TestCase
         }
         SqliteTestDatabase::env();
         $this->pdo = SqliteTestDatabase::create();
-        $this->pdo->exec(
-            "CREATE TABLE IF NOT EXISTS animal_medical_records (
-                id TEXT PRIMARY KEY,
-                animal_id TEXT NOT NULL UNIQUE,
-                vaccination_records TEXT,
-                vaccination_details TEXT,
-                weight_kg TEXT,
-                temperature_c TEXT
-            )"
-        );
-        $this->pdo->exec(
-            "CREATE TABLE IF NOT EXISTS vitals_log (
-                id TEXT PRIMARY KEY,
-                animal_id TEXT NOT NULL,
-                heart_rate_bpm INTEGER,
-                recorded_at TEXT NOT NULL DEFAULT (datetime('now'))
-            )"
-        );
-        $this->pdo->exec(
-            "CREATE TABLE IF NOT EXISTS adoption_listings (
-                id TEXT PRIMARY KEY,
-                animal_id TEXT NOT NULL,
-                posted_by TEXT NOT NULL,
-                status TEXT NOT NULL DEFAULT 'pending_review',
-                reviewed_by TEXT,
-                review_notes TEXT,
-                reviewed_at TEXT,
-                created_at TEXT NOT NULL DEFAULT (datetime('now'))
-            )"
-        );
         $this->seedUser('admin-1', 'admin');
         $this->seedUser('poster-1', 'admin');
     }

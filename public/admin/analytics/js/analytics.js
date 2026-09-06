@@ -2,15 +2,18 @@ import { createIcons, icons } from "lucide";
 import { API_BASE_URL, getAccessToken } from "/assets/js/lib/api.js";
 import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { initShell } from "/assets/js/admin/app-shell.js";
-import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { OVERVIEW_LABELS } from "./format.js";
 import { renderAll } from "./render.js";
+import { initDateRangePicker, setDateRange } from "/shared/components/date-range-picker/date-range-picker.js";
 
 const state = {
   range: { start: "", end: "" },
   overview: [],
   trends: [],
   updates: [],
+  personnel: [],
 };
 
 const EXPORT_PATHS = {
@@ -65,15 +68,19 @@ async function apiData(path) {
 
 async function refreshData() {
   const qs = rangeQuery();
-  const [overview, trends, updates] = await Promise.all([
+  const [overview, trends, updates, personnel] = await Promise.all([
     apiData(JSON_PATHS.overview + qs),
     apiData(JSON_PATHS.trends + qs),
     apiData(JSON_PATHS.updates + qs),
+    apiData("users?role=rescuer&account_status=active"),
   ]);
   const stats = (overview && overview.stats) || {};
-  state.overview = Object.entries(stats).map(([key, value]) => ({ key, value }));
+  state.overview = Object.entries(stats)
+    .filter(([key]) => OVERVIEW_LABELS[key])
+    .map(([key, value]) => ({ key, value }));
   state.trends = (trends && trends.trends) || [];
   state.updates = (updates && updates.updates) || [];
+  state.personnel = Array.isArray(personnel) ? personnel : [];
   renderAll(state);
   createIcons({ icons });
 }
@@ -132,12 +139,17 @@ function bindEvents() {
 
   const applyBtn = document.getElementById("range-apply");
   const resetBtn = document.getElementById("range-reset");
-  const startInput = document.getElementById("range-start");
-  const endInput = document.getElementById("range-end");
+  const rangeWrap = document.getElementById("analytics-range");
+  initDateRangePicker(rangeWrap, {
+    "analytics-range": ({ start, end }) => {
+      state.range.start = start || "";
+      state.range.end = end || "";
+    },
+  });
 
   const readInputs = () => {
-    state.range.start = startInput ? startInput.value.trim() : "";
-    state.range.end = endInput ? endInput.value.trim() : "";
+    state.range.start = document.getElementById("range-start")?.value.trim() || "";
+    state.range.end = document.getElementById("range-end")?.value.trim() || "";
   };
 
   applyBtn?.addEventListener("click", async () => {
@@ -156,8 +168,7 @@ function bindEvents() {
   });
 
   resetBtn?.addEventListener("click", async () => {
-    if (startInput) startInput.value = "";
-    if (endInput) endInput.value = "";
+    setDateRange(rangeWrap, { start: "", end: "" });
     readInputs();
     setBusy(true);
     try {
@@ -171,11 +182,6 @@ function bindEvents() {
     }
   });
 
-  endInput?.addEventListener("change", () => {
-    if (startInput && endInput.value && startInput.value && startInput.value > endInput.value) {
-      startInput.value = endInput.value;
-    }
-  });
 }
 
 function initDate() {

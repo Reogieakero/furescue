@@ -1,6 +1,6 @@
 import { state } from "../state.js";
 import { trendLabel } from "../insights.js";
-import { KpiGrid as renderKpiGrid } from "/assets/js/components/kpi-card.js";
+import { KpiGrid as renderKpiGrid } from "/shared/components/kpi-card/kpi-card.js";
 
 function buildKpis() {
   const pending = state.reportsPending.total || state.overview.reports_pending || 0;
@@ -10,6 +10,9 @@ function buildKpis() {
   const pendingTrend = trendLabel(state.overview.pending_today || 0);
   const progressTrend = trendLabel(state.overview.in_progress_today || 0);
   const resolvedTrend = trendLabel(state.overview.resolved_today || 0);
+  const onDuty = state.overview.rescuers_on_duty ?? 0;
+  const active = state.overview.rescuers_active
+    ?? state.rescuers.filter((u) => (u.account_status || "active") === "active").length;
   return [
     {
       icon: "folder-kanban",
@@ -42,6 +45,15 @@ function buildKpis() {
       label: "Resolved",
       trend: resolvedTrend.text,
       trendTone: resolvedTrend.tone,
+    },
+    {
+      icon: "siren",
+      tone: "sky",
+      value: onDuty,
+      label: "Rescuers on duty",
+      trend: active > 0 ? `${onDuty} of ${active} active` : "No active rescuers",
+      trendTone: onDuty > 0 ? "up" : "neutral",
+      href: "/admin/rescuers/",
     },
   ];
 }

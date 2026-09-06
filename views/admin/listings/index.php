@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once shared_path('search/search.php');
+
 /** @var list<array<string, mixed>> $listings */
 
 const LISTING_STATUS_LABELS = [
@@ -136,14 +138,10 @@ $adminChildren = '
       </div>
     </div>
     <div id="listing-filters">
-      <div class="report-toolbar">
-        <div class="q-tabs" id="listing-tabs">' . $tabButtons . '
-        </div>
-        <div class="report-search">
-          <i data-lucide="search"></i>
-          <input id="listing-search" type="text" placeholder="Search animal, poster…" value="">
-        </div>
-      </div>
+      ' . toolbar_html(
+          filter_tabs_html('listing-tabs', $tabButtons)
+          . search_control('listing-search', 'Search animal, poster…')
+      ) . '
     </div>
     <div id="listing-table" class="panel-body">' . $tableInner . '</div>
   </div>';

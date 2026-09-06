@@ -3,7 +3,7 @@ import { state } from "../state.js";
 import { ListingTable, rerenderAll } from "../components.js";
 import { filteredListings } from "../components/table.js";
 import { runApprove, runReject } from "./actions.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { toast } from "/shared/components/toast/toast.js";
 import { datedCsvName, downloadCsv } from "/assets/js/lib/csv.js";
 
 export function initListingsEvents() {

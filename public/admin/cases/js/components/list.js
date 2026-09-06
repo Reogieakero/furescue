@@ -1,8 +1,8 @@
 import { state } from "../state.js";
 import { createIcons, icons } from "lucide";
-import { Button } from "/assets/js/components/ui/button.js";
-import { Select, initSelect } from "/assets/js/components/ui/select.js";
-import { PaginationBar } from "/assets/js/components/ui/pagination.js";
+import { Button } from "/shared/components/button/button.js";
+import { Select, initSelect } from "/shared/components/select/select.js";
+import { PaginationBar } from "/shared/components/pagination/pagination.js";
 import { esc, caseStampCls, enrich } from "./util.js";
 import { shortId, timeAgo, titleCase, initials } from "/admin/js/helpers.js";
 import { CaseFilterTabs, CaseToolbar } from "./kpi.js";

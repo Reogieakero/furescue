@@ -14,6 +14,8 @@
   border: 0;
 }
 
+/* Beat .resident-shell .rcard { display: flex; flex-direction: column } */
+.resident-shell .rcard.msg-shell,
 .msg-shell {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -22,10 +24,37 @@
 }
 
 @media (min-width: 768px) {
+  .resident-shell .rcard.msg-shell,
   .msg-shell {
     grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
     height: min(72vh, 680px);
   }
+}
+
+/* 0 threads: one empty, no dead pane */
+.resident-shell .rcard.msg-shell.is-inbox-empty,
+.msg-shell.is-inbox-empty {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.msg-shell.is-inbox-empty .msg-thread {
+  display: none;
+}
+
+.msg-shell.is-inbox-empty .msg-list {
+  border-bottom: none;
+}
+
+@media (min-width: 768px) {
+  .msg-shell.is-inbox-empty .msg-list {
+    border-right: none;
+  }
+}
+
+.msg-shell.is-inbox-empty .msg-list-items {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Conversation list */

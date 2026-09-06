@@ -1,7 +1,7 @@
 import { createIcons, icons } from "lucide";
 import { AppShell } from "/assets/js/admin/app-shell.js";
-import { Button } from "/assets/js/components/ui/button.js";
-import { SkeletonCaseDetail } from "/assets/js/components/ui/skeleton.js";
+import { Button } from "/shared/components/button/button.js";
+import { SkeletonCaseDetail } from "/shared/components/skeleton/skeleton.js";
 import { renderWorkflow } from "./workflow.js";
 import { renderCaseInfo, renderSourceReport } from "./info.js";
 import { renderAttachments } from "./files.js";

@@ -1,0 +1,16 @@
+/* Shared select — appearance lives on the trigger utilities in select.php/js.
+   These rules keep the listbox usable at 375px without a second implementation. */
+[data-select] {
+  min-width: 0;
+  max-width: 100%;
+}
+
+[data-select] [data-select-trigger] {
+  min-width: 0;
+}
+
+[data-select] [data-select-value] {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once shared_path('search/search.php');
+
 /** @var array<int, array<string, mixed>> $items */
 /** @var array<string, int> $counts */
 /** @var string $loadError */
@@ -44,15 +46,10 @@ foreach ($filterDefs as $f) {
     $tabButtons .= '
         <button type="button" data-filter="' . e($f['key']) . '" class="q-btn' . $activeCls . '">' . e($f['label']) . ' &middot; ' . e($f['count']) . '</button>';
 }
-$filterTabs = '
-  <div class="report-toolbar">
-    <div class="q-tabs" id="application-tabs">' . $tabButtons . '
-    </div>
-    <div class="report-search">
-      <i data-lucide="search"></i>
-      <input id="application-search" type="text" placeholder="Search applicant, animal, message…" value="">
-    </div>
-  </div>';
+$filterTabs = toolbar_html(
+    filter_tabs_html('application-tabs', $tabButtons)
+    . search_control('application-search', 'Search applicant, animal, message…')
+);
 
 const APPLICATIONS_PAGE_SIZE = 15;
 $actionLinksFor = static function (array $a) use ($appButton): string {

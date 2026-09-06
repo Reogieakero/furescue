@@ -60,6 +60,33 @@ function health_update_row(array $h): array
     ];
 }
 
+function personnel_duty_row(array $r): array
+{
+    $onDuty = ($r['duty_status'] ?? 'off_duty') === 'on_duty';
+    return [
+        'name' => (string) (($r['full_name'] ?? '') !== '' ? $r['full_name'] : 'Rescuer'),
+        'contact' => (string) (($r['phone_number'] ?? '') !== '' ? $r['phone_number'] : (($r['email'] ?? '') !== '' ? $r['email'] : '—')),
+        'duty' => $onDuty ? 'On duty' : 'Off duty',
+        'dutyCls' => $onDuty ? 'stamp--accent' : 'stamp--muted',
+        'when' => time_ago($r['duty_updated_at'] ?? null),
+    ];
+}
+
+function personnel_rows_html(array $rows): string
+{
+    $html = '';
+    foreach ($rows as $r) {
+        $html .= "
+    <tr>
+      <td class=\"table-cell table-cell--strong\">" . e($r['name']) . "</td>
+      <td class=\"table-cell\">" . e($r['contact']) . "</td>
+      <td class=\"table-cell\"><span class=\"stamp stamp--sm " . e($r['dutyCls']) . "\">" . e($r['duty']) . "</span></td>
+      <td class=\"table-cell table-cell--mono table-cell--muted\">" . e($r['when']) . '</td>
+    </tr>';
+    }
+    return $html;
+}
+
 function health_rows_html(array $rows): string
 {
     $html = '';

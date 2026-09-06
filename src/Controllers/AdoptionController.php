@@ -12,8 +12,8 @@ class AdoptionController extends AbstractController
     public function apply(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('animal_id')->string(36)
-            ->optional('message')->string(1000);
+        $v->required('animal_id')->uuid('animal_id')
+            ->optional('message')->string('message', 1000);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
@@ -25,6 +25,14 @@ class AdoptionController extends AbstractController
         }
         if ($animal['adoption_status'] !== 'available') {
             Response::error('NOT_ADOPTABLE', 'Animal is not available for adoption', 409);
+            return;
+        }
+        $existing = $this->repo('adoptions')->findByComposite(
+            ['animal_id', 'applicant_id', 'status'],
+            [$req->body['animal_id'], $req->user['id'], 'pending']
+        );
+        if ($existing) {
+            Response::error('APPLICATION_EXISTS', 'A pending application already exists for this animal', 409);
             return;
         }
         $id = $this->repo('adoptions')->create([
@@ -60,6 +68,11 @@ class AdoptionController extends AbstractController
 
     public function index(Request $req): void
     {
+        if ($this->rejectBadQuery($req, [
+            'status' => ['pending', 'approved', 'rejected', 'completed', 'cancelled'],
+        ])) {
+            return;
+        }
         $where = [];
         $params = [];
         if (!in_array('adoptions.read', $req->permissions, true)) {
@@ -110,7 +123,7 @@ class AdoptionController extends AbstractController
     {
         $v = new \App\Validation\Validator($req->body);
         if ($decision === 'rejected') {
-            $v->required('rejection_reason')->string(500);
+            $v->required('rejection_reason')->string('rejection_reason', 500);
         }
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);

@@ -1,5 +1,5 @@
 import { getAccessToken, API_BASE_URL } from "/assets/js/lib/api.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { toast } from "/shared/components/toast/toast.js";
 
 const el = (id) => document.getElementById(id);
 

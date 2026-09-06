@@ -3,7 +3,7 @@ import { apiFetch, apiFetchFull, PORTAL_ROLES, requireAuth } from "/assets/js/li
 import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { esc } from "/assets/js/lib/format.js";
 import { initResidentShell } from "/assets/js/components/resident-shell.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { toast } from "/shared/components/toast/toast.js";
 
 const CATEGORY_META = {
   dog_behavior: { label: "Dog Behavior", icon: "dog" },

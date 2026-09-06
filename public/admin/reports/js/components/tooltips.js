@@ -1,5 +1,5 @@
 import { createIcons, icons } from "lucide";
-import { attachTooltip, hideTooltip } from "/assets/js/components/ui/tooltip.js";
+import { attachTooltip, hideTooltip } from "/shared/components/tooltip/tooltip.js";
 import * as api from "/assets/js/admin/admin-data.js";
 import { esc } from "./util.js";
 import { titleCase } from "/admin/js/helpers.js";

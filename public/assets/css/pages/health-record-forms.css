@@ -66,53 +66,6 @@
   margin-top: 12px;
 }
 
-/* shadcn-style datepicker popover */
-.hr-dp-popover {
-  min-width: 248px;
-}
-.hr-dp-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-.hr-dp-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: hsl(var(--ink));
-}
-.hr-dp-nav {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: hsl(var(--muted-foreground));
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-.hr-dp-nav:hover {
-  background: hsl(var(--accent));
-  color: hsl(var(--accent-foreground));
-}
-.hr-dp-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
-}
-.hr-dp-wd {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 28px;
-  font-size: 11px;
-  font-weight: 700;
-  color: hsl(var(--muted-foreground));
-}
-
 /* "Veterinary Review Required" / "Not age-appropriate" badge in the vaccination card header */
 .hr-vax-head-flag {
   display: inline-flex;

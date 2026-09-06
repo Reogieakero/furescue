@@ -5,7 +5,7 @@ import { initShell } from "/assets/js/admin/app-shell.js";
 import { RescuersPage } from "./components.js";
 import { loadRescuers, hydrateFromCache, hydrateSelection, state } from "./state.js";
 import { initRescuerEvents, restoreSelection } from "./workflow.js";
-import { initDropdownMenu } from "/assets/js/components/ui/dropdown-menu.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
 import { setNavBadge } from "/assets/js/lib/swr.js";
 
 function render(user, { loading = false } = {}) {

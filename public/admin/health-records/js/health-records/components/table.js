@@ -1,5 +1,5 @@
-import { PaginationBar } from "/assets/js/components/ui/pagination.js";
-import { Badge } from "/assets/js/components/ui/badge.js";
+import { PaginationBar } from "/shared/components/pagination/pagination.js";
+import { Badge } from "/shared/components/badge/badge.js";
 import { state, pagedRecords, recordCounts, FILTERS, PAGE_SIZE } from "../state.js";
 import { esc, fmtDate, daysUntil, VACC_TONE } from "./util.js";
 

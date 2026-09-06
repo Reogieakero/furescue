@@ -1,4 +1,4 @@
-import { KpiGrid } from "/assets/js/components/kpi-card.js";
+import { KpiGrid } from "/shared/components/kpi-card/kpi-card.js";
 import { esc } from "/assets/js/lib/format.js";
 import { state, recordCounts } from "../state.js";
 import { daysUntil } from "./util.js";

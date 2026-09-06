@@ -1,8 +1,11 @@
 import { state } from "../state.js";
 import { Chart } from "chart.js";
 import { createIcons, icons } from "lucide";
-import { Select } from "/assets/js/components/ui/select.js";
-import { KpiCard, KpiGrid } from "/assets/js/components/kpi-card.js";
+import { Select } from "/shared/components/select/select.js";
+import { Search } from "/shared/components/search/search.js";
+import { Toolbar } from "/shared/components/toolbar/toolbar.js";
+import { FilterTabs as TabStrip, FilterTab } from "/shared/components/filter-tabs/filter-tabs.js";
+import { KpiCard, KpiGrid } from "/shared/components/kpi-card/kpi-card.js";
 import { esc } from "/assets/js/lib/format.js";
 
 const STATUS_COLORS = {
@@ -91,21 +94,18 @@ export function CaseFilterTabs() {
     in_progress: c.in_progress,
     resolved: c.resolved,
   };
-  return `
-  <div class="q-tabs" id="case-tabs">
-    ${CASE_FILTERS.map(
-      (f) => `<button data-filter="${f.key}" class="q-btn${state.filter === f.key ? " is-active" : ""}">${f.label} &middot; ${count[f.key]}</button>`
-    ).join("")}
-  </div>`;
+  return TabStrip({
+    id: "case-tabs",
+    children: CASE_FILTERS.map((f) =>
+      FilterTab({ key: f.key, label: `${f.label} &middot; ${count[f.key]}`, active: state.filter === f.key })
+    ).join(""),
+  });
 }
 
 export function CaseToolbar() {
-  return `
-  <div class="report-toolbar">
-    <div class="report-search">
-      <i data-lucide="search"></i>
-      <input id="case-search" type="text" placeholder="Search case #, barangay, animal…" value="${esc(state.query)}">
-    </div>
+  return Toolbar({
+    children: `
+    ${Search({ id: "case-search", placeholder: "Search case #, barangay, animal…", value: state.query })}
     <div class="report-sort">
       ${Select({
         id: "case-sort",
@@ -119,8 +119,8 @@ export function CaseToolbar() {
         placeholder: "Sort",
         className: "report-sort-control",
       })}
-    </div>
-  </div>`;
+    </div>`,
+  });
 }
 
 function StatusChart() {

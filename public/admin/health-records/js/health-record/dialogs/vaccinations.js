@@ -1,9 +1,9 @@
 import { createIcons, icons } from "lucide";
-import { Button } from "/assets/js/components/ui/button.js";
-import { initSelect } from "/assets/js/components/ui/select.js";
-import { DatePicker, initDatePicker } from "/assets/js/components/ui/date-picker.js";
-import { Spinner } from "/assets/js/components/ui/spinner.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { Button } from "/shared/components/button/button.js";
+import { initSelect } from "/shared/components/select/select.js";
+import { DatePicker, initDatePicker } from "/shared/components/date-picker/date-picker.js";
+import { Spinner } from "/shared/components/spinner/spinner.js";
+import { toast } from "/shared/components/toast/toast.js";
 import { upsertAnimalVaccinations } from "/assets/js/admin/admin-data.js";
 import { record, ui, paint, reloadRecord, syncHidden } from "../context.js";
 import { vaccineOptionList, selectField, STATUS_OPTIONS } from "../util.js";

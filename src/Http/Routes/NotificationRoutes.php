@@ -32,7 +32,7 @@ class NotificationRoutes
         $router->add('GET', '/api/v1/notifications/unread-count', fn(Request $r) => (new NotificationController($pdo))->unreadCount($r), [$authMw]);
         $router->add('POST', '/api/v1/admin/notifications', fn(Request $r) => (new NotificationController($pdo))->broadcast($r), [$authMw, new PermissionMiddleware('notifications.broadcast')]);
         $router->add('POST', '/api/v1/admin/notifications/broadcast', fn(Request $r) => (new NotificationController($pdo))->broadcast($r), [$authMw, new PermissionMiddleware('notifications.broadcast')]);
-        $router->add('GET', '/api/v1/admin/notifications/recent', fn(Request $r) => (new NotificationController($pdo))->recent($r), [$authMw]);
+        $router->add('GET', '/api/v1/admin/notifications/recent', fn(Request $r) => (new NotificationController($pdo))->recent($r), [$authMw, new PermissionMiddleware('notifications.broadcast')]);
         $router->add('DELETE', '/api/v1/admin/notifications/{id}', fn(Request $r) => (new NotificationController($pdo))->delete($r), [$authMw, new PermissionMiddleware('notifications.delete')]);
     }
 }

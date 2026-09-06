@@ -14,7 +14,7 @@ class AdoptionRoutes
         $pdo = $d['pdo'];
         $authMw = $d['authMw'];
 
-        $router->add('POST', '/api/v1/adoptions', fn(Request $r) => (new AdoptionController($pdo))->apply($r), [$authMw]);
+        $router->add('POST', '/api/v1/adoptions', fn(Request $r) => (new AdoptionController($pdo))->apply($r), [$authMw, new PermissionMiddleware('adoptions.apply')]);
         $router->add('GET', '/api/v1/adoptions', fn(Request $r) => (new AdoptionController($pdo))->index($r), [$authMw]);
         $router->add('GET', '/api/v1/adoptions/{id}', fn(Request $r) => (new AdoptionController($pdo))->show($r), [$authMw]);
         $router->add('POST', '/api/v1/adoptions/{id}/cancel', fn(Request $r) => (new AdoptionController($pdo))->cancel($r), [$authMw]);

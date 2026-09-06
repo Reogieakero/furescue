@@ -42,7 +42,7 @@ $adminChildren = '
     </div>
   </div>
   <div class="panel amsg-panel">
-    <div class="amsg-shell" id="amsg-shell">
+    <div class="amsg-shell is-inbox-empty" id="amsg-shell">
       <aside class="amsg-list" aria-label="Conversations">
         <div class="amsg-list-head">
           <i data-lucide="message-square"></i>
@@ -57,7 +57,7 @@ $adminChildren = '
         </div>
       </aside>
       <section class="amsg-thread" aria-live="polite">
-        <div class="amsg-empty" id="amsg-empty">
+        <div class="amsg-empty is-hidden" id="amsg-empty">
           <i data-lucide="messages-square"></i>
           <p class="amsg-empty-title">No conversation selected</p>
           <p class="amsg-empty-text">Pick a conversation, or start one. Threads show up when someone messages this admin, or after Start conversation.</p>

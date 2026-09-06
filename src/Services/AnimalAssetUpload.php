@@ -89,6 +89,12 @@ class AnimalAssetUpload
         if (str_starts_with($head, 'MZ')) {
             return 'application/x-msdownload';
         }
+        if (str_starts_with($head, '%PDF')) {
+            return 'application/pdf';
+        }
+        if (str_starts_with($head, 'GIF87a') || str_starts_with($head, 'GIF89a')) {
+            return 'image/gif';
+        }
         if (str_starts_with($head, "\x89PNG\r\n\x1a\n")) {
             return 'image/png';
         }

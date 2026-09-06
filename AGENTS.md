@@ -43,7 +43,9 @@ composer install
 php vendor\phpunit\phpunit\phpunit          :: tests (no composer test script; vendor/bin/phpunit is a bash script, use this on Windows)
 php vendor\phpunit\phpunit\phpunit --filter DedupServiceTest   :: single class
 php bin\migrate.php                          :: apply migrations/*.sql
+php bin\migrate.php --fresh --yes            :: drop all tables, re-apply migrations
 php seeders\seed.php                         :: idempotent demo data
+php seeders\seed_users.php                   :: users, roles, and permissions only
 php -S 127.0.0.1:8000 -t public public\index.php   :: run everything
 npm run build                                :: compile Tailwind after editing CSS
 ```

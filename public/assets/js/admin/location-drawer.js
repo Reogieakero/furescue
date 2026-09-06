@@ -1,4 +1,4 @@
-import { openDrawer } from "/assets/js/components/ui/drawer.js";
+import { openDrawer } from "/shared/components/drawer/drawer.js";
 import * as api from "/assets/js/admin/admin-data.js";
 import { titleCase } from "/admin/js/helpers.js";
 

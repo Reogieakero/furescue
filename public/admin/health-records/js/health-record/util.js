@@ -1,4 +1,5 @@
-import { Select } from "/assets/js/components/ui/select.js";
+import { Select } from "/shared/components/select/select.js";
+import { EmptyState } from "/shared/components/empty-state/empty-state.js";
 import { esc } from "../health-records/components/util.js";
 import { API_BASE_URL } from "/assets/js/lib/api.js";
 
@@ -103,7 +104,7 @@ export function chip(tone, text) {
 }
 
 export function emptyState(msg, icon = "inbox") {
-  return `<div class="empty-state"><i data-lucide="${icon}"></i><span>${esc(msg)}</span></div>`;
+  return EmptyState({ icon, text: msg });
 }
 
 export function toneFor(field, value) {

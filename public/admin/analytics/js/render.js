@@ -1,4 +1,4 @@
-import { emptyState, esc, mapHealthUpdate, OVERVIEW_LABELS } from "./format.js";
+import { emptyState, esc, mapHealthUpdate, mapPersonnel, OVERVIEW_LABELS } from "./format.js";
 
 function setWrapMode(wrap, isEmpty) {
   wrap.classList.toggle("queue-empty", isEmpty);
@@ -65,8 +65,30 @@ export function renderUpdates(rows) {
     </table>`;
 }
 
+export function renderPersonnel(rows) {
+  const wrap = document.getElementById("table-personnel");
+  if (!wrap) return;
+  setWrapMode(wrap, !rows.length);
+  if (!rows.length) {
+    wrap.innerHTML = emptyState("siren", "No active rescuers.");
+    return;
+  }
+  wrap.innerHTML = `
+    <table class="table">
+      <thead><tr class="table-head"><th>Rescuer</th><th>Contact</th><th>Duty</th><th>Updated</th></tr></thead>
+      <tbody>${rows.map(mapPersonnel).map((r) => `
+        <tr>
+          <td class="table-cell table-cell--strong">${esc(r.name)}</td>
+          <td class="table-cell">${esc(r.contact)}</td>
+          <td class="table-cell"><span class="stamp stamp--sm ${esc(r.dutyCls)}">${esc(r.duty)}</span></td>
+          <td class="table-cell table-cell--mono table-cell--muted">${esc(r.when)}</td>
+        </tr>`).join("")}</tbody>
+    </table>`;
+}
+
 export function renderAll(state) {
   renderOverview(state.overview);
   renderTrends(state.trends);
   renderUpdates(state.updates);
+  renderPersonnel(state.personnel || []);
 }

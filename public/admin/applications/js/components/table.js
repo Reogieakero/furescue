@@ -1,5 +1,5 @@
-import { PaginationBar } from "/assets/js/components/ui/pagination.js";
-import { Button } from "/assets/js/components/ui/button.js";
+import { PaginationBar } from "/shared/components/pagination/pagination.js";
+import { Button } from "/shared/components/button/button.js";
 import { esc, stampCls, applicantName, animalName } from "./util.js";
 import { shortId, timeAgo, titleCase, truncate } from "/admin/js/helpers.js";
 import { state } from "../state.js";

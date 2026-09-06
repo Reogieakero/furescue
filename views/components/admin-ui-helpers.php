@@ -2,13 +2,26 @@
 
 declare(strict_types=1);
 
-const BTN_BASE = 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
-const BTN_VARIANT_DEFAULT = 'bg-primary text-primary-foreground shadow hover:bg-primary/90';
-const BTN_VARIANT_OUTLINE = 'border border-input bg-background hover:bg-accent hover:text-accent-foreground';
-const BTN_VARIANT_GHOST = 'hover:bg-accent hover:text-accent-foreground';
-const BTN_SIZE_DEFAULT = 'h-8 px-4';
-const BTN_SIZE_SM = 'h-7 px-3';
-const BTN_SIZE_LG = 'h-10 px-6 text-sm';
+if (!function_exists('shared_path')) {
+    require_once dirname(__DIR__) . '/path.php';
+}
+
+require_once shared_path('button/button.php');
+require_once shared_path('select/select.php');
+require_once shared_path('pagination/pagination.php');
+require_once shared_path('table/table.php');
+require_once shared_path('empty-state/empty-state.php');
+require_once shared_path('kpi-card/kpi-card.php');
+require_once shared_path('toolbar/toolbar.php');
+require_once shared_path('filter-tabs/filter-tabs.php');
+require_once shared_path('input/input.php');
+require_once shared_path('checkbox/checkbox.php');
+require_once shared_path('label/label.php');
+require_once shared_path('badge/badge.php');
+require_once shared_path('spinner/spinner.php');
+require_once shared_path('separator/separator.php');
+require_once shared_path('search/search.php');
+require_once shared_path('date-range-picker/date-range-picker.php');
 
 function e(mixed $v): string
 {
@@ -107,172 +120,7 @@ function rescuer_avatar(mixed $src, mixed $name): string
     return '<span class="rescuer-avatar rescuer-avatar--initial">' . e(initials_of($name)) . '</span>';
 }
 
-function table_head(array $cols): string
-{
-    $th = '';
-    foreach ($cols as $c) {
-        $th .= '<th>' . e($c) . '</th>';
-    }
-    return '
-  <thead>
-    <tr class="table-head">
-      ' . $th . '
-    </tr>
-  </thead>';
-}
-
-function empty_state(string $icon = 'inbox', string $text = 'No records.'): string
-{
-    return '<div class="empty-state"><i data-lucide="' . e($icon) . '"></i><span>' . e($text) . '</span></div>';
-}
-
-function kpi_card_html(array $k): string
-{
-    $label = (string) ($k['label'] ?? '');
-    $value = (string) ($k['value'] ?? '');
-    $tone = (string) ($k['tone'] ?? 'jungle');
-    $icon = (string) ($k['icon'] ?? 'activity');
-    $trend = (string) ($k['trend'] ?? '');
-    $trendHtml = $trend !== ''
-        ? '<p class="kpi-card__trend kpi-card__trend--' . e((string) ($k['trendTone'] ?? 'neutral')) . '">' . e($trend) . '</p>'
-        : '';
-    return '
-  <article class="kpi-card" aria-label="' . e($label . ': ' . $value) . '">
-    <div class="kpi-card__icon kpi-card__icon--' . e($tone) . '" aria-hidden="true"><i data-lucide="' . e($icon) . '"></i></div>
-    <div class="kpi-card__body">
-      <p class="kpi-card__label">' . e($label) . '</p>
-      <p class="kpi-card__value">' . e($value) . '</p>
-      ' . $trendHtml . '
-    </div>
-  </article>';
-}
-
-function kpi_grid_html(array $tiles, string $id = ''): string
-{
-    $idAttr = $id !== '' ? ' id="' . e($id) . '"' : '';
-    $inner = '';
-    foreach ($tiles as $k) {
-        $inner .= kpi_card_html($k);
-    }
-    return '<div class="kpi-grid"' . $idAttr . '>' . $inner . '</div>';
-}
-
 function chevron_right(): string
 {
     return '<i data-lucide="chevron-right" class="link-chevron"></i>';
-}
-
-function button_classes(string $variant = 'default', string $size = 'default', string $className = ''): string
-{
-    $variantCls = match ($variant) {
-        'outline' => BTN_VARIANT_OUTLINE,
-        'ghost' => BTN_VARIANT_GHOST,
-        default => BTN_VARIANT_DEFAULT,
-    };
-    $sizeCls = match ($size) {
-        'sm' => BTN_SIZE_SM,
-        'lg' => BTN_SIZE_LG,
-        'icon' => 'h-8 w-8',
-        default => BTN_SIZE_DEFAULT,
-    };
-    $base = BTN_BASE;
-    if ($size === 'lg') {
-        $base = str_replace('text-[13px]', 'text-sm', $base);
-    }
-    $cls = trim($base . ' ' . $variantCls . ' ' . $sizeCls . ($className !== '' ? ' ' . $className : ''));
-    return $cls;
-}
-
-function button_html(string $text = '', string $variant = 'default', string $size = 'default', string $className = '', string $icon = '', string $attrs = '', string $type = 'button'): string
-{
-    $inner = ($icon !== '' ? '<i data-lucide="' . e($icon) . '" class="icon"></i>' : '') . '<span>' . e($text) . '</span>';
-    return '<button type="' . e($type) . '" class="' . e(button_classes($variant, $size, $className)) . '"' . ($attrs !== '' ? ' ' . $attrs : '') . '>' . $inner . '</button>';
-}
-
-function button_anchor_html(string $href, string $text = '', string $variant = 'default', string $size = 'default', string $className = '', string $icon = '', string $attrs = ''): string
-{
-    $inner = ($icon !== '' ? '<i data-lucide="' . e($icon) . '" class="icon"></i>' : '') . '<span>' . e($text) . '</span>';
-    return '<a href="' . e($href) . '" class="' . e(button_classes($variant, $size, $className)) . '"' . ($attrs !== '' ? ' ' . $attrs : '') . '>' . $inner . '</a>';
-}
-
-function pagination_page_items(int $current, int $totalPages): array
-{
-    $set = array_unique(array_filter([1, $totalPages, $current - 1, $current, $current + 1], fn($p) => $p >= 1 && $p <= $totalPages));
-    sort($set);
-    $out = [];
-    $prev = 0;
-    foreach ($set as $p) {
-        if ($p - $prev > 1) {
-            $out[] = 'ellipsis';
-        }
-        $out[] = $p;
-        $prev = $p;
-    }
-    return $out;
-}
-
-function pagination_bar(int $total = 0, int $perPage = 10, int $page = 1, string $className = ''): string
-{
-    $pageTotal = max(1, (int) ceil($total / max(1, $perPage)));
-    $cur = min(max(1, $page), $pageTotal);
-    $linkBase = 'inline-flex h-8 min-w-8 items-center justify-center rounded-md border px-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
-    $arrowBase = 'inline-flex h-8 items-center gap-1 rounded-md border border-input bg-background px-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground';
-
-    $items = [];
-    foreach (pagination_page_items($cur, $pageTotal) as $p) {
-        if ($p === 'ellipsis') {
-            $items[] = '<li class=""><span class="flex h-8 w-8 items-center justify-center"><i data-lucide="ellipsis" class="h-4 w-4"></i></span></li>';
-            continue;
-        }
-        $active = $p === $cur;
-        $cls = $active
-            ? $linkBase . ' border-primary bg-primary text-primary-foreground'
-            : $linkBase . ' border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground';
-        $items[] = '<li class=""><button data-page="' . $p . '" class="' . e($cls) . '"' . ($active ? ' aria-current="page"' : '') . '>' . $p . '</button></li>';
-    }
-
-    $prevDisabled = $cur <= 1;
-    $nextDisabled = $cur >= $pageTotal;
-    $prevBtn = '<button data-page="' . max(1, $cur - 1) . '" class="' . e($arrowBase . ($prevDisabled ? ' pointer-events-none opacity-50' : '')) . '"' . ($prevDisabled ? ' aria-disabled="true"' : '') . '><i data-lucide="chevron-left" class="h-4 w-4"></i>Previous</button>';
-    $nextBtn = '<button data-page="' . min($pageTotal, $cur + 1) . '" class="' . e($arrowBase . ($nextDisabled ? ' pointer-events-none opacity-50' : '')) . '"' . ($nextDisabled ? ' aria-disabled="true"' : '') . '>Next<i data-lucide="chevron-right" class="h-4 w-4"></i></button>';
-
-    return '<nav class="' . e(trim('mx-auto flex w-full justify-center' . ($className !== '' ? ' ' . $className : ''))) . '" aria-label="Pagination"><ul class="flex items-center gap-1"><li class="">' . $prevBtn . '</li>' . implode('', $items) . '<li class="">' . $nextBtn . '</li></ul></nav>';
-}
-
-function select_control(string $id = '', array $options = [], string $value = '', string $placeholder = 'Select', string $triggerClassName = '', string $contentClassName = '', string $className = ''): string
-{
-    $chevron = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="m6 9 6 6 6-6"/></svg>';
-    $check = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
-    $label = $placeholder;
-    foreach ($options as $o) {
-        if (($o['value'] ?? '') === $value) {
-            $label = (string) ($o['label'] ?? '');
-            break;
-        }
-    }
-    $items = '';
-    foreach ($options as $o) {
-        $selected = ($o['value'] ?? '') === $value;
-        $itemCls = 'flex w-full cursor-pointer items-center justify-between gap-2 px-3 py-2 text-sm transition-colors'
-            . ($selected ? ' bg-accent text-accent-foreground' : ' hover:bg-accent hover:text-accent-foreground');
-        $items .= '
-  <div role="option" aria-selected="' . ($selected ? 'true' : 'false') . '" data-select-item data-value="' . e($o['value'] ?? '') . '" class="' . e($itemCls) . '">
-    <span data-select-item-label>' . e($o['label'] ?? '') . '</span>
-    ' . ($selected ? '<span data-select-check class="shrink-0">' . $check . '</span>' : '') . '
-  </div>';
-    }
-    $wrapCls = trim('relative inline-block' . ($className !== '' ? ' ' . $className : ''));
-    $triggerCls = 'flex h-8 w-full items-center justify-between gap-2 whitespace-nowrap rounded-md border border-input bg-background px-3 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-1 focus:ring-ring'
-        . ($triggerClassName !== '' ? ' ' . $triggerClassName : '');
-    $contentCls = 'absolute left-0 top-full z-50 mt-1 hidden min-w-full overflow-hidden rounded-md border border-input bg-card text-card-foreground shadow-md'
-        . ($contentClassName !== '' ? ' ' . $contentClassName : '');
-    return '
-  <div id="' . e($id) . '" data-select class="' . e($wrapCls) . '">
-    <button type="button" data-select-trigger aria-haspopup="listbox" aria-expanded="false" class="' . e($triggerCls) . '">
-      <span data-select-value>' . e($label) . '</span>
-      <span class="shrink-0 opacity-50">' . $chevron . '</span>
-    </button>
-    <div data-select-content role="listbox" class="' . e($contentCls) . '">' . $items . '
-    </div>
-  </div>';
 }

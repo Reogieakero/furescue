@@ -1,6 +1,6 @@
 import { esc } from "./util.js";
 import { titleCase } from "/admin/js/helpers.js";
-import { Badge } from "/assets/js/components/ui/badge.js";
+import { Badge } from "/shared/components/badge/badge.js";
 import { state } from "../state.js";
 
 const STATUS_LABELS = {

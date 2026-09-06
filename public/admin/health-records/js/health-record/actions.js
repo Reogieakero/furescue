@@ -1,5 +1,5 @@
-import { toast } from "/assets/js/components/ui/toast.js";
-import { confirmDialog } from "/assets/js/components/ui/dialog.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import { updateAnimal, upsertAnimalMedical, createAdoptionListing, deleteAnimal } from "/assets/js/admin/admin-data.js";
 import { ui, record, paint, reloadRecord } from "./context.js";
 import {

@@ -2,7 +2,8 @@ import { createIcons, icons } from "lucide";
 import { hasPageSession, PORTAL_ROLES, requireAuth, apiFetch, redirectToLogin } from "/assets/js/lib/api.js";
 import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
 import { initResidentShell } from "/assets/js/components/resident-shell.js";
-import { toast } from "/assets/js/components/ui/toast.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { initAccountPhoto, refreshPhotoInitials } from "/account/js/photo.js";
 
 const el = (id) => document.getElementById(id);
 
@@ -18,6 +19,11 @@ function showFormError(message) {
 function clearFormError() {
   const slot = el("account-error");
   if (slot) slot.hidden = true;
+}
+
+function paintShellName(name) {
+  const label = document.querySelector("#profile-menu p.text-sm.font-semibold");
+  if (label) label.textContent = name || "My Account";
 }
 
 async function onSubmit(event, user) {
@@ -40,6 +46,8 @@ async function onSubmit(event, user) {
         address: String(form.address.value || "").trim(),
       },
     });
+    refreshPhotoInitials(fullName);
+    paintShellName(fullName);
     toast("Account updated.", { type: "success" });
   } catch (err) {
     if (err && err.status === 401 && !hasPageSession()) {
@@ -60,6 +68,7 @@ function boot() {
   const user = requireAuth(PORTAL_ROLES);
   if (!user) return;
   createIcons({ icons });
+  initAccountPhoto(user);
   el("account-form")?.addEventListener("submit", (event) => onSubmit(event, user));
 }
 

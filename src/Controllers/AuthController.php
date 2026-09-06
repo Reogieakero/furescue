@@ -74,7 +74,7 @@ class AuthController extends AbstractController
     public function login(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('email')->email()->required('password')->string(255);
+        $v->required('email')->email()->required('password')->string('password', 255);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
@@ -98,7 +98,7 @@ class AuthController extends AbstractController
     public function google(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('id_token')->string(2000);
+        $v->required('id_token')->string('id_token', 2000);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
@@ -149,7 +149,7 @@ class AuthController extends AbstractController
     public function refresh(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('refresh_token')->string(1000);
+        $v->required('refresh_token')->string('refresh_token', 1000);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;

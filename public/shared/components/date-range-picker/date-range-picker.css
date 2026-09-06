@@ -1,0 +1,78 @@
+/* Range-only chrome. Calendar cells live in date-picker.css. */
+
+.dp-range .dp-popover {
+  width: min(20.5rem, calc(100vw - 1rem));
+}
+
+@media (min-width: 768px) {
+  .dp-range .dp-popover {
+    width: min(38rem, calc(100vw - 1rem));
+  }
+}
+
+.dp-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.dp-preset {
+  height: 1.75rem;
+  padding: 0 0.65rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 999px;
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dp-preset:hover {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.dp-preset:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.25);
+}
+
+.dp-preset.is-active {
+  border-color: transparent;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.dp-preset--clear {
+  margin-left: auto;
+}
+
+.dp-cals-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.dp-cals {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .dp-cals:has(.dp-cal:nth-child(2)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.dp-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: hsl(var(--muted-foreground));
+}

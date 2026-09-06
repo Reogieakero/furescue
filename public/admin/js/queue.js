@@ -1,9 +1,9 @@
 import { createIcons, icons } from "lucide";
 import { queueState, state, refreshQueue } from "./state.js";
-import { toast } from "/assets/js/components/ui/toast.js";
-import { confirmDialog } from "/assets/js/components/ui/dialog.js";
-import { openDrawer } from "/assets/js/components/ui/drawer.js";
-import { Button } from "/assets/js/components/ui/button.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
+import { openDrawer } from "/shared/components/drawer/drawer.js";
+import { Button } from "/shared/components/button/button.js";
 import * as api from "/assets/js/admin/admin-data.js";
 import { shortId, titleCase } from "./helpers.js";
 import {

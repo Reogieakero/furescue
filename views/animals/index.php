@@ -1,39 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+require_once shared_path('search/search.php');
+require_once shared_path('select/select.php');
+
+$speciesOptions = [
+    ['value' => '', 'label' => 'All species'],
+    ['value' => 'dog', 'label' => 'Dogs'],
+    ['value' => 'cat', 'label' => 'Cats'],
+];
+$sexOptions = [
+    ['value' => '', 'label' => 'Any sex'],
+    ['value' => 'male', 'label' => 'Male'],
+    ['value' => 'female', 'label' => 'Female'],
+];
+$breedOptions = [
+    ['value' => '', 'label' => 'Any breed'],
+    ['value' => 'aspin', 'label' => 'Aspin'],
+    ['value' => 'puspin', 'label' => 'Puspin'],
+];
+
+?>
     <div class="mx-auto w-full max-w-6xl">
       <h1 class="rpage-title">Adoption Gallery</h1>
       <p class="rpage-sub">Meet the rescued animals currently looking for a forever home in Mati City.</p>
 
       <div class="rfilterbar mt-5" role="search">
-        <div class="rfilter-field rfilter-field--grow">
-          <i data-lucide="search"></i>
-          <input id="filter-q" type="search" placeholder="Search by name…" aria-label="Search animals by name">
-        </div>
-        <div class="rfilter-field">
-          <i data-lucide="paw-print"></i>
-          <select id="filter-species" aria-label="Filter by species">
-            <option value="">All species</option>
-            <option value="dog">Dogs</option>
-            <option value="cat">Cats</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="rfilter-field">
-          <i data-lucide="venus-and-mars"></i>
-          <select id="filter-sex" aria-label="Filter by sex">
-            <option value="">Any sex</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-        </div>
-        <div class="rfilter-field">
-          <i data-lucide="tag"></i>
-          <input id="filter-breed" type="text" list="breed-list" placeholder="Breed type" aria-label="Filter by breed type">
-          <datalist id="breed-list">
-            <option value="aspin"></option>
-            <option value="puspin"></option>
-            <option value="labrador"></option>
-            <option value="shih tzu"></option>
-          </datalist>
-        </div>
+        <?= search_control('filter-q', 'Search by name…', '', 'rfilter-search', 'aria-label="Search animals by name"') ?>
+        <?= select_control('filter-species', $speciesOptions, '', 'All species', '', '', 'w-full') ?>
+        <?= select_control('filter-sex', $sexOptions, '', 'Any sex', '', '', 'w-full') ?>
+        <?= select_control('filter-breed', $breedOptions, '', 'Any breed', '', '', 'w-full') ?>
       </div>
 
       <p id="gallery-count" class="mt-3 text-sm text-muted-foreground" aria-live="polite"></p>

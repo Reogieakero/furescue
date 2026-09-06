@@ -1,4 +1,8 @@
 import { createIcons, icons } from "lucide";
+import { Search } from "/shared/components/search/search.js";
+import { Toolbar } from "/shared/components/toolbar/toolbar.js";
+import { FilterTabs as TabStrip, FilterTab } from "/shared/components/filter-tabs/filter-tabs.js";
+import { EmptyState } from "/shared/components/empty-state/empty-state.js";
 import { state, visibleAnimals, speciesIcon, statusTone, getAnimal } from "../state.js";
 import { esc } from "./util.js";
 
@@ -26,7 +30,7 @@ export function AnimalGrid() {
   const list = visibleAnimals();
   const grid = list.length
     ? list.map(AnimalCard).join("")
-    : `<div class="animal-empty empty-state"><i data-lucide="paw-print"></i><span>No animals match your filters.</span></div>`;
+    : EmptyState({ icon: "paw-print", text: "No animals match your filters.", className: "animal-empty" });
   return `
   <div class="panel animal-panel">
     <div class="panel-head">
@@ -35,13 +39,12 @@ export function AnimalGrid() {
         <h2 class="panel-title">Animals <span class="animal-count" id="animal-total-badge">${state.animals.length}</span></h2>
       </div>
     </div>
-    <div class="report-toolbar animal-toolbar">
-      <div id="animal-filter-tabs" class="q-tabs">${FilterTabs()}</div>
-      <div class="report-search animal-search">
-        <i data-lucide="search"></i>
-        <input id="animal-search" type="text" placeholder="Search name, species, breed, ID…" value="${esc(state.query)}">
-      </div>
-    </div>
+    ${Toolbar({
+      className: "animal-toolbar",
+      children: `
+      ${TabStrip({ id: "animal-filter-tabs", children: FilterTabs() })}
+      ${Search({ id: "animal-search", placeholder: "Search name, species, breed, ID…", value: state.query, className: "animal-search" })}`,
+    })}
     <div class="panel-body">
       <div id="animal-grid" class="animal-grid">${grid}</div>
       <div id="animal-selected-store" hidden>${state.selectedId || ""}</div>
@@ -62,8 +65,8 @@ export function FilterTabs() {
     const count = (s) => state.animals.filter((a) => a.status === s).length;
     return { all: state.animals.length, Available: count("Available"), Pending: count("Pending"), Adopted: count("Adopted"), "Not listed": count("Not listed") };
   })();
-  return ANIMAL_FILTERS.map(
-    (f) => `<button data-filter="${f.key}" class="q-btn${state.filter === f.key ? " is-active" : ""}">${f.label} &middot; ${c[f.key]}</button>`
+  return ANIMAL_FILTERS.map((f) =>
+    FilterTab({ key: f.key, label: `${f.label} &middot; ${c[f.key]}`, active: state.filter === f.key })
   ).join("");
 }
 
@@ -73,7 +76,7 @@ export function renderAnimalGrid() {
   const list = visibleAnimals();
   grid.innerHTML = list.length
     ? list.map(AnimalCard).join("")
-    : `<div class="animal-empty empty-state"><i data-lucide="paw-print"></i><span>No animals match your filters.</span></div>`;
+    : EmptyState({ icon: "paw-print", text: "No animals match your filters.", className: "animal-empty" });
   const badge = document.getElementById("animal-total-badge");
   if (badge) badge.textContent = String(state.animals.length);
   const tabs = document.getElementById("animal-filter-tabs");
