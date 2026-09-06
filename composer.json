@@ -15,6 +15,14 @@
       "App\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "App\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "php vendor/phpunit/phpunit/phpunit"
+  },
   "config": {
     "sort-packages": true,
     "policy": {

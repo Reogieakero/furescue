@@ -1,11 +1,12 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, getSessionUser } from "/js/lib/api.js";
-import { bootstrapPageAuth } from "/js/lib/page-auth.js";
-import { initShell } from "/admin/js/layout/app-shell.js";
-import { ListingsPage } from "./pages/listings/components.js";
-import { state, loadListings } from "./pages/listings/state.js";
-import { initListingsEvents } from "./pages/listings/workflow.js";
-import { initDropdownMenu } from "/js/components/ui/dropdown-menu.js";
+import { requireAuth, getSessionUser } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initShell } from "/assets/js/admin/app-shell.js";
+import { ListingsPage } from "./components.js";
+import { state, loadListings } from "./state.js";
+import { uniqueListingsByAnimal } from "./unique.js";
+import { initListingsEvents } from "./workflow.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
 
 function initDate() {
   const el = document.getElementById("admin-date");
@@ -37,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     bootstrapPageAuth();
     Object.assign(state, window.__PAGE_STATE__);
     if (!Array.isArray(state.listings)) state.listings = [];
+    else state.listings = uniqueListingsByAnimal(state.listings);
     const app = document.getElementById("app");
     if (app && !app.childElementCount) {
       app.innerHTML = ListingsPage(getSessionUser());

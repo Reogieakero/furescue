@@ -46,13 +46,17 @@ Seeded password for every demo account: **`Password123!`**. Admin: `admin@furesc
 
 ```
 src/              PHP API (controllers, services, auth, routes)
-public/           Web root — PHP pages, CSS, JS, uploads
+public/           Web root — thin page bootstraps, `/assets/`, uploads
+public/assets/    Shared CSS (`css/input.css` → `css/style.css`, `css/tokens.css`) and JS (`js/{lib,components,admin}`)
+views/            Layouts (`layouts/admin.php`, `layouts/resident.php`), components (`site-head.php`, `guard.php`), page markup; `path.php` (`views_path()`)
 bin/              CLI tools (migrations)
 migrations/       SQL schema migrations
 seeders/          Demo data seeder
 tests/            PHPUnit unit tests
 docs/             Project documentation
 ```
+
+Folder-structure target (PGSO-shaped cascade, same product): [docs/technical/FOLDER_ARCHITECTURE.md](docs/technical/FOLDER_ARCHITECTURE.md) · [docs/technical/FOLDER_OVERHAUL_SPEC.md](docs/technical/FOLDER_OVERHAUL_SPEC.md).
 
 ## Documentation
 
@@ -70,7 +74,11 @@ docs/             Project documentation
 
 | Document | Contents |
 |----------|----------|
-| [ARCHITECTURE_AUDIT.md](docs/technical/ARCHITECTURE_AUDIT.md) | Facts observed in the repository (stack, routing, auth, etc.) |
+| [FOLDER_ARCHITECTURE.md](docs/technical/FOLDER_ARCHITECTURE.md) | Target folder + CSS cascade (PGSO discipline, FurEscue tokens) |
+| [FOLDER_OVERHAUL_SPEC.md](docs/technical/FOLDER_OVERHAUL_SPEC.md) | Overhaul keep-list, URL freeze, parallel workstreams |
+| [FOLDER_OVERHAUL_PROMPT.md](docs/plans/FOLDER_OVERHAUL_PROMPT.md) | Paste-ready Cursor / Multitask prompt for the overhaul |
+| [ARCHITECTURE_AUDIT.md](docs/technical/ARCHITECTURE_AUDIT.md) | Historical snapshot (pre-`public/` tree) — do not treat as live |
 | [FEATURES.md](docs/technical/FEATURES.md) | Feature inventory (as built) — what is implemented per feature area, with evidence |
 | [HOW_TO_RUN.md](docs/technical/HOW_TO_RUN.md) | Install, configure, migrate, seed, and run |
 | [SYSTEM_REPORT.md](docs/technical/SYSTEM_REPORT.md) | System report |
+| [WORKFLOWS.md](docs/technical/WORKFLOWS.md) | Study objectives → pages, role flows, mermaid diagrams |

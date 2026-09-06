@@ -1,0 +1,49 @@
+/* Folded from admin/analytics/css/analytics.css. */
+
+/* Page-local layout for /admin/analytics/ — reuses shared admin tokens/classes. */
+
+.analytics-actions {
+  flex-wrap: wrap;
+  flex-shrink: 1;
+  max-width: 100%;
+}
+
+.analytics-actions button {
+  max-width: 100%;
+}
+
+.analytics-range {
+  width: min(12rem, 100%);
+  margin-bottom: 1rem;
+}
+
+.analytics-range-picker,
+.analytics-range-picker.dp-range {
+  width: 100%;
+  max-width: 12rem;
+}
+
+.analytics-range-picker .dp-trigger {
+  background-color: hsl(var(--card));
+}
+
+.analytics-range-picker .dp-trigger:hover {
+  background-color: hsl(var(--card));
+}
+
+#table-overview .table-head th:last-child,
+#table-trends .table-head th:last-child,
+#table-overview .table-cell:last-child,
+#table-trends .table-cell:last-child {
+  text-align: right;
+}
+
+.analytics-split > .panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.analytics-split > .panel .queue-empty {
+  flex: 1 1 auto;
+  min-height: 12rem;
+}

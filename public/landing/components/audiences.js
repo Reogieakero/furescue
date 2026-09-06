@@ -1,5 +1,5 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../../js/components/ui/card.js";
-import { Badge } from "../../js/components/ui/badge.js";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "/shared/components/card/card.js";
+import { Badge } from "/shared/components/badge/badge.js";
 
 const audiences = [
   {

@@ -1,9 +1,10 @@
 import { createIcons, icons } from "lucide";
-import { apiFetch, apiFetchFull, requireAuth } from "/js/lib/api.js";
-import { bootstrapPageAuth } from "/js/lib/page-auth.js";
-import { esc } from "/js/lib/format.js";
-import { initResidentShell } from "/js/components/resident-shell.js";
-import { toast } from "/js/components/ui/toast.js";
+import { apiFetch, apiFetchFull, PORTAL_ROLES, requireAuth } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { esc } from "/assets/js/lib/format.js";
+import { initResidentShell } from "/assets/js/components/resident-shell.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 
 const CATEGORY_META = {
   dog_behavior: { label: "Dog Behavior", icon: "dog" },
@@ -171,6 +172,13 @@ async function openLesson(moduleId) {
 
 async function markComplete() {
   if (!state.currentId || state.busy) return;
+  const title = document.getElementById("learn-lesson-title")?.textContent || "this module";
+  const ok = await confirmDialog({
+    title: "Mark this module complete?",
+    message: `This will mark "${title}" as completed.`,
+    confirmText: "Mark complete",
+  });
+  if (!ok) return;
   bootstrapPageAuth();
   const btn = document.getElementById("learn-complete");
   state.busy = true;
@@ -227,9 +235,9 @@ function bindEvents() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+async function boot() {
   bootstrapPageAuth();
-  const user = requireAuth();
+  const user = requireAuth(PORTAL_ROLES);
   if (!user) return;
   initResidentShell();
   bindEvents();
@@ -265,4 +273,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (fromHash && state.modules.some((m) => m.id === fromHash)) {
     void openLesson(fromHash);
   }
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    void boot();
+  });
+} else {
+  void boot();
+}

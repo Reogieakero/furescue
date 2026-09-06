@@ -10,7 +10,8 @@ use App\Database;
 Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2))->safeLoad();
 
 $requiredRole = 'rescuer';
-require __DIR__ . '/../includes/guard.php';
+require_once dirname(__DIR__, 2) . '/views/path.php';
+require views_path('components/guard.php');
 
 $uid = (string) $_SESSION['user']['id'];
 $pdo = Database::connect();
@@ -25,20 +26,9 @@ $residentUser = [
     'profile_photo_url' => (string) ($userData['profile_photo_url'] ?? ''),
 ];
 
-$content = '
-    <div class="mx-auto w-full max-w-5xl min-w-0">
-      <p>
-        <a href="/cases/" class="inline-flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-primary">
-          <i data-lucide="arrow-left" class="h-4 w-4"></i>Back to My Cases
-        </a>
-      </p>
-      <div id="case-detail-root" class="mt-3" aria-live="polite">
-        <div class="rempty">
-          <i data-lucide="loader-circle"></i>
-          <p class="rempty-text">Loading case…</p>
-        </div>
-      </div>
-    </div>';
+ob_start();
+require views_path('cases/detail.php');
+$content = ob_get_clean();
 
 $jwt = new JwtService();
 $pageState = [
@@ -52,4 +42,4 @@ $pageDescription = 'Accept, decline, or file rescue proof for an assigned case.'
 $activeNav = 'my cases';
 $residentShellTitle = 'Case detail';
 
-require __DIR__ . '/../includes/resident-shell.php';
+require views_path('layouts/resident.php');

@@ -9,9 +9,10 @@ require __DIR__ . '/../../../vendor/autoload.php';
 Dotenv\Dotenv::createImmutable(dirname(__DIR__, 3))->safeLoad();
 
 $requiredRole = 'admin';
-require __DIR__ . '/../../includes/guard.php';
+require_once dirname(__DIR__, 3) . '/views/path.php';
+require views_path('components/guard.php');
 
-require __DIR__ . '/../includes/ui-helpers.php';
+require views_path('components/admin-ui-helpers.php');
 
 require __DIR__ . '/helpers.php';
 
@@ -46,12 +47,14 @@ $overview = [
     'animals_adopted' => $countWhere("animals", "adoption_status = 'adopted'"),
     'adoptions_pending' => $countWhere("adoptions", "status = 'pending'"),
     'adoptions_completed' => $countWhere("adoptions", "status = 'completed'"),
+    'rescuers_active' => $countWhere("users", "role = 'rescuer' AND account_status = 'active'"),
     'rescuers_on_duty' => $countWhere(
         "rescuer_duty_status d JOIN users u ON u.id = d.user_id",
         "d.status = 'on_duty' AND u.account_status = 'active' AND u.role = 'rescuer'"
     ),
     'residents' => $countWhere("users", "role = 'resident'"),
 ];
+$overview['rescuers_off_duty'] = max(0, (int) $overview['rescuers_active'] - (int) $overview['rescuers_on_duty']);
 
 $overviewLabels = [
     'reports' => 'Total reports',
@@ -62,7 +65,9 @@ $overviewLabels = [
     'animals_adopted' => 'Animals adopted',
     'adoptions_pending' => 'Adoptions pending',
     'adoptions_completed' => 'Adoptions completed',
+    'rescuers_active' => 'Active rescuers',
     'rescuers_on_duty' => 'Rescuers on duty',
+    'rescuers_off_duty' => 'Rescuers off duty',
     'residents' => 'Residents',
 ];
 $overviewRows = [];
@@ -102,6 +107,18 @@ $stmt = $pdo->prepare($updateSql);
 $stmt->execute($updateArgs);
 $updates = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
+$stmt = $pdo->prepare(
+    "SELECT u.id, u.full_name, u.email, u.phone_number,
+            COALESCE(d.status, 'off_duty') AS duty_status,
+            d.updated_at AS duty_updated_at
+     FROM users u
+     LEFT JOIN rescuer_duty_status d ON d.user_id = u.id
+     WHERE u.role = 'rescuer' AND u.account_status = 'active'
+     ORDER BY CASE WHEN COALESCE(d.status, 'off_duty') = 'on_duty' THEN 0 ELSE 1 END, u.full_name ASC"
+);
+$stmt->execute();
+$personnel = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
 $stmtUser = $pdo->prepare('SELECT id, full_name, email, role, profile_photo_url FROM users WHERE id = ?');
 $stmtUser->execute([(string) $_SESSION['user']['id']]);
 $currentUserData = $stmtUser->fetch(\PDO::FETCH_ASSOC) ?: [];
@@ -120,6 +137,7 @@ $state = [
     'overview' => $overviewRows,
     'trends' => $trends,
     'updates' => $updates,
+    'personnel' => $personnel,
 ];
 
 $adminUser = [
@@ -133,11 +151,11 @@ $activeNav = 'analytics';
 $navBadges = [];
 
 ob_start();
-require __DIR__ . '/view.php';
+require views_path('admin/analytics/view.php');
 $adminChildren = (string) ob_get_clean();
 
 ob_start();
-require __DIR__ . '/../../includes/admin-shell.php';
+require views_path('layouts/admin.php');
 $pageHtml = (string) ob_get_clean();
 
 $pageTitle = 'FurEscue — Analytics & Exports';
@@ -147,7 +165,7 @@ $pageCss = [
     '/admin/analytics/css/analytics.css',
 ];
 $fontsHref = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
-require __DIR__ . '/../../includes/site-head.php';
+require views_path('components/site-head.php');
 ?>
   <body>
     <div id="app"><?= $pageHtml ?></div>

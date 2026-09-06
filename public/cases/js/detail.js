@@ -1,7 +1,7 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, redirectToLogin } from "../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
-import { initResidentShell } from "../../js/components/resident-shell.js";
+import { hasPageSession, requireAuth, redirectToLogin } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initResidentShell } from "/assets/js/components/resident-shell.js";
 import { fetchCase } from "./api.js";
 import { bindCaseActions } from "./actions.js";
 import { bindProofForm } from "./proof.js";
@@ -47,7 +47,7 @@ async function loadCase() {
     paint(renderDetail(item));
     bindInteractive(item);
   } catch (err) {
-    if (err && err.status === 401) {
+    if (err && err.status === 401 && !hasPageSession()) {
       redirectToLogin();
       return;
     }

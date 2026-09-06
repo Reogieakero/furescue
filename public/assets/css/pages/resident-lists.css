@@ -1,0 +1,62 @@
+/* Resident row lists from input.css. */
+
+/* --- Row lists (applications, listings) --- */
+.resident-shell .rlist {
+  display: flex;
+  flex-direction: column;
+}
+.resident-shell .rlist-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid hsl(var(--border));
+}
+.resident-shell .rlist-row:last-child {
+  border-bottom: none;
+}
+.resident-shell .rlist-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  background: hsl(var(--surface-soft));
+  color: hsl(var(--muted-foreground));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.resident-shell .rlist-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.resident-shell .rlist-icon .lucide {
+  width: 18px;
+  height: 18px;
+}
+.resident-shell .rlist-main {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.resident-shell .rlist-title {
+  font-weight: 800;
+  font-size: 0.93rem;
+  overflow-wrap: anywhere;
+}
+.resident-shell .rlist-sub {
+  margin-top: 2px;
+  font-size: 0.78rem;
+  color: hsl(var(--muted-foreground));
+  overflow-wrap: anywhere;
+}
+.resident-shell .rlist-side {
+  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}

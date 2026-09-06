@@ -1,9 +1,10 @@
 import { createIcons, icons } from "lucide";
-import { apiFetch, requireAuth } from "/js/lib/api.js";
-import { bootstrapPageAuth } from "/js/lib/page-auth.js";
-import { esc, timeAgo } from "/js/lib/format.js";
-import { initResidentShell, setResidentNavBadge } from "/js/components/resident-shell.js";
-import { toast } from "/js/components/ui/toast.js";
+import { apiFetch, PORTAL_ROLES, requireAuth } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { esc, timeAgo } from "/assets/js/lib/format.js";
+import { subscribeToNotifications } from "/assets/js/lib/notification-stream.js";
+import { initResidentShell, setResidentNavBadge } from "/assets/js/components/resident-shell.js";
+import { toast } from "/shared/components/toast/toast.js";
 
 const TYPE_STYLE = [
   [/(report_)?dismiss/, { icon: "x-circle", tone: "alert", label: "Dismissed" }],
@@ -18,13 +19,19 @@ const TYPE_STYLE = [
 
 const RELATED_LINK = {
   report: { href: "/reports/", label: "View report" },
-  case: { href: "/reports/", label: "View case" },
+  case: { href: "/cases/detail.php?id=", label: "View case" },
   adoption: { href: "/adoptions/", label: "View adoption" },
+  listing: { href: "/listings/", label: "View listing" },
 };
+
+const CASE_LIST_HREF = "/cases/";
+
+let inboxStream = null;
 
 const state = {
   items: [],
   filter: "all",
+  loadError: "",
 };
 
 function styleFor(type) {
@@ -36,8 +43,20 @@ function styleFor(type) {
 }
 
 function relatedFor(n) {
-  if (!n.related_type || !RELATED_LINK[n.related_type]) return null;
-  return RELATED_LINK[n.related_type];
+  const spec = n.related_type && RELATED_LINK[n.related_type];
+  if (!spec) return null;
+  const id = n.related_id;
+  if (id == null || id === "") {
+    return {
+      href: n.related_type === "case" ? CASE_LIST_HREF : spec.href,
+      label: spec.label,
+    };
+  }
+  if (n.related_type === "case") {
+    return { href: `${spec.href}${encodeURIComponent(id)}`, label: spec.label };
+  }
+  const joiner = spec.href.includes("?") ? "&" : "?";
+  return { href: `${spec.href}${joiner}id=${encodeURIComponent(id)}`, label: spec.label };
 }
 
 function unreadCount() {
@@ -88,6 +107,17 @@ function renderList() {
   const visible =
     state.filter === "unread" ? state.items.filter((n) => !n.is_read) : state.items;
 
+  if (state.loadError) {
+    list.innerHTML = `
+      <li class="rempty">
+        <i data-lucide="wifi-off"></i>
+        <p class="rempty-title">Could not load notifications</p>
+        <p class="rempty-text">${esc(state.loadError)}</p>
+      </li>`;
+    createIcons({ icons });
+    return;
+  }
+
   if (!visible.length) {
     const empty =
       state.filter === "unread"
@@ -127,11 +157,14 @@ async function loadNotifications({ silent = false } = {}) {
   try {
     const items = await apiFetch("/notifications?per_page=100");
     state.items = Array.isArray(items) ? items : [];
+    state.loadError = "";
     renderList();
     renderUnreadChip();
     syncBadge();
   } catch (err) {
-    if (!silent) toast(err.message || "Could not load notifications.", { type: "error" });
+    state.loadError = err.message || "Could not load notifications.";
+    renderList();
+    if (!silent) toast(state.loadError, { type: "error" });
   }
 }
 
@@ -148,9 +181,9 @@ async function markOne(id) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function boot() {
   bootstrapPageAuth();
-  const user = requireAuth();
+  const user = requireAuth(PORTAL_ROLES);
   if (!user) return;
   initResidentShell();
 
@@ -211,5 +244,47 @@ document.addEventListener("DOMContentLoaded", () => {
     openRow(row);
   });
 
-  void loadNotifications();
-});
+  void loadNotifications().finally(() => {
+    inboxStream = subscribeToNotifications(applyInboxStream);
+  });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}
+
+function rowFromPayload(payload) {
+  if (!payload || typeof payload !== "object") return null;
+  const candidate =
+    payload.notification && typeof payload.notification === "object"
+      ? payload.notification
+      : payload;
+  return candidate.id != null ? candidate : null;
+}
+
+function applyInboxStream(payload) {
+  const row = rowFromPayload(payload);
+  if (row) {
+    const idx = state.items.findIndex((n) => n.id === row.id);
+    if (idx >= 0) state.items.splice(idx, 1);
+    state.items.unshift(row);
+    renderList();
+    renderUnreadChip();
+    syncBadge();
+    return;
+  }
+  if (payload && typeof payload.unread_count === "number") {
+    setResidentNavBadge("notifications", payload.unread_count);
+  }
+}
+
+function closeInboxStream() {
+  if (!inboxStream) return;
+  inboxStream.close();
+  inboxStream = null;
+}
+
+window.addEventListener("pagehide", closeInboxStream);
+window.addEventListener("unload", closeInboxStream);

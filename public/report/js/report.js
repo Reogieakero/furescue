@@ -1,7 +1,8 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, apiFetchFull, apiUpload, redirectToLogin } from "../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
-import { toast } from "../../js/components/ui/toast.js";
+import { requireAuth, apiFetchFull, apiUpload, redirectToLogin } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 import {
   initMap,
   initGeolocate,
@@ -80,6 +81,13 @@ async function handleSubmit(e) {
     valid = false;
   }
   if (!valid) return;
+
+  const ok = await confirmDialog({
+    title: "Create this report?",
+    message: "This will submit a new stray-animal report.",
+    confirmText: "Create report",
+  });
+  if (!ok) return;
 
   const submit = el("report-submit");
   submit.disabled = true;

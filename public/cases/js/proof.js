@@ -1,6 +1,7 @@
 import { createIcons, icons } from "lucide";
-import { toast } from "../../js/components/ui/toast.js";
-import { showLoader, hideLoader } from "../../js/components/ui/loader.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
+import { showLoader, hideLoader } from "/shared/components/loader/loader.js";
 import { proofFromUpload, uploadProof } from "./api.js";
 
 const MAX_FILES = 8;
@@ -57,6 +58,12 @@ export function bindProofForm(root, { caseId, onUploaded } = {}) {
       setError(form, problem);
       return;
     }
+    const ok = await confirmDialog({
+      title: "Submit this rescue proof?",
+      message: "This will upload proof photos for this rescue case.",
+      confirmText: "Submit proof",
+    });
+    if (!ok) return;
     const submit = form.querySelector("#proof-submit");
     if (submit) submit.disabled = true;
     showLoader("Uploading proof…");

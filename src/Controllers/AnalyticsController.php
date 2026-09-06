@@ -16,7 +16,9 @@ class AnalyticsController extends AbstractController
         'animals_adopted' => 'Animals adopted',
         'adoptions_pending' => 'Adoptions pending',
         'adoptions_completed' => 'Adoptions completed',
+        'rescuers_active' => 'Active rescuers',
         'rescuers_on_duty' => 'Rescuers on duty',
+        'rescuers_off_duty' => 'Rescuers off duty',
         'residents' => 'Residents',
     ];
 
@@ -85,10 +87,7 @@ class AnalyticsController extends AbstractController
             'animals_adopted' => $this->countWhere("animals", "adoption_status = 'adopted'"),
             'adoptions_pending' => $this->countWhere("adoptions", "status = 'pending'"),
             'adoptions_completed' => $this->countWhere("adoptions", "status = 'completed'"),
-            'rescuers_on_duty' => $this->countWhere(
-                "rescuer_duty_status d JOIN users u ON u.id = d.user_id",
-                "d.status = 'on_duty' AND u.account_status = 'active' AND u.role = 'rescuer'"
-            ),
+            ...$this->rescuerDutyCounts(),
             'residents' => $this->countWhere("users", "role = 'resident'"),
             'cases_in_progress' => $this->countWhere("cases", "status IN ('assigned','in_progress')"),
             'reports_pending' => $this->countWhere("reports", "status = 'pending_verification'"),
@@ -102,13 +101,19 @@ class AnalyticsController extends AbstractController
 
     private function reportsMonthly(): array
     {
-        $stmt = $this->pdo->query(
-            "SELECT DATE_FORMAT(created_at, '%Y-%m') AS ym, COUNT(*) AS c
-             FROM reports
-             WHERE created_at >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 5 MONTH), '%Y-%m-01')
-             GROUP BY ym
-             ORDER BY ym"
-        );
+        $driver = $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        $sql = $driver === 'sqlite'
+            ? "SELECT strftime('%Y-%m', created_at) AS ym, COUNT(*) AS c
+               FROM reports
+               WHERE created_at >= date('now', '-5 months', 'start of month')
+               GROUP BY ym
+               ORDER BY ym"
+            : "SELECT DATE_FORMAT(created_at, '%Y-%m') AS ym, COUNT(*) AS c
+               FROM reports
+               WHERE created_at >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 5 MONTH), '%Y-%m-01')
+               GROUP BY ym
+               ORDER BY ym";
+        $stmt = $this->pdo->query($sql);
         $map = [];
         foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $row) {
             $map[(string) $row['ym']] = (int) $row['c'];
@@ -199,6 +204,20 @@ class AnalyticsController extends AbstractController
             fputcsv($out, $row);
         }
         fclose($out);
+    }
+
+    private function rescuerDutyCounts(): array
+    {
+        $active = $this->countWhere("users", "role = 'rescuer' AND account_status = 'active'");
+        $onDuty = $this->countWhere(
+            "rescuer_duty_status d JOIN users u ON u.id = d.user_id",
+            "d.status = 'on_duty' AND u.account_status = 'active' AND u.role = 'rescuer'"
+        );
+        return [
+            'rescuers_active' => $active,
+            'rescuers_on_duty' => $onDuty,
+            'rescuers_off_duty' => max(0, $active - $onDuty),
+        ];
     }
 
     private function count(string $table): int

@@ -1,4 +1,4 @@
-import { apiFetch, apiFetchFull, apiUpload } from "../../js/lib/api.js";
+import { apiFetch, apiFetchFull, apiUpload } from "/assets/js/lib/api.js";
 import { parsePhotos } from "./status.js";
 
 function asCase(raw) {
@@ -64,6 +64,13 @@ export function acceptCase(id) {
 
 export function declineCase(id) {
   return apiFetch(`/cases/${encodeURIComponent(id)}/decline`, { method: "POST", body: {} });
+}
+
+export function toggleDuty(id, status) {
+  return apiFetch(`/rescuers/${encodeURIComponent(id)}/duty`, {
+    method: "PATCH",
+    body: { status },
+  });
 }
 
 export function uploadProof(id, files) {

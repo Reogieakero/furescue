@@ -1,8 +1,10 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, redirectToLogin } from "../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
-import { initResidentShell } from "../../js/components/resident-shell.js";
-import { fetchCases } from "./api.js";
+import { hasPageSession, requireAuth, redirectToLogin } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initResidentShell } from "/assets/js/components/resident-shell.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
+import { fetchCases, toggleDuty } from "./api.js";
 import { bindCaseActions } from "./actions.js";
 import { caseRow, countLabel, listErrorHtml, listLoadingHtml } from "./list-render.js";
 
@@ -47,13 +49,54 @@ async function loadCases({ silent = false } = {}) {
     allCases = await fetchCases();
     renderRows(visibleRows());
   } catch (err) {
-    if (err && err.status === 401) {
+    if (err && err.status === 401 && !hasPageSession()) {
       redirectToLogin();
       return;
     }
     if (list) list.innerHTML = listErrorHtml(err.message);
     paintIcons();
     el("cases-retry")?.addEventListener("click", () => loadCases());
+  }
+}
+
+function paintDutyControl(status) {
+  const btn = el("duty-toggle");
+  if (!btn) return;
+  const on = status === "on_duty";
+  btn.dataset.status = on ? "on_duty" : "off_duty";
+  btn.setAttribute("aria-pressed", String(on));
+  btn.classList.toggle("rbtn--solid", on);
+  btn.classList.toggle("rbtn--ghost", !on);
+  btn.innerHTML = `<i data-lucide="${on ? "siren" : "circle-dot"}"></i><span>${on ? "On duty" : "Off duty"}</span>`;
+  paintIcons();
+}
+
+async function onDutyToggle() {
+  const btn = el("duty-toggle");
+  const user = (window.__PAGE_STATE__ || {}).user || {};
+  if (!btn || btn.disabled || !user.id) return;
+  const next = btn.dataset.status === "on_duty" ? "off_duty" : "on_duty";
+  const goingOn = next === "on_duty";
+  const ok = await confirmDialog({
+    title: goingOn ? "Go on duty?" : "Go off duty?",
+    message: goingOn
+      ? "This will update your rescuer duty status to on duty."
+      : "This will update your rescuer duty status to off duty.",
+    confirmText: goingOn ? "Go on duty" : "Go off duty",
+  });
+  if (!ok) return;
+  btn.disabled = true;
+  try {
+    const data = await toggleDuty(user.id, next);
+    paintDutyControl((data && data.duty_status) || next);
+  } catch (err) {
+    if (err && err.status === 401 && !hasPageSession()) {
+      redirectToLogin();
+      return;
+    }
+    toast(err.message || "Could not update duty status.", { type: "error" });
+  } finally {
+    btn.disabled = false;
   }
 }
 
@@ -82,6 +125,8 @@ function boot() {
     onDeclined: () => loadCases({ silent: true }),
   });
   el("refresh-cases")?.addEventListener("click", () => loadCases());
+  el("duty-toggle")?.addEventListener("click", () => onDutyToggle());
+  paintDutyControl(((window.__PAGE_STATE__ || {}).dutyStatus === "on_duty") ? "on_duty" : "off_duty");
   loadCases();
 }
 

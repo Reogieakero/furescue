@@ -1,9 +1,10 @@
 import { createIcons, icons } from "lucide";
-import { apiFetch, requireAuth, getSessionUser } from "/js/lib/api.js";
-import { bootstrapPageAuth } from "/js/lib/page-auth.js";
-import { esc, timeAgo } from "/js/lib/format.js";
-import { initResidentShell } from "/js/components/resident-shell.js";
-import { toast } from "/js/components/ui/toast.js";
+import { apiFetch, getSessionUser, PORTAL_ROLES, requireAuth } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { esc, timeAgo } from "/assets/js/lib/format.js";
+import { initResidentShell } from "/assets/js/components/resident-shell.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 
 const CONTEXT_LABEL = { report: "Report", case: "Case", adoption: "Adoption" };
 
@@ -18,6 +19,31 @@ const state = {
 
 function threadKey(t) {
   return `${t.related_type}|${t.related_id}`;
+}
+
+function setHidden(id, hidden) {
+  document.getElementById(id)?.classList.toggle("is-hidden", hidden);
+}
+
+function syncInboxLayout() {
+  const shell = document.getElementById("msg-shell");
+  const emptyInbox = !!state.loadError || !state.threads.length;
+  shell?.classList.toggle("is-inbox-empty", emptyInbox);
+
+  if (emptyInbox || !state.currentKey) {
+    shell?.classList.remove("is-thread-open");
+    setHidden("msg-empty", emptyInbox);
+    setHidden("msg-thread-head", true);
+    setHidden("msg-scroll", true);
+    setHidden("msg-form", true);
+    return;
+  }
+
+  shell?.classList.add("is-thread-open");
+  setHidden("msg-empty", true);
+  setHidden("msg-thread-head", false);
+  setHidden("msg-scroll", false);
+  setHidden("msg-form", false);
 }
 
 function contextLabel(type) {
@@ -40,6 +66,7 @@ function renderThreads() {
         <p class="rempty-text">${esc(state.loadError)}</p>
       </div>`;
     createIcons({ icons });
+    syncInboxLayout();
     return;
   }
 
@@ -51,6 +78,7 @@ function renderThreads() {
         <p class="rempty-text">When you message the team about a report, case, or adoption, the conversation shows up here.</p>
       </div>`;
     createIcons({ icons });
+    syncInboxLayout();
     return;
   }
 
@@ -71,6 +99,7 @@ function renderThreads() {
     )
     .join("");
   createIcons({ icons });
+  syncInboxLayout();
 }
 
 function findThread(key) {
@@ -156,13 +185,7 @@ async function markThreadRead(key, knownMessages = null) {
 
 async function openThread(key) {
   state.currentKey = key;
-  const shell = document.getElementById("msg-shell");
-  shell?.classList.add("is-thread-open");
-
-  document.getElementById("msg-empty")?.classList.add("is-hidden");
-  document.getElementById("msg-thread-head")?.classList.remove("is-hidden");
-  document.getElementById("msg-scroll")?.classList.remove("is-hidden");
-  document.getElementById("msg-form")?.classList.remove("is-hidden");
+  syncInboxLayout();
 
   const t = findThread(key);
   const nameEl = document.getElementById("msg-peer-name");
@@ -241,9 +264,9 @@ function startPolling() {
   }, 15000);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function boot() {
   bootstrapPageAuth();
-  const user = requireAuth();
+  const user = requireAuth(PORTAL_ROLES);
   if (!user) return;
   state.me = user;
   initResidentShell();
@@ -256,18 +279,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("msg-back")?.addEventListener("click", () => {
     state.currentKey = null;
-    document.getElementById("msg-shell")?.classList.remove("is-thread-open");
     renderThreads();
   });
 
-  document.getElementById("msg-form")?.addEventListener("submit", (e) => {
+  document.getElementById("msg-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const input = document.getElementById("msg-input");
     const text = String(input && input.value ? input.value : "").trim();
     if (!text) return;
+    const t = findThread(state.currentKey || "");
+    const peer = (t && t.other_user_name) || "the team";
+    const ok = await confirmDialog({
+      title: "Send this message?",
+      message: `This will send a message to ${peer}.`,
+      confirmText: "Send message",
+    });
+    if (!ok) return;
     void sendMessage(text);
   });
 
   void refreshThreads();
   startPolling();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}

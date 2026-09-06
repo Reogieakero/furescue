@@ -43,11 +43,11 @@ class ReportController extends AbstractController
     public function create(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('animal_description')->string(2000)
+        $v->required('animal_description')->string('animal_description', 2000)
             ->required('latitude')->latitude('latitude')
             ->required('longitude')->longitude('longitude')
-            ->optional('address_text')->string(500)
-            ->optional('photo_urls')->string(4000);
+            ->optional('address_text')->string('address_text', 500)
+            ->optional('photo_urls')->stringOrStringList('photo_urls', 4000);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
@@ -92,6 +92,12 @@ class ReportController extends AbstractController
 
     public function index(Request $req): void
     {
+        if ($this->rejectBadQuery($req, [
+            'status' => ['pending_verification', 'verified', 'dismissed'],
+            'validation_status' => ['pending', 'flagged_duplicate', 'validated'],
+        ])) {
+            return;
+        }
         $filters = [];
         if (!in_array('reports.read', $req->permissions, true)) {
             $filters['resident_id'] = $req->user['id'];
@@ -110,6 +116,9 @@ class ReportController extends AbstractController
 
     public function mine(Request $req): void
     {
+        if ($this->rejectBadQuery($req)) {
+            return;
+        }
         $result = $this->reports->paginate($this->page($req), $this->perPage($req), ['resident_id' => $req->user['id']]);
         Response::paginated(
             array_map(fn($r) => $r->toArray(), $result['items']),
@@ -139,7 +148,7 @@ class ReportController extends AbstractController
     public function dismiss(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('dismiss_reason')->string(500);
+        $v->required('dismiss_reason')->string('dismiss_reason', 500);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
@@ -231,6 +240,17 @@ class ReportController extends AbstractController
             }
             $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
             if (!array_key_exists($ext, self::MEDIA_EXT)) {
+                Response::error('VALIDATION_ERROR', 'Unsupported file type. Allowed: JPG, PNG, GIF, WEBP, MP4, WEBM.', 400);
+                return;
+            }
+            $mime = \App\Services\AnimalAssetUpload::detectMime($file);
+            if (in_array($mime, [
+                'application/x-msdownload',
+                'application/x-dosexec',
+                'application/x-executable',
+                'application/x-msdos-program',
+                'application/vnd.microsoft.portable-executable',
+            ], true)) {
                 Response::error('VALIDATION_ERROR', 'Unsupported file type. Allowed: JPG, PNG, GIF, WEBP, MP4, WEBM.', 400);
                 return;
             }

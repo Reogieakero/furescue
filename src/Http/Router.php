@@ -37,6 +37,11 @@ class Router
             return;
         }
 
+        if ($request->invalidJson) {
+            Response::error('INVALID_JSON', 'Malformed JSON body', 400);
+            return;
+        }
+
         foreach ($this->routes as $route) {
             if ($route['method'] !== $request->method) {
                 continue;

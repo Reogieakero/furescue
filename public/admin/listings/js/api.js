@@ -1,4 +1,4 @@
-import { apiFetch, apiFetchFull } from "/js/lib/api.js";
+import { apiFetch, apiFetchFull } from "/assets/js/lib/api.js";
 
 export async function fetchListings(status) {
   const q = new URLSearchParams({ per_page: "100" });

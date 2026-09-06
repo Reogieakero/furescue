@@ -1,0 +1,21 @@
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 120px;
+  padding: 16px;
+  font-size: 12.5px;
+  color: rgba(11, 37, 69, 0.55);
+}
+.empty-state .lucide {
+  width: 16px;
+  height: 16px;
+  color: hsl(var(--stamp));
+  flex-shrink: 0;
+}
+
+.empty-state--compact {
+  min-height: 72px;
+  padding: 8px;
+}

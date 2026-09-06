@@ -1,9 +1,10 @@
 import { createIcons, icons } from "lucide";
-import { apiFetch, apiFetchFull, redirectToLogin } from "../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
-import { initResidentShell } from "../../js/components/resident-shell.js";
-import { toast } from "../../js/components/ui/toast.js";
-import { esc, timeAgo } from "../../js/lib/format.js";
+import { apiFetch, apiFetchFull, redirectToLogin } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initResidentShell } from "/assets/js/components/resident-shell.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
+import { esc, timeAgo } from "/assets/js/lib/format.js";
 
 const el = (id) => document.getElementById(id);
 
@@ -168,6 +169,16 @@ function openNewListingModal() {
     overlay.querySelector(".rmodal-x").addEventListener("click", close);
 
     overlay.querySelector('[data-act="submit"]').addEventListener("click", async (e) => {
+      const select = overlay.querySelector("#listing-animal");
+      const animalLabel =
+        (select && select.options[select.selectedIndex] && select.options[select.selectedIndex].text) ||
+        "this animal";
+      const ok = await confirmDialog({
+        title: "Create this adoption listing?",
+        message: `This will submit an adoption listing for ${animalLabel}.`,
+        confirmText: "Create listing",
+      });
+      if (!ok) return;
       const btn = e.currentTarget;
       const errorEl = overlay.querySelector("#listing-error");
       errorEl.hidden = true;

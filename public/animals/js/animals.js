@@ -1,9 +1,10 @@
 import { createIcons, icons } from "lucide";
-import { apiFetchFull, redirectToLogin } from "../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
-import { initResidentShell } from "../../js/components/resident-shell.js";
-import { toast } from "../../js/components/ui/toast.js";
-import { esc } from "../../js/lib/format.js";
+import { apiFetchFull, redirectToLogin } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initResidentShell } from "/assets/js/components/resident-shell.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { esc } from "/assets/js/lib/format.js";
+import { initSelect } from "/shared/components/select/select.js";
 import { openModelViewer, open360Viewer } from "./3d-viewer.js";
 
 const PER_PAGE = 12;
@@ -15,6 +16,9 @@ const state = {
   loading: false,
   failed: false,
   queued: false,
+  species: "",
+  sex: "",
+  breed_type: "",
 };
 
 const registry = new Map();
@@ -137,14 +141,9 @@ async function load({ append = false } = {}) {
   });
   const q = (el("filter-q").value || "").trim();
   if (q) params.set("q", q);
-  for (const [id, key] of [
-    ["filter-species", "species"],
-    ["filter-sex", "sex"],
-    ["filter-breed", "breed_type"],
-  ]) {
-    const v = el(id).value;
-    if (v) params.set(key, v);
-  }
+  if (state.species) params.set("species", state.species);
+  if (state.sex) params.set("sex", state.sex);
+  if (state.breed_type) params.set("breed_type", state.breed_type);
 
   try {
     const payload = await apiFetchFull(`/animals?${params}`);
@@ -208,9 +207,23 @@ function initEvents() {
     debounce = setTimeout(refresh, 300);
   };
   el("filter-q")?.addEventListener("input", debouncedRefresh);
-  el("filter-breed")?.addEventListener("input", debouncedRefresh);
-  ["filter-species", "filter-sex", "filter-breed"].forEach((id) => {
-    el(id)?.addEventListener("change", refresh);
+  initSelect(el("filter-species"), {
+    "filter-species": (value) => {
+      state.species = value || "";
+      refresh();
+    },
+  });
+  initSelect(el("filter-sex"), {
+    "filter-sex": (value) => {
+      state.sex = value || "";
+      refresh();
+    },
+  });
+  initSelect(el("filter-breed"), {
+    "filter-breed": (value) => {
+      state.breed_type = value || "";
+      refresh();
+    },
   });
 }
 

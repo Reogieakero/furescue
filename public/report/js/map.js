@@ -1,56 +1,15 @@
-import { getAccessToken, API_BASE_URL } from "../../js/lib/api.js";
-import { toast } from "../../js/components/ui/toast.js";
+import { getAccessToken, API_BASE_URL } from "/assets/js/lib/api.js";
+import { ensureLeaflet } from "/assets/js/lib/leaflet.js";
+import { toast } from "/shared/components/toast/toast.js";
 
 const el = (id) => document.getElementById(id);
-
-const LEAFLET_SCRIPTS = [
-  "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js",
-  "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js",
-];
-const LEAFLET_STYLES = [
-  "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css",
-  "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css",
-];
 
 function tokenHsl(name, fallback) {
   const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   return raw ? `hsl(${raw})` : fallback;
 }
 
-function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    const s = document.createElement("script");
-    s.src = src;
-    s.async = true;
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error(`Failed to load ${src}`));
-    document.head.appendChild(s);
-  });
-}
-
-function ensureLeafletCss() {
-  if ([...document.querySelectorAll("link[rel='stylesheet']")].some((l) => /leaflet/i.test(l.href))) {
-    return;
-  }
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = LEAFLET_STYLES[0];
-  document.head.appendChild(link);
-}
-
-export async function ensureLeaflet() {
-  if (window.L) return true;
-  ensureLeafletCss();
-  for (const src of LEAFLET_SCRIPTS) {
-    try {
-      await loadScript(src);
-      if (window.L) return true;
-    } catch {
-      /* try next CDN */
-    }
-  }
-  return false;
-}
+export { ensureLeaflet };
 
 export function clampLatLng(lat, lng, bounds) {
   return {

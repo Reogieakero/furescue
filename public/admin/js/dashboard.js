@@ -1,18 +1,19 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, getSessionUser } from "../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
-import { initShell } from "./layout/app-shell.js";
-import { DashboardPage, ActivityInner, bindAuditReadActions } from "./pages/dashboard/components.js";
-import { loadDashboard, state, hydrateFromCache } from "./pages/dashboard/state.js";
-import { createCarousel } from "./pages/dashboard/carousel.js";
-import { initQueueTabs, initQueuePagination, initQueueActions } from "./pages/dashboard/queue.js";
-import { initCaseDensityMap, bindGisActions } from "./pages/dashboard/map.js";
-import { initDropdownMenu } from "../../js/components/ui/dropdown-menu.js";
-import { initAnnounceDialog } from "./pages/dashboard/components/announce.js";
-import { mountDashboardCharts } from "./pages/dashboard/components/charts.js";
-import * as api from "./lib/admin-data.js";
-import { safe } from "./pages/dashboard/helpers.js";
-import { setNavBadge } from "../../js/lib/swr.js";
+import { readPageClick, readPageSizeChange } from "/shared/components/pagination/pagination.js";
+import { requireAuth, getSessionUser } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initShell } from "/assets/js/admin/app-shell.js";
+import { DashboardPage, ActivityInner, bindAuditReadActions } from "./components.js";
+import { loadDashboard, state, hydrateFromCache, startNotificationStream } from "./state.js";
+import { createCarousel } from "./carousel.js";
+import { initQueueTabs, initQueuePagination, initQueueActions } from "./queue.js";
+import { initCaseDensityMap, bindGisActions } from "./map.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
+import { initAnnounceDialog } from "./components/announce.js";
+import { mountDashboardCharts } from "./components/charts.js";
+import * as api from "/assets/js/admin/admin-data.js";
+import { safe } from "./helpers.js";
+import { setNavBadge } from "/assets/js/lib/swr.js";
 
 function initDate() {
   const el = document.getElementById("admin-date");
@@ -28,11 +29,17 @@ function initActivityPagination() {
   const wrap = document.getElementById("activity-table");
   if (!wrap) return;
   wrap.addEventListener("click", (e) => {
-    const btn = e.target.closest("button[data-page]");
-    if (!btn || btn.getAttribute("aria-disabled") === "true") return;
-    const page = parseInt(btn.dataset.page, 10);
-    if (!page || page === state.activityPage) return;
+    const page = readPageClick(e.target, state.activityPage);
+    if (!page) return;
     state.activityPage = page;
+    wrap.innerHTML = ActivityInner();
+    createIcons({ icons });
+  });
+  wrap.addEventListener("change", (e) => {
+    const next = readPageSizeChange(e.target, state.activityPageSize);
+    if (!next) return;
+    state.activityPageSize = next;
+    state.activityPage = 1;
     wrap.innerHTML = ActivityInner();
     createIcons({ icons });
   });
@@ -100,11 +107,13 @@ document.addEventListener("DOMContentLoaded", () => {
       app.innerHTML = DashboardPage(getSessionUser(), { loading: false });
     }
     initPageInteractions();
+    startNotificationStream();
     return;
   }
   const user = requireAuth(["admin"]);
   if (!user) return;
   const cached = hydrateFromCache();
   render(user, { loading: !cached });
+  startNotificationStream();
   loadDashboard().finally(() => render(user, { loading: false }));
 });

@@ -24,7 +24,7 @@ function overview_rows_html(array $rows): string
         $html .= "
     <tr>
       <td class=\"table-cell\">" . e($r['label'] ?? '') . "</td>
-      <td class=\"table-cell table-cell--mono table-cell--strong\">" . e($r['value'] ?? '') . '</td>
+      <td class=\"table-cell table-cell--mono table-cell--strong table-cell--right\">" . e($r['value'] ?? '') . '</td>
     </tr>';
     }
     return $html;
@@ -37,7 +37,7 @@ function trend_rows_html(array $trends): string
         $html .= "
     <tr>
       <td class=\"table-cell table-cell--mono\">" . e($t['day'] ?? '') . "</td>
-      <td class=\"table-cell table-cell--mono table-cell--strong\">" . e($t['completed'] ?? 0) . '</td>
+      <td class=\"table-cell table-cell--mono table-cell--strong table-cell--right\">" . e($t['completed'] ?? 0) . '</td>
     </tr>';
     }
     return $html;
@@ -58,6 +58,33 @@ function health_update_row(array $h): array
         'status' => $healthy ? 'Stable' : 'Needs Attention',
         'statusCls' => $healthy ? 'stamp--accent' : 'stamp--coral',
     ];
+}
+
+function personnel_duty_row(array $r): array
+{
+    $onDuty = ($r['duty_status'] ?? 'off_duty') === 'on_duty';
+    return [
+        'name' => (string) (($r['full_name'] ?? '') !== '' ? $r['full_name'] : 'Rescuer'),
+        'contact' => (string) (($r['phone_number'] ?? '') !== '' ? $r['phone_number'] : (($r['email'] ?? '') !== '' ? $r['email'] : '—')),
+        'duty' => $onDuty ? 'On duty' : 'Off duty',
+        'dutyCls' => $onDuty ? 'stamp--accent' : 'stamp--muted',
+        'when' => time_ago($r['duty_updated_at'] ?? null),
+    ];
+}
+
+function personnel_rows_html(array $rows): string
+{
+    $html = '';
+    foreach ($rows as $r) {
+        $html .= "
+    <tr>
+      <td class=\"table-cell table-cell--strong\">" . e($r['name']) . "</td>
+      <td class=\"table-cell\">" . e($r['contact']) . "</td>
+      <td class=\"table-cell\"><span class=\"stamp stamp--sm " . e($r['dutyCls']) . "\">" . e($r['duty']) . "</span></td>
+      <td class=\"table-cell table-cell--mono table-cell--muted\">" . e($r['when']) . '</td>
+    </tr>';
+    }
+    return $html;
 }
 
 function health_rows_html(array $rows): string

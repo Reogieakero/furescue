@@ -9,7 +9,7 @@
 | White | White | `#FFFFFF` |
 | Tertiary | Soft Gray | `#E8E4E4` |
 
-Tokens live in `public/css/input.css` (`:root` / `.dark`) and are mapped in `tailwind.config.js`. Prefer tokens over raw hex.
+Tokens live in `public/assets/css/tokens.css` (`:root` / `.dark`) and are mapped in `tailwind.config.js`. Prefer tokens over raw hex. The Tailwind entry is `public/assets/css/input.css`; the compiled sheet is `public/assets/css/style.css`.
 
 ## Typography
 
@@ -23,8 +23,8 @@ Tokens live in `public/css/input.css` (`:root` / `.dark`) and are mapped in `tai
 
 Shared primitive for admin summary stats (dashboard, reports, cases, rescuers, health). White card on the paper page background: **icon well left**, **label / value / trend** stacked right.
 
-**Source of truth:** `public/css/input.css`  
-**JS helper:** `public/js/components/kpi-card.js`
+**Source of truth:** `public/assets/css/components/kpi.css`  
+**JS helper:** `public/assets/js/components/kpi-card.js`
 
 ### Do not use
 
@@ -66,7 +66,7 @@ Trend: `--kpi-trend-up`, `--kpi-trend-down`. Neutral uses `--muted-foreground`. 
 ### JS helper
 
 ```js
-import { KpiCard, KpiGrid } from "/js/components/kpi-card.js";
+import { KpiCard, KpiGrid } from "/assets/js/components/kpi-card.js";
 
 KpiCard({
   icon: "folder-kanban",       // Lucide name → data-lucide

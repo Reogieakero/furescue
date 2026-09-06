@@ -65,16 +65,24 @@ class MessageController extends AbstractController
     public function send(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('receiver_id')->string(36)
+        $v->required('receiver_id')->uuid('receiver_id')
             ->required('related_type')->in('related_type', ['report','case','adoption'])
-            ->required('related_id')->string(36)
-            ->required('message_text')->string(4000);
+            ->required('related_id')->uuid('related_id')
+            ->required('message_text')->string('message_text', 4000);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
         }
         if ($req->body['receiver_id'] === $req->user['id']) {
             Response::error('INVALID_RECEIVER', 'Cannot message yourself', 422);
+            return;
+        }
+        $receiver = $this->repo('users')->find($req->body['receiver_id']);
+        if (!$receiver) {
+            Response::error('NOT_FOUND', 'Receiver not found', 404);
+            return;
+        }
+        if (!$this->assertRelatedAccess($req, $req->body['related_type'], $req->body['related_id'])) {
             return;
         }
         $id = $this->repo('messages')->create([
@@ -95,9 +103,12 @@ class MessageController extends AbstractController
     {
         $v = new \App\Validation\Validator($req->query);
         $v->required('related_type')->in('related_type', ['report','case','adoption'])
-            ->required('related_id')->string(36);
+            ->required('related_id')->uuid('related_id');
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
+            return;
+        }
+        if (!$this->assertRelatedAccess($req, $req->query['related_type'], $req->query['related_id'])) {
             return;
         }
         $rows = $this->repo('messages')->all(
@@ -121,5 +132,48 @@ class MessageController extends AbstractController
         }
         $repo->update($msg['id'], ['read_at' => date('Y-m-d H:i:s')]);
         Response::success(['message' => $repo->find($msg['id'])]);
+    }
+
+    private function assertRelatedAccess(Request $req, string $type, string $id): bool
+    {
+        if ($type === 'report') {
+            $report = $this->repo('reports')->find($id);
+            if (!$report) {
+                Response::error('NOT_FOUND', 'Related report not found', 404);
+                return false;
+            }
+            $isOwner = ($report['resident_id'] ?? null) === ($req->user['id'] ?? null);
+            if (!$isOwner && !in_array('reports.read', $req->permissions, true)) {
+                Response::error('FORBIDDEN', 'Not allowed to message about this report', 403);
+                return false;
+            }
+            return true;
+        }
+        if ($type === 'case') {
+            $case = $this->repo('cases')->find($id);
+            if (!$case) {
+                Response::error('NOT_FOUND', 'Related case not found', 404);
+                return false;
+            }
+            $isAssignee = ($case['assigned_rescuer_id'] ?? null) === ($req->user['id'] ?? null);
+            $canRead = in_array('cases.read', $req->permissions, true)
+                || in_array('cases.assign', $req->permissions, true);
+            if (!$isAssignee && !$canRead) {
+                Response::error('FORBIDDEN', 'Not allowed to message about this case', 403);
+                return false;
+            }
+            return true;
+        }
+        $adoption = $this->repo('adoptions')->find($id);
+        if (!$adoption) {
+            Response::error('NOT_FOUND', 'Related adoption not found', 404);
+            return false;
+        }
+        $isApplicant = ($adoption['applicant_id'] ?? null) === ($req->user['id'] ?? null);
+        if (!$isApplicant && !in_array('adoptions.read', $req->permissions, true)) {
+            Response::error('FORBIDDEN', 'Not allowed to message about this adoption', 403);
+            return false;
+        }
+        return true;
     }
 }

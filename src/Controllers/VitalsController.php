@@ -16,8 +16,8 @@ class VitalsController extends AbstractController
             return;
         }
         $v = new \App\Validation\Validator($req->body);
-        $v->required('animal_id')->string(36)
-            ->required('heart_rate_bpm')->numeric('heart_rate_bpm');
+        $v->required('animal_id')->uuid('animal_id')
+            ->required('heart_rate_bpm')->numeric('heart_rate_bpm')->min('heart_rate_bpm', 1);
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
@@ -44,12 +44,14 @@ class VitalsController extends AbstractController
             return;
         }
         $v = new \App\Validation\Validator($req->body);
-        $v->required('heart_rate_bpm')->numeric('heart_rate_bpm');
+        $v->required('heart_rate_bpm')->numeric('heart_rate_bpm')->min('heart_rate_bpm', 1)
+            ->optional('respiratory_rate_bpm')->numeric('respiratory_rate_bpm');
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
         }
         $data = [
+            'id' => Database::uuidV4(),
             'animal_id' => $req->params['id'],
             'heart_rate_bpm' => (int) $req->body['heart_rate_bpm'],
             'source' => 'manual',
@@ -63,6 +65,9 @@ class VitalsController extends AbstractController
 
     public function list(Request $req): void
     {
+        if ($this->rejectBadQuery($req)) {
+            return;
+        }
         $animal = $this->repo('animals')->find($req->params['id']);
         if (!$animal) {
             Response::error('NOT_FOUND', 'Animal not found', 404);

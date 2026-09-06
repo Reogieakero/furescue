@@ -1,4 +1,4 @@
-import { Button } from "../../js/components/ui/button.js";
+import { Button } from "/shared/components/button/button.js";
 
 export function CTA() {
   return `

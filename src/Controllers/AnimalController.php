@@ -24,6 +24,23 @@ class AnimalController extends AbstractController
 
     public function index(Request $req): void
     {
+        if ($this->rejectBadQuery($req, [
+            'species' => ['dog', 'cat'],
+            'breed_type' => ['aspin', 'puspin'],
+            'sex' => ['male', 'female'],
+            'adoption_status' => ['not_listed', 'available', 'pending', 'adopted'],
+            'source' => ['rescued_case', 'resident_listing'],
+        ])) {
+            return;
+        }
+        if (!empty($req->query['case_id'])) {
+            $idV = new \App\Validation\Validator($req->query);
+            $idV->optional('case_id')->uuid('case_id');
+            if (!$idV->passes()) {
+                Response::error('VALIDATION_ERROR', $idV->firstError(), 400);
+                return;
+            }
+        }
         $where = "WHERE deleted_at IS NULL";
         $params = [];
         foreach (['species', 'breed_type', 'sex', 'adoption_status', 'source', 'case_id'] as $f) {
@@ -70,11 +87,11 @@ class AnimalController extends AbstractController
         $v->required('species')->in('species', ['dog', 'cat'])
             ->required('breed_type')->in('breed_type', ['aspin', 'puspin'])
             ->required('sex')->in('sex', ['male', 'female'])
-            ->optional('name')->string(100)
+            ->optional('name')->string('name', 100)
             ->optional('adoption_status')->in('adoption_status', ['not_listed', 'available', 'pending', 'adopted'])
             ->optional('source')->in('source', ['rescued_case', 'resident_listing'])
-            ->optional('description')->string(2000)
-            ->optional('case_id')->string(36);
+            ->optional('description')->string('description', 2000)
+            ->optional('case_id')->uuid('case_id');
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
@@ -127,7 +144,7 @@ class AnimalController extends AbstractController
             Response::error('NOT_FOUND', 'Animal not found', 404);
             return;
         }
-        $allowed = ['name', 'age_estimate', 'birth_date', 'color_markings', 'description', 'photo_urls', 'model_3d_url', 'photo_360_set', 'adoption_status', 'case_id'];
+        $allowed = ['name', 'age_estimate', 'birth_date', 'color_markings', 'description', 'photo_urls', 'model_3d_url', 'photo_360_set', 'adoption_status', 'case_id', 'species', 'sex'];
         $data = [];
         foreach ($allowed as $f) {
             if (array_key_exists($f, $req->body)) {
@@ -137,6 +154,38 @@ class AnimalController extends AbstractController
                 }
                 $data[$f] = $val;
             }
+        }
+        $v = new \App\Validation\Validator($req->body);
+        if (array_key_exists('name', $req->body)) {
+            $v->optional('name')->string('name', 100);
+        }
+        if (array_key_exists('description', $req->body)) {
+            $v->optional('description')->string('description', 2000);
+        }
+        if (array_key_exists('age_estimate', $req->body)) {
+            $v->optional('age_estimate')->string('age_estimate', 50);
+        }
+        if (array_key_exists('birth_date', $req->body)) {
+            $v->optional('birth_date')->string('birth_date', 32);
+        }
+        if (array_key_exists('color_markings', $req->body)) {
+            $v->optional('color_markings')->string('color_markings', 500);
+        }
+        if (array_key_exists('adoption_status', $req->body)) {
+            $v->optional('adoption_status')->in('adoption_status', ['not_listed', 'available', 'pending', 'adopted']);
+        }
+        if (array_key_exists('species', $req->body)) {
+            $v->optional('species')->in('species', ['dog', 'cat']);
+        }
+        if (array_key_exists('sex', $req->body)) {
+            $v->optional('sex')->in('sex', ['male', 'female']);
+        }
+        if (array_key_exists('case_id', $req->body) && $req->body['case_id'] !== null && $req->body['case_id'] !== '') {
+            $v->optional('case_id')->uuid('case_id');
+        }
+        if (!$v->passes()) {
+            Response::error('VALIDATION_ERROR', $v->firstError(), 400);
+            return;
         }
         $caseId = array_key_exists('case_id', $data) ? $data['case_id'] : null;
         unset($data['case_id']);
@@ -174,7 +223,7 @@ class AnimalController extends AbstractController
         $v = new \App\Validation\Validator($req->body);
         $v->required('rescue_status')->in('rescue_status', ['rescued', 'not_rescued'])
             ->required('health_status')->in('health_status', ['healthy', 'not_healthy'])
-            ->optional('case_id')->string(36);
+            ->optional('case_id')->uuid('case_id');
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;

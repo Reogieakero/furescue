@@ -28,6 +28,7 @@ FurEscue runs on **one server**: a single PHP built-in server serves both the AP
    ```ini
    extension=mysqli
    extension=pdo_mysql
+   extension=pdo_sqlite
    extension=openssl
    extension=mbstring
    extension=curl
@@ -120,11 +121,28 @@ php bin\migrate.php
 ```
 You should see each SQL file reported as `apply ...`. This creates all tables.
 
-### Step 10 — Seed the demo data (optional but recommended)
+### Step 10 — Seed data (optional)
+
+Auth-only (users, roles, permissions — no reports or medical records):
+```bat
+php seeders\seed_users.php
+```
+
+Full demo dataset (about 100+ rows per domain — reports, cases, animals, health, adoptions, messages, notifications, e-learning):
 ```bat
 php seeders\seed.php
 ```
-This creates the admin/rescuer/resident accounts and a full demo dataset (reports, cases, animals, adoptions, e-learning, notifications). It is **idempotent** — safe to re-run at any time.
+
+`seed.php` is an orchestrator. Domain files can also be run on their own after accounts exist: `seed_accounts.php`, `seed_reports.php`, `seed_cases.php`, `seed_animals.php`, `seed_health.php`, `seed_adoptions.php`, `seed_messages.php`, `seed_notifications.php`, `seed_elearning.php`.
+
+Both are **idempotent** — safe to re-run. To wipe the database and start over:
+
+```bat
+php bin\migrate.php --fresh --yes
+php seeders\seed_users.php
+```
+
+`--fresh` drops every table, then re-applies all migrations. `--yes` is required so a wipe cannot happen by accident.
 
 ### Step 11 — Start the server
 One command from the repo root starts everything — API and pages on the same origin:
@@ -152,7 +170,7 @@ In a **second** terminal, from the repo root:
 npm install
 npm run build
 ```
-`npm run build` compiles `public/css/input.css` → `public/css/style.css`. Use `npm run watch` if you will edit styles.
+`npm run build` copies `clsx` / `tailwind-merge` / `cva` into `public/assets/js/vendor/`, rebuilds the Lucide subset, and compiles `public/assets/css/input.css` → `public/assets/css/style.css`. Use `npm run watch` if you will edit styles.
 
 ### Step 13 — Open the system
 With the server from Step 11 running, open in your browser:
@@ -188,7 +206,7 @@ All seeded accounts use the password **`Password123!`**:
 | `PHP Warning: Module "mysqli" is already loaded` | Harmless — appears on some setups, ignore it. |
 | API returns `500 SERVER_ERROR` | Check `.env` secret values are set; run `php bin\migrate.php` again. |
 | Map tiles blank | Requires internet access (Leaflet + OSM tiles load from CDN). |
-| Styling looks unstyled | Run `npm run build` from the repo root so `public/css/style.css` exists. |
+| Styling looks unstyled | Run `npm run build` from the repo root so `public/assets/css/style.css` exists. |
 | `composer` not recognized | Reinstall Composer and open a new terminal. |
 | Port 8000 already in use | Change the port in the Step 11 command and use that same port in the Step 13 URLs. The browser code calls `/api/v1` relative to the page origin, so no JS changes are needed. |
 
@@ -201,10 +219,25 @@ All from the repo root:
 ```bat
 composer install
 php bin\migrate.php
+php bin\migrate.php --fresh --yes
+php seeders\seed_users.php
 php seeders\seed.php
 php -S 127.0.0.1:8000 -t public public\index.php
 
 npm install
-npm run build      :: one-time compile
+npm run build      :: vendor ESM + Lucide subset + Tailwind
 npm run watch      :: auto recompile while editing
 ```
+
+## 6. Tests
+
+PHPUnit 10 is the only test runner. Tests are in-process (they call `Router::dispatch()` against an in-memory SQLite database). There is no live `php -S` client and no second framework (Pest, Codeception, Guzzle).
+
+Enable `extension=pdo_sqlite` in `php.ini` (listed in Step 1). About 31 older tests already skip when that driver is missing; the new `tests/Api/*` contract suite requires it and will skip the whole class without it.
+
+```bat
+php vendor\phpunit\phpunit\phpunit
+php vendor\phpunit\phpunit\phpunit --filter Api
+```
+
+`composer test` is a shortcut for the same PHPUnit binary.

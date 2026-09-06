@@ -1,0 +1,31 @@
+/* Folded from admin 02_btn.css — .stamp. */
+
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1.5px solid currentColor;
+  padding: 0.15rem 0.5rem;
+  line-height: 1.4;
+}
+.stamp--sm {
+  font-size: 9px;
+  padding: 0.1rem 0.4rem;
+}
+.stamp--accent {
+  color: hsl(var(--jungle2));
+}
+.stamp--coral {
+  color: hsl(var(--coral));
+}
+.stamp--muted {
+  color: hsl(var(--stamp));
+}
+.stamp--jungle {
+  color: hsl(152, 58%, 34%);
+}

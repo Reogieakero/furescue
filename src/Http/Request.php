@@ -12,6 +12,7 @@ class Request
     public ?array $user = null;
     public array $permissions = [];
     public array $params = [];
+    public bool $invalidJson = false;
 
     public function __construct()
     {
@@ -57,7 +58,8 @@ class Request
             return [];
         }
         $decoded = json_decode($raw, true);
-        if (!is_array($decoded)) {
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
+            $this->invalidJson = true;
             return [];
         }
         return $decoded;

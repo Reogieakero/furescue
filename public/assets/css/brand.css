@@ -1,0 +1,27 @@
+/* Moved from public/css/input.css — .logo-mark / .brand. */
+
+.logo-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, hsl(var(--brand-1)), hsl(var(--brand-2)));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--primary-foreground));
+  box-shadow: var(--shadow-sm);
+}
+
+.logo-mark .lucide {
+  width: 18px;
+  height: 18px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: 1.05rem;
+}

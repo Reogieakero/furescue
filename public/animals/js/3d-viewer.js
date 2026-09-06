@@ -1,5 +1,5 @@
 import { createIcons, icons } from "lucide";
-import { esc } from "../../js/lib/format.js";
+import { esc } from "/assets/js/lib/format.js";
 
 function openModal({ title, icon = "rotate-3d", wide = true }) {
   const overlay = document.createElement("div");

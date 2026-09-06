@@ -18,11 +18,29 @@ $dotenv->safeLoad();
 
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 if ($uri === '/' || $uri === '/index.html' || $uri === '/index.php') {
-    require __DIR__ . '/includes/homepage.php';
+    require_once dirname(__DIR__) . '/views/path.php';
+    require views_path('home/landing.php');
     exit;
 }
 $docRoot = realpath(__DIR__);
 $requestPath = realpath(__DIR__ . rawurldecode((string) $uri));
+$sharedComponents = $docRoot !== false
+    ? $docRoot . DIRECTORY_SEPARATOR . 'shared' . DIRECTORY_SEPARATOR . 'components'
+    : false;
+if (
+    $sharedComponents !== false
+    && $requestPath !== false
+    && str_starts_with($requestPath, $sharedComponents . DIRECTORY_SEPARATOR)
+    && (
+        (is_file($requestPath) && str_ends_with(strtolower($requestPath), '.php'))
+        || (is_dir($requestPath) && is_file($requestPath . DIRECTORY_SEPARATOR . 'index.php'))
+    )
+) {
+    http_response_code(404);
+    header('Content-Type: text/plain; charset=UTF-8');
+    echo 'Not Found';
+    exit;
+}
 if ($docRoot !== false && $requestPath !== false && str_starts_with($requestPath, $docRoot . DIRECTORY_SEPARATOR) && is_file($requestPath)) {
     return false;
 }
@@ -38,7 +56,8 @@ if (
         header('Location: ' . rtrim((string) $uri, '/') . '/' . ($query !== null ? '?' . $query : ''), true, 302);
         exit;
     }
-    return false;
+    require $requestPath . DIRECTORY_SEPARATOR . 'index.php';
+    exit;
 }
 if (is_string($uri) && str_starts_with($uri, '/uploads/')) {
     $file = __DIR__ . $uri;

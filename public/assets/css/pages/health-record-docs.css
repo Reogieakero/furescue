@@ -1,0 +1,186 @@
+/* Folded from admin 14_health-record.css — graph / docs / adoption toast. */
+
+/* Heart-rate trend graph */
+.hr-graph {
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+  margin: 16px 0 4px;
+  padding: 12px 14px;
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  background: hsl(var(--background));
+}
+.hr-vital-list {
+  overflow: hidden;
+}
+
+/* Document actions (edit / delete) in the documents table */
+.hr-doc-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.hr-doc-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  background: hsl(var(--background));
+  color: hsl(var(--primary));
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.hr-doc-link:hover {
+  background: hsl(var(--secondary));
+}
+.hr-doc-link .lucide {
+  width: 15px;
+  height: 15px;
+}
+.hr-doc-filename {
+  font-size: 0.72rem;
+  color: hsl(var(--muted-foreground));
+  overflow-wrap: anywhere;
+}
+.hr-doc-link--danger {
+  color: hsl(var(--destructive));
+}
+.hr-doc-link--danger:hover {
+  background: hsl(var(--destructive) / 0.12);
+}
+
+/* Mobile responsiveness — prevent profile/overview cards from overlapping */
+@media (max-width: 760px) {
+  .hr-grid,
+  .hr-trio {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .hr-trio {
+    min-height: 0;
+  }
+  .hr-trio-col {
+    min-width: 0;
+  }
+  .hr-profile {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hr-photo,
+  .hr-photo--ph {
+    width: 100%;
+    height: 200px;
+  }
+  .hr-profile-info,
+  .hr-info-card {
+    min-width: 0;
+  }
+  .hr-profile-name,
+  .hr-detail-value,
+  .hr-detail-label {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .hr-detail-list {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .hr-detail-row {
+    grid-template-columns: 18px 1fr;
+  }
+  .hr-overview-body .hr-subcards {
+    grid-template-columns: 1fr 1fr;
+  }
+  .hr-form-row {
+    grid-template-columns: 1fr;
+  }
+  .hr-profile-panel,
+  .hr-overview-panel {
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
+/* Adoption-ready persistent toast with countdown */
+.toast--adoption {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+}
+.toast-adoption-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+.toast--adoption .toast-message {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.toast-countdown {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+}
+.toast-countdown-bar {
+  flex: 1 1 8rem;
+  min-width: 0;
+  height: 6px;
+  border-radius: 999px;
+  background: hsl(var(--muted));
+  overflow: hidden;
+}
+.toast-countdown-fill {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border-radius: 999px;
+  background: hsl(var(--jungle2));
+  transition: width 1s linear;
+}
+.toast-countdown-text {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  color: hsl(var(--muted-foreground));
+  font-variant-numeric: tabular-nums;
+}
+.toast-adoption-btn {
+  align-self: stretch;
+  width: 100%;
+  margin-top: 4px;
+  padding: 0.55rem 0.9rem;
+  border: 0;
+  border-radius: var(--radius);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.toast-adoption-btn:hover:not(:disabled) {
+  background: hsl(var(--primary) / 0.88);
+}
+.toast-adoption-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.35);
+}
+.toast-adoption-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Adoption-ready toast: same top-center stack, separate viewport so it can persist. */
+.toast-viewport--adoption {
+  align-items: center;
+}
+

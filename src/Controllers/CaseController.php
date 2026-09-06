@@ -29,6 +29,19 @@ class CaseController extends AbstractController
 
     public function index(Request $req): void
     {
+        if ($this->rejectBadQuery($req, [
+            'status' => ['open', 'assigned', 'in_progress', 'resolved'],
+        ])) {
+            return;
+        }
+        if (!empty($req->query['assigned_rescuer_id'])) {
+            $idV = new \App\Validation\Validator($req->query);
+            $idV->optional('assigned_rescuer_id')->uuid('assigned_rescuer_id');
+            if (!$idV->passes()) {
+                Response::error('VALIDATION_ERROR', $idV->firstError(), 400);
+                return;
+            }
+        }
         $where = [];
         $params = [];
         if (!in_array('cases.assign', $req->permissions, true)) {
@@ -84,7 +97,7 @@ class CaseController extends AbstractController
     public function assign(Request $req): void
     {
         $v = new \App\Validation\Validator($req->body);
-        $v->required('rescuer_id')->string(36);
+        $v->required('rescuer_id')->uuid('rescuer_id');
         if (!$v->passes()) {
             Response::error('VALIDATION_ERROR', $v->firstError(), 400);
             return;
@@ -94,8 +107,8 @@ class CaseController extends AbstractController
             Response::error('NOT_FOUND', 'Case not found', 404);
             return;
         }
-        if (!in_array($case->status(), ['open', 'assigned'], true)) {
-            Response::error('INVALID_STATUS', 'Case can only be assigned when open or assigned', 422);
+        if (!in_array($case->status(), ['open', 'assigned', 'in_progress'], true)) {
+            Response::error('INVALID_STATUS', 'Case can only be assigned when open, assigned, or in progress', 422);
             return;
         }
 

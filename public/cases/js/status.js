@@ -1,4 +1,4 @@
-import { esc } from "../../js/lib/format.js";
+import { esc } from "/assets/js/lib/format.js";
 
 /** DB status → display label only. Never send these strings back to the API. */
 const STATUS_LABELS = {

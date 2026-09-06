@@ -1,0 +1,153 @@
+/* Folded from admin 11_animal-grid.css — side panel / add form. */
+
+/* Right side panel */
+.animal-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.animal-side .panel {
+  margin-bottom: 0;
+}
+
+.mini-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+.mini-stat {
+  border: 1px solid rgba(11, 37, 69, 0.12);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mini-stat-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(11, 37, 69, 0.08);
+  color: rgba(11, 37, 69, 0.7);
+}
+.mini-stat-icon .lucide { width: 16px; height: 16px; }
+.mini-stat--jungle .mini-stat-icon { background: hsla(152, 58%, 38%, 0.16); color: hsl(152, 58%, 32%); }
+.mini-stat--accent .mini-stat-icon { background: rgba(220, 234, 246, 0.9); color: hsl(211, 71%, 38%); }
+.mini-stat--muted .mini-stat-icon { background: rgba(11, 37, 69, 0.08); color: rgba(11, 37, 69, 0.6); }
+.mini-stat--coral .mini-stat-icon { background: hsla(12, 76%, 54%, 0.16); color: hsl(12, 76%, 46%); }
+.mini-stat-value {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+.mini-stat-label {
+  font-size: 11px;
+  color: rgba(11, 37, 69, 0.55);
+}
+
+.animal-detail .dialog-info {
+  margin-top: 12px;
+}
+.animal-detail-actions {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.animal-detail-actions-row {
+  display: flex;
+  gap: 10px;
+}
+.animal-detail-actions-row .btn {
+  flex: 1;
+}
+.edit-animal-readonly {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  color: rgba(11, 37, 69, 0.6);
+  margin-bottom: 4px;
+}
+.edit-animal-readonly span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.edit-animal-readonly .lucide {
+  width: 14px;
+  height: 14px;
+  color: hsl(var(--jungle2));
+}
+.animal-detail--empty {
+  padding: 8px;
+}
+.animal-detail--empty .rescuer-detail-empty {
+  padding: 32px 12px;
+}
+
+.add-animal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dialog-hint {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: rgba(11, 37, 69, 0.45);
+  margin-left: 6px;
+}
+
+.aa-photo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aa-photo-preview {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border: 2px dashed rgba(11, 37, 69, 0.2);
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(11, 37, 69, 0.4);
+  background-color: rgba(11, 37, 69, 0.04);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+.aa-photo-preview .lucide {
+  width: 30px;
+  height: 30px;
+}
+.aa-photo-input {
+  font-size: 12px;
+}
+.aa-textarea {
+  min-height: 64px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.add-animal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.add-animal-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}

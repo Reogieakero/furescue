@@ -2,22 +2,9 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/includes/index-data.php';
-require __DIR__ . '/partials/index-kpis.php';
-require __DIR__ . '/partials/index-charts.php';
-require __DIR__ . '/partials/index-queue.php';
-require __DIR__ . '/partials/index-table.php';
-require __DIR__ . '/partials/index-head.php';
-
-$adminChildren = '<div class="hr-list">'
-    . $pageHead . "\n"
-    . "<div id=\"hr-kpis\">{$hrKpisHtml}</div>\n"
-    . $controlsPanel . "\n"
-    . "<div class=\"cols cols--vax\"><div id=\"hr-vax-dog\">{$dogCard}</div><div id=\"hr-vax-cat\">{$catCard}</div><div id=\"hr-conditions\">{$conditionsPanel}</div></div>\n"
-    . "<div id=\"hr-trend\">{$trendPanel}</div>\n"
-    . "<div class=\"cols cols--two hr-split-row\"><div id=\"hr-stacked\">{$stackedPanel}</div><div id=\"hr-queue\">{$queuePanel}</div></div>\n"
-    . "<div id=\"hr-records\">{$recordsPanel}</div>"
-    . '</div>';
+require_once dirname(__DIR__, 3) . '/views/path.php';
+require views_path('admin/health-records/index-data.php');
+require views_path('admin/health-records/index.php');
 
 $uid = (string) $_SESSION['user']['id'];
 $role = (string) ($_SESSION['user']['role'] ?? '');
@@ -57,7 +44,7 @@ $navBadges = [
 ];
 
 ob_start();
-require __DIR__ . '/../../includes/admin-shell.php';
+require views_path('layouts/admin.php');
 $pageHtml = (string) ob_get_clean();
 
 $pageTitle = 'FurEscue — Health Records';
@@ -65,7 +52,7 @@ $pageDescription = 'FurEscue admin health records — vaccinations, checkups, co
 $pageCss = ['/admin/css/admin.css', '/admin/health-records/css/health-records-list.css'];
 $fontsHref = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap';
 $importMapExtras = ['chart.js' => 'https://esm.sh/chart.js@4.4.4/auto'];
-require __DIR__ . '/../../includes/site-head.php';
+require views_path('components/site-head.php');
 ?>
   <body>
     <div id="app"><?= $pageHtml ?></div>

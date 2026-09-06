@@ -1,8 +1,8 @@
 import { createIcons, icons } from "lucide";
-import { apiFetchFull, redirectToLogin } from "../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../js/lib/page-auth.js";
-import { initResidentShell } from "../../js/components/resident-shell.js";
-import { esc } from "../../js/lib/format.js";
+import { apiFetchFull, redirectToLogin } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initResidentShell } from "/assets/js/components/resident-shell.js";
+import { esc } from "/assets/js/lib/format.js";
 import { openModelViewer, open360Viewer } from "./3d-viewer.js";
 import { openApplyModal } from "./apply-modal.js";
 
@@ -272,7 +272,7 @@ function boot() {
         <i data-lucide="cat"></i>
         <p class="rempty-title">Profile unavailable</p>
         <p class="rempty-text">${esc(err.message || "This animal could not be loaded.")}</p>
-        <a href="/animals/" class="rbtn rbtn--ghost"><i data-lucide="arrow-left"></i><span>Back to gallery</span></a>
+        <a href="/animals/" class="rbtn rbtn--ghost rbtn--sm"><i data-lucide="arrow-left"></i><span>Back to gallery</span></a>
       </div>`;
       createIcons({ icons });
     });

@@ -53,4 +53,14 @@ class UserTest extends TestCase
 
         $this->assertSame($expected, User::fromRow(self::ROW)->toArray());
     }
+
+    public function testProfilePhotoUrlRoundTrips(): void
+    {
+        $row = self::ROW;
+        $row['profile_photo_url'] = '/uploads/users/29cad7f9-987b-491d-8adc-bee601b0a1de.png';
+        $user = User::fromRow($row);
+
+        $this->assertSame($row['profile_photo_url'], $user->profilePhotoUrl());
+        $this->assertSame($row['profile_photo_url'], $user->toArray()['profile_photo_url']);
+    }
 }

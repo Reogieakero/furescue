@@ -1,4 +1,4 @@
-import { Stepper } from "../../js/components/ui/marker.js";
+import { Stepper } from "/shared/components/marker/marker.js";
 
 const steps = [
   {

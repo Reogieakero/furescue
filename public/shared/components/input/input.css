@@ -1,0 +1,188 @@
+.input {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.5rem;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  padding: 0 0.75rem;
+  font: inherit;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+select.input {
+  cursor: pointer;
+}
+
+.input::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+.input:focus {
+  outline: none;
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.25);
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input--area {
+  height: auto;
+  min-height: 6.5rem;
+  padding: 0.625rem 0.75rem;
+  resize: vertical;
+}
+
+/* Leading-icon field (forms). Search chrome is in search/search.css. */
+.input-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-icon:focus-within {
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.25);
+}
+
+.input-icon > .lucide,
+.input-icon > [data-lucide] {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+}
+
+.input-icon .input,
+.input-icon input,
+.input-icon select {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  height: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  font: inherit;
+  font-size: 0.875rem;
+  color: inherit;
+}
+
+.input-icon .input:focus,
+.input-icon input:focus,
+.input-icon select:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.input-icon .input::placeholder,
+.input-icon input::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+.input-icon select,
+.input-icon select.input {
+  cursor: pointer;
+}
+
+.file-attach {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.file-attach__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.file-attach__title .lucide {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.file-attach__pick {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.file-attach__pick .lucide {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.file-attach__pick input[type="file"] {
+  display: block;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+.file-attach__names,
+.file-attach__current {
+  margin: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.file-attach__remove {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  min-width: 0;
+}
+
+.file-attach__remove input {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+.file-attach details {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.file-attach details .dialog-input,
+.file-attach details textarea {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 0.35rem;
+  box-sizing: border-box;
+}
+
+.file-attach summary {
+  cursor: pointer;
+}

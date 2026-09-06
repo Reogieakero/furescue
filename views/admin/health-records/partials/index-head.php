@@ -1,0 +1,54 @@
+<?php
+
+require_once shared_path('search/search.php');
+
+// ui/button.js final tailwind-merge-resolved string (cva base incl. disabled:* groups
+// which shared BTN_BASE lacks — same local-emission pattern as reports/rescuers units).
+const HR_BTN_BASE = 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50';
+$hrExportCsvButton = '<button type="button" class="' . e(trim(HR_BTN_BASE . ' border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-4')) . '" data-export="csv"><i data-lucide="download" class="icon"></i><span>Export CSV</span></button>';
+
+// ---- Page head + controls ---------------------------------------------------
+$pageHead = '
+  <div class="page-head">
+    <div>
+      <span class="stamp stamp--coral">Animal Management</span>
+      <h1 class="page-title">Health Records</h1>
+      <p class="page-sub">Track vaccinations, checkups, conditions, and vitals across the shelter population.</p>
+    </div>
+    <div class="page-head-actions">
+      ' . $hrExportCsvButton . '
+      <button type="button" class="btn-see-animals" data-animals-open><i data-lucide="paw-print"></i><span>See animals</span></button>
+    </div>
+  </div>';
+
+$controlsPanel = '
+    <div class="hr-toolbar">
+    ' . toolbar_html(
+        search_control('hr-search', 'Search animal, barangay, condition, vet, id…')
+        . '<div class="report-sort">
+        <label for="hr-range" class="report-sort-label">Range</label>
+        ' . select_control('hr-range', [
+            ['value' => '30d', 'label' => 'Last 30 days'],
+            ['value' => '90d', 'label' => 'Last 90 days'],
+            ['value' => '12mo', 'label' => 'Last 12 months'],
+        ], '30d', 'Range') . '
+      </div>'
+    ) . '
+  </div>';
+
+$trendPanel = '
+  <div class="panel panel--padded">
+    <div class="panel-title-wrap"><i data-lucide="activity"></i><h2 class="panel-title panel-title--sm">Checkups &amp; treatments</h2></div>
+    <div class="hr-chart"><canvas id="hr-trend-canvas"></canvas></div>
+  </div>';
+
+$stackedToggle = ''
+    . '<button type="button" class="q-btn is-active" data-species="all">All &middot; ' . e((string) $countsAll) . '</button>'
+    . '<button type="button" class="q-btn" data-species="dog">Dogs &middot; ' . e((string) $countsDog) . '</button>'
+    . '<button type="button" class="q-btn" data-species="cat">Cats &middot; ' . e((string) $countsCat) . '</button>';
+$stackedPanel = '
+  <div class="panel panel--padded">
+    <div class="panel-title-wrap"><i data-lucide="bar-chart-3"></i><h2 class="panel-title panel-title--sm">Health by barangay</h2></div>
+    <div class="report-sort" style="margin:8px 0 12px;">' . filter_tabs_html('hr-species-tabs', $stackedToggle) . '</div>
+    <div class="hr-chart"><canvas id="hr-stacked-canvas"></canvas></div>
+  </div>';

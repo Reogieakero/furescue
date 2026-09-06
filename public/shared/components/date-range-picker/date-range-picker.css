@@ -1,0 +1,131 @@
+/* One-month range panel. Calendar cells live in date-picker.css. */
+
+.dp-range .dp-popover {
+  display: grid;
+  gap: 0.55rem;
+  width: min(17.75rem, calc(100vw - 1rem));
+  padding: 0.65rem 0.7rem 0.7rem;
+}
+
+.dp-range .dp-popover[hidden] {
+  display: none;
+}
+
+.dp-range .dp-cals {
+  display: block;
+  min-width: 0;
+}
+
+.dp-range .dp-cal-head {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr) 1.75rem;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.dp-range .dp-cal-title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.dp-range .dp-nav {
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+}
+
+.dp-range .dp-nav:hover {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.dp-range-error {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: hsl(var(--destructive));
+}
+
+.dp-range-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.dp-range-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.dp-range-today,
+.dp-range-clear,
+.dp-range-apply {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 1.75rem;
+  min-height: 1.75rem;
+  min-width: 1.75rem;
+  padding: 0 0.55rem;
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dp-range-today {
+  margin-right: auto;
+}
+
+.dp-range-today,
+.dp-range-clear {
+  border: 0;
+  background: transparent;
+  color: hsl(var(--foreground));
+}
+
+.dp-range-today:hover,
+.dp-range-clear:hover {
+  color: hsl(var(--ink));
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.dp-range-apply {
+  border: 1px solid hsl(var(--primary));
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.dp-range-apply:hover {
+  background: hsl(var(--jungle));
+  border-color: hsl(var(--jungle));
+}
+
+.dp-range-today:focus-visible,
+.dp-range-clear:focus-visible,
+.dp-range-apply:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dp-range-today,
+  .dp-range-clear,
+  .dp-range-apply {
+    transition: none;
+  }
+}

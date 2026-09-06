@@ -1,13 +1,14 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth } from "/js/lib/api.js";
-import { bootstrapPageAuth } from "/js/lib/page-auth.js";
-import { initShell } from "/admin/js/layout/app-shell.js";
-import { initDropdownMenu } from "/js/components/ui/dropdown-menu.js";
-import { state, loadCaseDetail, hydrateFromCache } from "./pages/case-detail/state.js";
-import { CaseDetailPage, initCaseDetailEvents } from "./pages/case-detail/components.js";
-import "./pages/case-detail/components/register-animal.js";
-import { loadCases } from "./pages/cases/state.js";
-import { getCase } from "./pages/cases/components/util.js";
+import { requireAuth } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initShell } from "/assets/js/admin/app-shell.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
+import { Button } from "/shared/components/button/button.js";
+import { state, loadCaseDetail, hydrateFromCache } from "./case-detail/state.js";
+import { CaseDetailPage, initCaseDetailEvents } from "./case-detail/components.js";
+import "./case-detail/components/register-animal.js";
+import { loadCases } from "./state.js";
+import { getCase } from "./components/util.js";
 
 function getCaseId() {
   const params = new URLSearchParams(window.location.search);
@@ -23,7 +24,7 @@ function renderNotFound() {
         <div class="empty-state" style="margin-top:48px">
           <i data-lucide="alert-circle"></i>
           <span>${""}</span>
-          <a href="/admin/cases/" class="cd-back"><i data-lucide="arrow-left"></i> Back to cases</a>
+          ${Button({ text: "Back to cases", variant: "outline", size: "sm", icon: "arrow-left", href: "/admin/cases/" })}
         </div>
       </main>
     </div>`;

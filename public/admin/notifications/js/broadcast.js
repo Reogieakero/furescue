@@ -1,11 +1,13 @@
 import { createIcons, icons } from "lucide";
-import { requireAuth, apiFetchFull } from "../../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../../js/lib/page-auth.js";
-import { fetchRecentBroadcasts } from "../../js/lib/admin-data.js";
-import { initShell } from "../../js/layout/app-shell.js";
-import { initDropdownMenu } from "../../../js/components/ui/dropdown-menu.js";
-import { initSelect } from "../../../js/components/ui/select.js";
-import { toast } from "../../../js/components/ui/toast.js";
+import { requireAuth, apiFetchFull } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { fetchRecentBroadcasts } from "/assets/js/admin/admin-data.js";
+import { initShell } from "/assets/js/admin/app-shell.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
+import { initSelect } from "/shared/components/select/select.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { EmptyState } from "/shared/components/empty-state/empty-state.js";
+import { confirmDialog } from "/shared/components/dialog/dialog.js";
 
 const MAX_LENGTH = 1000;
 
@@ -14,6 +16,13 @@ const TARGET_MAP = {
   "role:resident": ["role:resident"],
   "role:rescuer": ["role:rescuer"],
   staff: ["role:admin", "role:rescuer"],
+};
+
+const TARGET_LABELS = {
+  all: "everyone",
+  "role:resident": "residents",
+  "role:rescuer": "rescuers",
+  staff: "staff (admins and rescuers)",
 };
 
 let selectedTarget = "all";
@@ -43,7 +52,7 @@ function timeAgo(value) {
 }
 
 function emptyState(icon, text) {
-  return `<div class="empty-state"><i data-lucide="${icon}"></i><span>${esc(text)}</span></div>`;
+  return EmptyState({ icon, text });
 }
 
 function rowHtml(broadcast) {
@@ -118,9 +127,20 @@ function initForm() {
       messageEl?.focus();
       return;
     }
-    const targets = TARGET_MAP[selectedTarget] || TARGET_MAP.all;
+    const audience = TARGET_LABELS[selectedTarget] || "the selected audience";
     inFlight = true;
     sendBtn.disabled = true;
+    const ok = await confirmDialog({
+      title: "Send this announcement?",
+      message: `This will notify ${audience}.`,
+      confirmText: "Send",
+    });
+    if (!ok) {
+      inFlight = false;
+      sendBtn.disabled = false;
+      return;
+    }
+    const targets = TARGET_MAP[selectedTarget] || TARGET_MAP.all;
     try {
       const payload = await apiFetchFull("/admin/notifications/broadcast", {
         method: "POST",

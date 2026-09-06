@@ -1,16 +1,19 @@
 import { createIcons, icons } from "lucide";
-import { API_BASE_URL, getAccessToken } from "../../../js/lib/api.js";
-import { bootstrapPageAuth } from "../../../js/lib/page-auth.js";
-import { initShell } from "../../js/layout/app-shell.js";
-import { initDropdownMenu } from "../../../js/components/ui/dropdown-menu.js";
-import { toast } from "../../../js/components/ui/toast.js";
-import { renderAll } from "./pages/analytics/render.js";
+import { API_BASE_URL, getAccessToken } from "/assets/js/lib/api.js";
+import { bootstrapPageAuth } from "/assets/js/lib/page-auth.js";
+import { initShell } from "/assets/js/admin/app-shell.js";
+import { initDropdownMenu } from "/shared/components/dropdown-menu/dropdown-menu.js";
+import { toast } from "/shared/components/toast/toast.js";
+import { OVERVIEW_LABELS } from "./format.js";
+import { renderAll } from "./render.js";
+import { initDateRangePicker } from "/shared/components/date-range-picker/date-range-picker.js";
 
 const state = {
   range: { start: "", end: "" },
   overview: [],
   trends: [],
   updates: [],
+  personnel: [],
 };
 
 const EXPORT_PATHS = {
@@ -31,14 +34,6 @@ function rangeQuery() {
   if (state.range.end) params.set("end", state.range.end);
   const qs = params.toString();
   return qs ? `?${qs}` : "";
-}
-
-function updateRangeLabel() {
-  const el = document.getElementById("range-label");
-  if (!el) return;
-  el.textContent = state.range.start && state.range.end
-    ? `${state.range.start} to ${state.range.end}`
-    : "Last 30 adoption days · 50 latest health updates";
 }
 
 async function apiFetchJson(path) {
@@ -65,15 +60,19 @@ async function apiData(path) {
 
 async function refreshData() {
   const qs = rangeQuery();
-  const [overview, trends, updates] = await Promise.all([
+  const [overview, trends, updates, personnel] = await Promise.all([
     apiData(JSON_PATHS.overview + qs),
     apiData(JSON_PATHS.trends + qs),
     apiData(JSON_PATHS.updates + qs),
+    apiData("users?role=rescuer&account_status=active"),
   ]);
   const stats = (overview && overview.stats) || {};
-  state.overview = Object.entries(stats).map(([key, value]) => ({ key, value }));
+  state.overview = Object.entries(stats)
+    .filter(([key]) => OVERVIEW_LABELS[key])
+    .map(([key, value]) => ({ key, value }));
   state.trends = (trends && trends.trends) || [];
   state.updates = (updates && updates.updates) || [];
+  state.personnel = Array.isArray(personnel) ? personnel : [];
   renderAll(state);
   createIcons({ icons });
 }
@@ -108,8 +107,6 @@ function setBusy(busy) {
     el.setAttribute("aria-busy", busy ? "true" : "false");
     if (el.disabled !== undefined) el.disabled = busy;
   });
-  const apply = document.getElementById("range-apply");
-  if (apply) apply.disabled = busy;
 }
 
 function bindEvents() {
@@ -130,51 +127,21 @@ function bindEvents() {
     });
   });
 
-  const applyBtn = document.getElementById("range-apply");
-  const resetBtn = document.getElementById("range-reset");
-  const startInput = document.getElementById("range-start");
-  const endInput = document.getElementById("range-end");
-
-  const readInputs = () => {
-    state.range.start = startInput ? startInput.value.trim() : "";
-    state.range.end = endInput ? endInput.value.trim() : "";
-  };
-
-  applyBtn?.addEventListener("click", async () => {
-    if (applyBtn.disabled) return;
-    readInputs();
-    setBusy(true);
-    try {
-      await refreshData();
-      updateRangeLabel();
-    } catch (err) {
-      console.error(err);
-      toast(err.message || "Could not refresh analytics.", { type: "error" });
-    } finally {
-      setBusy(false);
-    }
-  });
-
-  resetBtn?.addEventListener("click", async () => {
-    if (startInput) startInput.value = "";
-    if (endInput) endInput.value = "";
-    readInputs();
-    setBusy(true);
-    try {
-      await refreshData();
-      updateRangeLabel();
-    } catch (err) {
-      console.error(err);
-      toast(err.message || "Could not refresh analytics.", { type: "error" });
-    } finally {
-      setBusy(false);
-    }
-  });
-
-  endInput?.addEventListener("change", () => {
-    if (startInput && endInput.value && startInput.value && startInput.value > endInput.value) {
-      startInput.value = endInput.value;
-    }
+  const rangeWrap = document.getElementById("analytics-range");
+  initDateRangePicker(rangeWrap, {
+    "analytics-range": async ({ start, end }) => {
+      state.range.start = start || "";
+      state.range.end = end || "";
+      setBusy(true);
+      try {
+        await refreshData();
+      } catch (err) {
+        console.error(err);
+        toast(err.message || "Could not refresh analytics.", { type: "error" });
+      } finally {
+        setBusy(false);
+      }
+    },
   });
 }
 

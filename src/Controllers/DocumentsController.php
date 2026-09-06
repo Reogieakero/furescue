@@ -5,16 +5,19 @@ namespace App\Controllers;
 use App\Database;
 use App\Http\Request;
 use App\Http\Response;
+use App\Services\AnimalAssetUpload;
 
 class DocumentsController extends AbstractController
 {
+    private const MAX_BYTES = 10 * 1024 * 1024;
+
     private const ALLOWED_EXT = [
-        'pdf' => 'application/pdf',
-        'jpg' => 'image/jpeg',
-        'jpeg' => 'image/jpeg',
-        'png' => 'image/png',
-        'gif' => 'image/gif',
-        'webp' => 'image/webp',
+        'pdf' => ['application/pdf', 'application/x-pdf'],
+        'jpg' => ['image/jpeg', 'image/jpg'],
+        'jpeg' => ['image/jpeg', 'image/jpg'],
+        'png' => ['image/png'],
+        'gif' => ['image/gif'],
+        'webp' => ['image/webp'],
     ];
 
     private function uploadsDir(): string
@@ -42,19 +45,16 @@ class DocumentsController extends AbstractController
         $docType = trim((string) ($post['doc_type'] ?? '')) ?: null;
         $meta = trim((string) ($post['meta'] ?? '')) ?: null;
 
-        if ($file && $file['error'] === UPLOAD_ERR_OK && $file['size'] > 0) {
+        if ($file && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
             if ($name === '') {
-                $name = pathinfo($file['name'], PATHINFO_FILENAME);
+                $name = pathinfo((string) ($file['name'] ?? ''), PATHINFO_FILENAME);
             }
-            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-            if (!array_key_exists($ext, self::ALLOWED_EXT)) {
-                Response::error('VALIDATION_ERROR', 'Unsupported file type. Allowed: PDF, JPG, PNG, GIF, WEBP.', 400);
+            $err = AnimalAssetUpload::validate($file, self::ALLOWED_EXT, self::MAX_BYTES);
+            if ($err !== null) {
+                Response::error('VALIDATION_ERROR', $err, 400);
                 return;
             }
-            if (!is_uploaded_file($file['tmp_name'])) {
-                Response::error('VALIDATION_ERROR', 'Invalid upload.', 400);
-                return;
-            }
+            $ext = AnimalAssetUpload::extension((string) ($file['name'] ?? ''));
             $dir = $this->uploadsDir();
             if (!is_dir($dir)) {
                 mkdir($dir, 0755, true);
@@ -93,11 +93,25 @@ class DocumentsController extends AbstractController
             return;
         }
 
+        $v = new \App\Validation\Validator($req->body);
+        if (array_key_exists('name', $req->body)) {
+            $v->optional('name')->string('name', 160);
+        }
+        if (array_key_exists('doc_type', $req->body)) {
+            $v->optional('doc_type')->string('doc_type', 60);
+        }
+        if (array_key_exists('meta', $req->body)) {
+            $v->optional('meta')->string('meta', 160);
+        }
+        if (!$v->passes()) {
+            Response::error('VALIDATION_ERROR', $v->firstError(), 400);
+            return;
+        }
         $data = [];
         foreach (['name', 'doc_type', 'meta'] as $f) {
             if (array_key_exists($f, $req->body)) {
-                $v = $req->body[$f];
-                $data[$f] = $v === '' ? null : (string) $v;
+                $val = $req->body[$f];
+                $data[$f] = $val === '' ? null : (string) $val;
             }
         }
         if (empty($data)) {

@@ -14,7 +14,11 @@ class PermissionsTest extends TestCase
         $this->assertNotEmpty($result);
         $this->assertContains('animals.read', $result);
         $this->assertContains('users.approve_rescuers', $result);
+        $this->assertContains('users.create', $result);
+        $this->assertContains('users.write', $result);
+        $this->assertContains('users.delete', $result);
         $this->assertContains('vitals.ingest', $result);
+        $this->assertNotContains('users.toggle_duty', $result);
     }
 
     public function testRescuerResolvesDefaults(): void
@@ -25,10 +29,17 @@ class PermissionsTest extends TestCase
         $this->assertContains('cases.status_change', $result);
         $this->assertContains('animals.read', $result);
         $this->assertContains('reports.read', $result);
-        $this->assertContains('vitals.read', $result);
-        $this->assertContains('vitals.write', $result);
+        $this->assertContains('animals.vitals.read', $result);
         $this->assertContains('notifications.read', $result);
+        $this->assertContains('elearning.read', $result);
+        $this->assertContains('messages.send', $result);
+        $this->assertContains('messages.read', $result);
+        $this->assertContains('messages.mark_read', $result);
+        $this->assertContains('users.update_self', $result);
+        $this->assertNotContains('vitals.read', $result);
+        $this->assertNotContains('vitals.write', $result);
         $this->assertNotContains('users.approve_rescuers', $result);
+        $this->assertNotContains('users.toggle_duty', $result);
     }
 
     public function testResidentResolvesDefaults(): void
@@ -44,6 +55,7 @@ class PermissionsTest extends TestCase
         $this->assertContains('messages.read', $result);
         $this->assertContains('messages.send', $result);
         $this->assertContains('messages.mark_read', $result);
+        $this->assertContains('users.update_self', $result);
         $this->assertNotContains('reports.read', $result);
         $this->assertNotContains('users.approve_rescuers', $result);
         $this->assertNotContains('adoptions.listings.approve', $result);

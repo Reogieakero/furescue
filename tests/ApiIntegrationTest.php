@@ -118,8 +118,8 @@ class ApiIntegrationTest extends TestCase
 
     public function testListAnimalsReturnsPaginatedEnvelope(): void
     {
-        $this->seedAnimal('animal-1');
-        $this->seedAnimal('animal-2');
+        $this->seedAnimal('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee1');
+        $this->seedAnimal('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2');
 
         $token = $this->register()['body']['data']['tokens']['access_token'];
         $response = $this->call('GET', '/api/v1/animals', [], $token);
@@ -135,13 +135,13 @@ class ApiIntegrationTest extends TestCase
 
     public function testAdoptionApplyOnlyAllowsAvailableAnimals(): void
     {
-        $this->seedAnimal('animal-available', 'available');
-        $this->seedAnimal('animal-listed', 'not_listed');
+        $this->seedAnimal('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee3', 'available');
+        $this->seedAnimal('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee4', 'not_listed');
         $token = $this->register()['body']['data']['tokens']['access_token'];
 
-        $ok = $this->call('POST', '/api/v1/adoptions', ['animal_id' => 'animal-available'], $token);
-        $notAdoptable = $this->call('POST', '/api/v1/adoptions', ['animal_id' => 'animal-listed'], $token);
-        $missingAnimal = $this->call('POST', '/api/v1/adoptions', ['animal_id' => 'nope'], $token);
+        $ok = $this->call('POST', '/api/v1/adoptions', ['animal_id' => 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee3'], $token);
+        $notAdoptable = $this->call('POST', '/api/v1/adoptions', ['animal_id' => 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee4'], $token);
+        $missingAnimal = $this->call('POST', '/api/v1/adoptions', ['animal_id' => 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee5'], $token);
 
         $this->assertTrue($ok['body']['success']);
         $this->assertSame('pending', $ok['body']['data']['adoption']['status']);

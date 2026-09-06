@@ -28,6 +28,7 @@ trait InteractsWithHttp
     protected function observe(callable $handler): array
     {
         Response::$sent = false;
+        Response::$statusCode = 200;
         ob_start();
         try {
             $handler();
@@ -36,7 +37,7 @@ trait InteractsWithHttp
         }
         $decoded = json_decode($raw, true);
         return [
-            'status' => http_response_code(),
+            'status' => Response::$statusCode,
             'body' => is_array($decoded) ? $decoded : [],
             'raw' => $raw,
         ];

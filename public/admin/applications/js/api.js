@@ -1,4 +1,4 @@
-import { apiFetchFull } from "/js/lib/api.js";
+import { apiFetchFull } from "/assets/js/lib/api.js";
 
 const PER_PAGE = 100;
 const MAX_PAGES = 50;

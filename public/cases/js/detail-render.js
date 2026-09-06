@@ -1,5 +1,5 @@
-import { Button } from "../../js/components/ui/button.js";
-import { esc, timeAgo } from "../../js/lib/format.js";
+import { Button } from "/shared/components/button/button.js";
+import { esc, timeAgo } from "/assets/js/lib/format.js";
 import { shortId, statusChip } from "./status.js";
 
 function spec(label, value) {
@@ -124,7 +124,7 @@ export function renderDetailError(message, { missing = false } = {}) {
       <i data-lucide="${missing ? "search-x" : "triangle-alert"}"></i>
       <p class="rempty-title">${missing ? "Case not found" : "Could not load this case"}</p>
       <p class="rempty-text">${esc(message)}</p>
-      <a href="/cases/" class="rbtn rbtn--ghost"><i data-lucide="arrow-left"></i><span>Back to My Cases</span></a>
+      <a href="/cases/" class="rbtn rbtn--ghost rbtn--sm"><i data-lucide="arrow-left"></i><span>Back to My Cases</span></a>
     </div>`;
 }
 

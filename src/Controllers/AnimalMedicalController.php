@@ -31,6 +31,38 @@ class AnimalMedicalController extends AbstractController
             'vaccination_records', 'vaccine_protocols', 'last_checkup_date',
             'deworming_status', 'neutered', 'weight_kg', 'temperature_c',
         ];
+        $v = new \App\Validation\Validator($req->body);
+        if (array_key_exists('medical_history_notes', $req->body)) {
+            $v->optional('medical_history_notes')->string('medical_history_notes', 4000);
+        }
+        if (array_key_exists('vaccination_status', $req->body)) {
+            $v->optional('vaccination_status')->in('vaccination_status', ['none', 'partial', 'complete']);
+        }
+        if (array_key_exists('last_checkup_date', $req->body)) {
+            $v->optional('last_checkup_date')->string('last_checkup_date', 32);
+        }
+        if (array_key_exists('deworming_status', $req->body)) {
+            $v->optional('deworming_status')->in('deworming_status', ['unknown', 'up_to_date', 'overdue']);
+        }
+        if (array_key_exists('neutered', $req->body)) {
+            $neutered = $req->body['neutered'];
+            $neuteredOk = is_bool($neutered)
+                || in_array($neutered, [0, 1, '0', '1', 'true', 'false', 'yes', 'no', 'unknown'], true);
+            if (!$neuteredOk) {
+                Response::error('VALIDATION_ERROR', 'neutered must be a boolean', 400);
+                return;
+            }
+        }
+        if (array_key_exists('weight_kg', $req->body)) {
+            $v->optional('weight_kg')->numeric('weight_kg');
+        }
+        if (array_key_exists('temperature_c', $req->body)) {
+            $v->optional('temperature_c')->numeric('temperature_c');
+        }
+        if (!$v->passes()) {
+            Response::error('VALIDATION_ERROR', $v->firstError(), 400);
+            return;
+        }
         $data = [];
         foreach ($allowed as $f) {
             if (array_key_exists($f, $req->body)) {
